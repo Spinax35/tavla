@@ -1,0 +1,13 @@
+{
+  "name": "tavla-online",
+  "version": "1.0.0",
+  "description": "Bagimsiz calisan, arkadas davet edilebilen coklu oyunculu tavla (backgammon) sitesi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}
