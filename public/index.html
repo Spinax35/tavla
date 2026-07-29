@@ -251,6 +251,11 @@
   .overlay.active{display:flex;}
   .overlay .card{text-align:center;}
   .overlay .display{font-size:1.8rem;color:var(--brass-light);margin-bottom:6px;}
+  .score-display{
+    font-family:'Fraunces',serif;font-size:1.35rem;color:var(--cream);
+    background:#120b06;border:1px solid rgba(201,162,39,0.3);border-radius:9px;
+    padding:10px 14px;margin:6px 0 20px;letter-spacing:0.02em;
+  }
 
   @media(max-width:640px){
     body{padding:14px 8px 40px;}
@@ -428,8 +433,24 @@
   <div class="overlay" id="winOverlay">
     <div class="card">
       <div class="display" id="winText">Oyun bitti</div>
-      <p class="sub">Yeni bir oyun için sayfayı yenileyebilirsin.</p>
-      <button class="btn" onclick="location.reload()">Yeniden Oyna</button>
+      <div class="score-display" id="scoreDisplay"></div>
+
+      <div id="rematchIdle">
+        <button class="btn" id="offerRematchBtn">🔁 Rövanş İste</button>
+        <button class="btn secondary" id="reloadBtn" style="margin-top:10px;">Ana Menüye Dön</button>
+      </div>
+
+      <div id="rematchWaiting" style="display:none;">
+        <p class="hint" id="rematchWaitingText">Rövanş isteği gönderildi, rakibinin cevabı bekleniyor…</p>
+      </div>
+
+      <div id="rematchIncoming" style="display:none;">
+        <p class="sub" id="rematchIncomingText"></p>
+        <div class="row">
+          <button class="btn secondary" id="rematchDeclineBtn">Reddet</button>
+          <button class="btn" id="rematchAcceptBtn">Kabul Et</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -567,8 +588,40 @@ function freshState(hostName){
     players:{ w: hostName, b: null },
     status:'waiting', // waiting | playing | finished
     winner:null,
+    score:{ w:0, b:0 }, // mac skoru — rövanşlarda korunur
     seq:1
   };
+}
+
+// Skoru ve oyuncu isimlerini koruyarak yeni bir tur (rövanş) başlatır.
+// Sadece 'w' tarafı bu fonksiyonu çağırır (oda kurma mantığıyla tutarlı
+// olması için tek bir taraf yetkilidir); diğer taraf gelen 'state'
+// mesajıyla yeni turu otomatik olarak alır.
+function startNewRound(){
+  if(!localGame) return;
+  const prevScore = localGame.score || { w:0, b:0 };
+  const wName = localGame.players.w;
+  const bName = localGame.players.b;
+  const ns = freshState(wName);
+  ns.players.b = bName;
+  ns.status = 'playing';
+  ns.score = prevScore;
+  localGame = ns;
+  selectedPoint = null;
+  undoStack = [];
+  document.getElementById('winOverlay').classList.remove('active');
+  resetRematchUI();
+  pushState();
+  render();
+}
+
+function resetRematchUI(){
+  const idle = document.getElementById('rematchIdle');
+  const waiting = document.getElementById('rematchWaiting');
+  const incoming = document.getElementById('rematchIncoming');
+  if(idle) idle.style.display='block';
+  if(waiting) waiting.style.display='none';
+  if(incoming) incoming.style.display='none';
 }
 
 /* ============ Supabase auth ============ */
@@ -850,12 +903,38 @@ function handleServerMessage(msg){
     if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')){
       enterGame();
     }
+    if(localGame.status!=='finished'){
+      // Yeni tur (rövanş) başlamış olabilir — kazanma ekranını kapat.
+      document.getElementById('winOverlay').classList.remove('active');
+      resetRematchUI();
+    }
     render();
     return;
   }
   if(msg.type==='peer-left'){
     if(localGame && localGame.status==='playing'){
       document.getElementById('statusText').textContent='Arkadaşının bağlantısı kesildi — belki yeniden bağlanır, bekle.';
+    }
+    return;
+  }
+  if(msg.type==='rematchRequest'){
+    document.getElementById('rematchIdle').style.display='none';
+    document.getElementById('rematchWaiting').style.display='none';
+    document.getElementById('rematchIncoming').style.display='block';
+    document.getElementById('rematchIncomingText').textContent =
+      (msg.fromName||'Rakibin') + ' rövanş istiyor. Kabul ediyor musun?';
+    return;
+  }
+  if(msg.type==='rematchResponse'){
+    if(msg.accept){
+      document.getElementById('rematchIdle').style.display='none';
+      document.getElementById('rematchIncoming').style.display='none';
+      document.getElementById('rematchWaiting').style.display='block';
+      document.getElementById('rematchWaitingText').textContent = 'Rakibin kabul etti, yeni tur başlıyor…';
+      if(ME==='w') startNewRound();
+    } else {
+      alert((msg.fromName||'Rakibin') + ' rövanşı reddetti.');
+      resetRematchUI();
     }
     return;
   }
@@ -1165,7 +1244,8 @@ function render(){
   const canDrag = myTurnActive(g);
   const myBarCount = ME==='w'?g.bar.w:g.bar.b;
 
-  document.getElementById('roomTag').textContent='Oda: '+ROOM;
+  const sc = g.score || { w:0, b:0 };
+  document.getElementById('roomTag').textContent='Oda: '+ROOM+'  •  Skor: '+sc.w+' - '+sc.b;
   document.getElementById('nameWhite').textContent = g.players.w || 'Beyaz';
   document.getElementById('nameBlack').textContent = g.players.b || 'Siyah (bekleniyor)';
   document.getElementById('chipWhite').classList.toggle('active-turn', g.turn==='w');
@@ -1288,6 +1368,10 @@ function clearHighlights(){
 function showWin(g){
   const ov=document.getElementById('winOverlay');
   document.getElementById('winText').textContent = (g.winner==='w'?g.players.w:g.players.b) + ' kazandı! 🎉';
+  const score = g.score || { w:0, b:0 };
+  document.getElementById('scoreDisplay').textContent =
+    (g.players.w||'Beyaz') + '  ' + score.w + ' — ' + score.b + '  ' + (g.players.b||'Siyah');
+  if(!ov.classList.contains('active')) resetRematchUI();
   ov.classList.add('active');
 }
 
@@ -1573,8 +1657,9 @@ function applyMoveOnBoard(g, fromIdx, dest){
 async function afterMove(){
   const g=localGame;
   const wasPlaying = g.status==='playing';
-  if(g.off.w>=15){ g.status='finished'; g.winner='w'; }
-  if(g.off.b>=15){ g.status='finished'; g.winner='b'; }
+  if(!g.score) g.score = { w:0, b:0 };
+  if(g.off.w>=15){ g.status='finished'; g.winner='w'; g.score.w=(g.score.w||0)+1; }
+  if(g.off.b>=15){ g.status='finished'; g.winner='b'; g.score.b=(g.score.b||0)+1; }
   if(wasPlaying && g.status==='finished') sfxWin();
 
   if(g.status==='playing'){
@@ -1628,6 +1713,30 @@ document.getElementById('soundToggleBtn').onclick = ()=>{
   if(soundOn) sfxClick();
 };
 document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
+
+/* ============ rövanş (rematch) akışı ============ */
+document.getElementById('offerRematchBtn').onclick = ()=>{
+  wsSend({type:'rematchRequest', fromName: myName});
+  document.getElementById('rematchIdle').style.display='none';
+  document.getElementById('rematchIncoming').style.display='none';
+  document.getElementById('rematchWaiting').style.display='block';
+  document.getElementById('rematchWaitingText').textContent = 'Rövanş isteği gönderildi, rakibinin cevabı bekleniyor…';
+};
+
+document.getElementById('rematchAcceptBtn').onclick = ()=>{
+  wsSend({type:'rematchResponse', accept:true, fromName: myName});
+  document.getElementById('rematchIncoming').style.display='none';
+  document.getElementById('rematchWaiting').style.display='block';
+  document.getElementById('rematchWaitingText').textContent = 'Yeni tur başlıyor…';
+  if(ME==='w') startNewRound();
+};
+
+document.getElementById('rematchDeclineBtn').onclick = ()=>{
+  wsSend({type:'rematchResponse', accept:false, fromName: myName});
+  resetRematchUI();
+};
+
+document.getElementById('reloadBtn').onclick = ()=> location.reload();
 </script>
 </body>
 </html>

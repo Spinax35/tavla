@@ -143,6 +143,23 @@ wss.on('connection', (ws) => {
       return;
     }
 
+    // ---- Mac ici rovans (rematch) istegi / cevabi ----
+    // Bu mesajlar sadece odadaki diger oyuncuya iletilir, sunucu
+    // skor veya oyun durumu hakkinda hicbir sey bilmez/saklamaz.
+    if (msg.type === 'rematchRequest') {
+      const code = ws.roomCode;
+      if (!code) return;
+      broadcast(code, { type: 'rematchRequest', fromName: msg.fromName || 'Rakibin' }, ws);
+      return;
+    }
+
+    if (msg.type === 'rematchResponse') {
+      const code = ws.roomCode;
+      if (!code) return;
+      broadcast(code, { type: 'rematchResponse', accept: !!msg.accept, fromName: msg.fromName || 'Rakibin' }, ws);
+      return;
+    }
+
     // ---- Genel odalar (public lobby) ----
 
     if (msg.type === 'joinChannel') {
