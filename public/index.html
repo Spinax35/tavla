@@ -296,25 +296,40 @@
   <!-- AUTH -->
   <div id="authScreen">
     <div class="card" id="authCard">
-      <h2 id="authTitle">Giriş yap</h2>
-      <p class="sub" id="authSub">Devam etmek için hesabına giriş yap.</p>
+      <div id="authFormWrap">
+        <h2 id="authTitle">Giriş yap</h2>
+        <p class="sub" id="authSub">Devam etmek için hesabına giriş yap.</p>
 
-      <div id="signupOnlyField" style="display:none;">
-        <label for="authDisplayName">Görünen adın</label>
-        <input type="text" id="authDisplayName" placeholder="Rakiplerin seni böyle görecek" maxlength="20">
+        <div id="signupOnlyField" style="display:none;">
+          <label for="authDisplayName">Görünen adın</label>
+          <input type="text" id="authDisplayName" placeholder="Rakiplerin seni böyle görecek" maxlength="20">
+        </div>
+
+        <label for="authEmail">E-posta</label>
+        <input type="text" id="authEmail" placeholder="ornek@eposta.com">
+
+        <label for="authPassword">Şifre</label>
+        <input type="password" id="authPassword" placeholder="En az 6 karakter">
+
+        <button class="btn" id="authSubmitBtn">Giriş Yap</button>
+        <p class="hint" id="authError" style="color:#e07a5f;display:none;"></p>
+
+        <div class="divider">veya</div>
+        <button class="btn secondary" id="authSwitchBtn">Hesabın yok mu? Kayıt ol</button>
+
+        <div class="divider">veya</div>
+        <button class="btn secondary" id="guestBtn">🎭 Misafir olarak devam et</button>
       </div>
 
-      <label for="authEmail">E-posta</label>
-      <input type="text" id="authEmail" placeholder="ornek@eposta.com">
-
-      <label for="authPassword">Şifre</label>
-      <input type="password" id="authPassword" placeholder="En az 6 karakter">
-
-      <button class="btn" id="authSubmitBtn">Giriş Yap</button>
-      <p class="hint" id="authError" style="color:#e07a5f;display:none;"></p>
-
-      <div class="divider">veya</div>
-      <button class="btn secondary" id="authSwitchBtn">Hesabın yok mu? Kayıt ol</button>
+      <div id="guestPanel" style="display:none;">
+        <h2 style="margin:0 0 4px;">Misafir olarak gir</h2>
+        <p class="sub">Hesap açmadan hemen oynamaya başla.</p>
+        <label for="guestNameInput">Görünen adın</label>
+        <input type="text" id="guestNameInput" placeholder="Adını yaz" maxlength="20">
+        <p class="hint">Misafir girişinde hesabın kaydedilmez — oturumu kapatınca ya da sayfayı kapatınca tekrar isim girmen gerekir.</p>
+        <button class="btn" id="guestContinueBtn">Devam Et</button>
+        <button class="btn small secondary" id="guestBackBtn" style="width:100%;margin-top:10px;">← Geri</button>
+      </div>
     </div>
   </div>
 
@@ -640,14 +655,43 @@ function onLoggedIn(user){
   document.getElementById('mainMenu').style.display='block';
   const displayName = user.user_metadata?.display_name || (user.email||'').split('@')[0] || 'Oyuncu';
   myName = displayName;
+  isGuest = false;
   const nameInput = document.getElementById('nameInput');
   if(displayName) nameInput.value = displayName;
   renderRoomGrid();
   connectWS().catch(()=>{});
 }
 
+let isGuest = false;
+
+document.getElementById('guestBtn').onclick = ()=>{
+  clearAuthError();
+  document.getElementById('authFormWrap').style.display='none';
+  document.getElementById('guestPanel').style.display='block';
+};
+
+document.getElementById('guestBackBtn').onclick = ()=>{
+  document.getElementById('guestPanel').style.display='none';
+  document.getElementById('authFormWrap').style.display='block';
+};
+
+document.getElementById('guestContinueBtn').onclick = ()=>{
+  let name = document.getElementById('guestNameInput').value.trim();
+  if(!name) name = 'Misafir' + (100 + Math.floor(Math.random()*900));
+  myName = name.slice(0,20);
+  isGuest = true;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('mainMenu').style.display='block';
+  const nameInput = document.getElementById('nameInput');
+  nameInput.value = myName;
+  renderRoomGrid();
+  connectWS().catch(()=>{});
+};
+
 document.getElementById('logoutBtn2').onclick = async ()=>{
-  await sb.auth.signOut();
+  if(!isGuest){
+    try{ await sb.auth.signOut(); }catch(e){}
+  }
   location.reload();
 };
 
