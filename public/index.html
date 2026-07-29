@@ -168,6 +168,16 @@
     background:rgba(90,200,120,0.85);transform:translate(-50%,-50%);
     box-shadow:0 0 12px rgba(90,200,120,0.7);z-index:5;pointer-events:none;
   }
+  .point.combo::after{
+    content:"";position:absolute;top:50%;left:50%;width:18px;height:18px;border-radius:50%;
+    background:rgba(66,140,255,0.9);transform:translate(-50%,-50%);
+    box-shadow:0 0 14px rgba(66,140,255,0.85);z-index:6;pointer-events:none;
+    animation:comboPulse 1s infinite ease-in-out;
+  }
+  @keyframes comboPulse{
+    0%,100%{opacity:0.65;transform:translate(-50%,-50%) scale(0.85);}
+    50%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}
+  }
   .point.selected .tri{filter:brightness(1.35);}
   .checkers{
     display:flex;flex-direction:column;align-items:center;gap:2px;z-index:2;
@@ -393,6 +403,7 @@
       <div class="dice-area" id="diceArea"></div>
       <div class="status-text" id="statusText"></div>
       <div class="action-buttons">
+        <button class="btn small secondary" id="undoBtn" style="display:none;">↩ Geri Al</button>
         <button class="btn small" id="rollBtn">Zar At</button>
         <button class="btn small secondary" id="passBtn" style="display:none;">Sırayı Geç</button>
       </div>
@@ -660,6 +671,61 @@ let currentChannel=null;
 let channelPlayers=[];
 let myConnId=null;
 let pendingChallengeFromId=null;
+let comboTarget=null; // {finalIdx, midIdx, dieOrder:[d1,d2]} or null
+let undoStack=[]; // bu tur icinde yapilan hamlelerin geri alinabilir anlik goruntuleri
+
+function snapshotGame(g){
+  return {
+    points: g.points.slice(),
+    bar: { w:g.bar.w, b:g.bar.b },
+    off: { w:g.off.w, b:g.off.b },
+    diceUsed: g.diceUsed.slice(),
+    selectedPoint: selectedPoint
+  };
+}
+function pushUndoSnapshot(){
+  if(!localGame) return;
+  undoStack.push(snapshotGame(localGame));
+}
+function undoLastMove(){
+  if(!localGame || undoStack.length===0) return;
+  const g=localGame;
+  if(g.turn!==ME) return;
+  const snap=undoStack.pop();
+  g.points=snap.points;
+  g.bar=snap.bar;
+  g.off=snap.off;
+  g.diceUsed=snap.diceUsed;
+  selectedPoint=snap.selectedPoint;
+  sfxClick();
+  pushState();
+  render();
+}
+
+// Zarların TOPLAMIYLA (iki adımda) ulaşılabilecek son noktayı hesaplar.
+// Ara nokta kapalıysa (bloklanmışsa) iki sırayı da dener.
+function computeComboDestination(g, fromIdx, remaining){
+  if(remaining.length<2) return null;
+  const dA=remaining[0], dB=remaining[1];
+  function tryOrder(d1,d2){
+    const legs1=legalDestinationsFromPoint(g, ME, fromIdx, [d1]);
+    const mid=legs1.find(d=>d.type==='point');
+    if(!mid) return null;
+    const legs2=legalDestinationsFromPoint(g, ME, mid.idx, [d2]);
+    const fin=legs2.find(d=>d.type==='point');
+    if(!fin) return null;
+    return { finalIdx: fin.idx, midIdx: mid.idx, dieOrder:[d1,d2] };
+  }
+  return tryOrder(dA,dB) || tryOrder(dB,dA);
+}
+
+function applyCombo(g, fromIdx, combo){
+  const leg1=legalDestinationsFromPoint(g, ME, fromIdx, [combo.dieOrder[0]]).find(d=>d.type==='point'&&d.idx===combo.midIdx);
+  const r1=applyMoveOnBoard(g, fromIdx, leg1);
+  const leg2=legalDestinationsFromPoint(g, ME, combo.midIdx, [combo.dieOrder[1]]).find(d=>d.type==='point'&&d.idx===combo.finalIdx);
+  const r2=applyMoveOnBoard(g, combo.midIdx, leg2);
+  return (r1==='hit'||r2==='hit') ? 'hit' : 'move';
+}
 
 /* ============ websocket connection ============ */
 let ws=null, wsReady=null;
@@ -1112,8 +1178,11 @@ function render(){
   const statusEl=document.getElementById('statusText');
   const rollBtn=document.getElementById('rollBtn');
   const passBtn=document.getElementById('passBtn');
+  const undoBtn=document.getElementById('undoBtn');
   const myTurn = g.turn===ME;
   const oppMissing = !g.players.b;
+
+  undoBtn.style.display = (myTurn && g.diceRolledThisTurn && g.status==='playing' && undoStack.length>0) ? 'inline-flex' : 'none';
 
   if(oppMissing){
     statusEl.textContent = 'Arkadaşının katılması bekleniyor…';
@@ -1165,7 +1234,7 @@ function renderBarStack(color, count){
 }
 
 function clearHighlights(){
-  boardEl.querySelectorAll('.point').forEach(p=>{p.classList.remove('legal');p.classList.remove('selected');});
+  boardEl.querySelectorAll('.point').forEach(p=>{p.classList.remove('legal');p.classList.remove('selected');p.classList.remove('combo');});
   document.getElementById('barWhiteSlot').classList.remove('legal');
   document.getElementById('barBlackSlot').classList.remove('legal');
   document.getElementById('offWhite').classList.remove('legal');
@@ -1303,6 +1372,7 @@ function onPointClick(point){
     const dests = legalDestinationsFromBar(g, ME, remaining);
     const match = dests.find(d=>d.idx===idx);
     if(match){
+      pushUndoSnapshot();
       const result = applyMoveFromBar(g, match);
       playMoveResultSound(result);
       const stillHasBar = (ME==='w'?g.bar.w:g.bar.b) > 0;
@@ -1324,9 +1394,19 @@ function onPointClick(point){
   const dests = legalDestinationsFromPoint(g, ME, selectedPoint, remaining);
   const match = dests.find(d=>d.type==='point' && d.idx===idx);
   if(match){
+    pushUndoSnapshot();
     const result = applyMoveOnBoard(g, selectedPoint, match);
     playMoveResultSound(result);
     selectedPoint = autoSelectContinuation(g, match.idx);
+    afterMove();
+    return;
+  }
+  if(comboTarget && comboTarget.finalIdx===idx){
+    const fromIdx=selectedPoint;
+    pushUndoSnapshot();
+    const result = applyCombo(g, fromIdx, comboTarget);
+    playMoveResultSound(result);
+    selectedPoint = autoSelectContinuation(g, comboTarget.finalIdx);
     afterMove();
     return;
   }
@@ -1349,6 +1429,7 @@ function attemptBearOff(){
   const dests = legalDestinationsFromPoint(g, ME, selectedPoint, remaining);
   const offMove = dests.find(d=>d.type==='off');
   if(!offMove) return;
+  pushUndoSnapshot();
   applyMoveOnBoard(g, selectedPoint, offMove);
   sfxBearOff();
   selectedPoint=null;
@@ -1383,17 +1464,22 @@ function highlightSelectable(g){
 
 function highlightDestinations(g, from){
   const remaining=remainingDiceValues(g);
+  comboTarget=null;
   let dests;
   if(from==='bar'){
     dests = legalDestinationsFromBar(g, ME, remaining);
   } else {
     pointEl(from+1).classList.add('selected');
     dests = legalDestinationsFromPoint(g, ME, from, remaining);
+    comboTarget = computeComboDestination(g, from, remaining);
   }
   dests.forEach(d=>{
     if(d.type==='point') pointEl(d.idx+1).classList.add('legal');
     if(d.type==='off') document.getElementById(ME==='w'?'offWhite':'offBlack').classList.add('legal');
   });
+  if(comboTarget && !dests.some(d=>d.type==='point'&&d.idx===comboTarget.finalIdx)){
+    pointEl(comboTarget.finalIdx+1).classList.add('combo');
+  }
 }
 
 function markDieUsed(g, die){
@@ -1463,6 +1549,7 @@ async function afterMove(){
 function switchTurn(g){
   g.turn = g.turn==='w'?'b':'w';
   g.dice=[]; g.diceUsed=[]; g.diceRolledThisTurn=false;
+  undoStack=[];
   if(g.turn==='w'&&g.bar.w>0) selectedPoint='bar'; else if(g.turn==='b'&&g.bar.b>0) selectedPoint='bar'; else selectedPoint=null;
 }
 
@@ -1474,10 +1561,13 @@ document.getElementById('rollBtn').onclick = ()=>{
   if(d1===d2){ g.dice=[d1,d1,d1,d1]; } else { g.dice=[d1,d2]; }
   g.diceUsed = g.dice.map(()=>false);
   g.diceRolledThisTurn = true;
+  undoStack=[];
   // if no legal moves at all with this roll, will be handled by pass button after render
   pushState();
   render();
 };
+
+document.getElementById('undoBtn').onclick = undoLastMove;
 
 document.getElementById('passBtn').onclick = ()=>{
   const g=localGame;
