@@ -92,6 +92,28 @@
   .row{display:flex;gap:10px;}
   .row>*{flex:1;}
   .hint{font-size:0.8rem;color:#8a7a5f;margin-top:10px;line-height:1.5;}
+
+  .room-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;
+  }
+  .room-btn{
+    background:#1c1109;border:1px solid rgba(201,162,39,0.25);border-radius:10px;
+    padding:14px 10px;text-align:center;cursor:pointer;transition:transform .12s ease, border-color .12s ease;
+    color:var(--cream);font-family:inherit;
+  }
+  .room-btn:hover{transform:translateY(-2px);border-color:var(--brass);}
+  .room-btn .room-name{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--brass-light);}
+  .room-btn .room-count{font-size:0.75rem;color:#8a7a5f;margin-top:4px;}
+  .room-btn.full{opacity:0.45;cursor:not-allowed;}
+  .room-btn.full:hover{transform:none;border-color:rgba(201,162,39,0.25);}
+
+  .channel-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;max-height:340px;overflow-y:auto;}
+  .channel-list-item{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#1c1109;border:1px solid rgba(201,162,39,0.2);border-radius:9px;padding:10px 12px;
+  }
+  .channel-list-item .pname{font-size:0.92rem;}
+  .channel-list-item .btn{width:auto;margin:0;padding:8px 14px;font-size:0.8rem;}
   .waiting{display:flex;align-items:center;gap:10px;color:#c9a227;font-size:0.9rem;margin-top:14px;}
   .dot-pulse{width:9px;height:9px;border-radius:50%;background:var(--brass);animation:pulse 1.2s infinite ease-in-out;}
   @keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1.1);}}
@@ -170,7 +192,8 @@
 
   .bar-col{grid-row:1/4;background:linear-gradient(90deg, var(--wood-dark), var(--wood-mid), var(--wood-dark));
     display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 0;position:relative;}
-  .bar-half{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;min-height:220px;width:100%;padding-top:8px;overflow:visible;z-index:20;}
+  .bar-half{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;flex:1;width:100%;padding-top:6px;overflow:hidden;z-index:20;}
+  .bar-half .checker{width:80%;max-width:28px;}
   .bar-half.clickable{cursor:pointer;}
   .bar-half.legal{
     outline:2px solid rgba(90,200,120,0.85);border-radius:8px;
@@ -220,10 +243,38 @@
   .overlay .display{font-size:1.8rem;color:var(--brass-light);margin-bottom:6px;}
 
   @media(max-width:640px){
-    .checker{max-width:24px;}
-    .brand{font-size:1.6rem;}
-    .die{width:36px;height:36px;font-size:1.1rem;}
+    body{padding:14px 8px 40px;}
+    .brand{font-size:1.5rem;}
+    .brand-sub{font-size:0.68rem;margin-bottom:14px;}
+    .card{padding:20px 16px;}
+    .checker{max-width:22px;}
+    .off-tray .checker{width:13px;}
+    .bar-half .checker{max-width:18px;}
+    .board{grid-template-columns:repeat(6,1fr) 22px repeat(6,1fr);}
+    .board-frame{padding:8px;}
+    .off-tray-label{font-size:0.48rem;}
+    .off-tray{min-width:44px;padding:3px 4px;}
+    .die{width:34px;height:34px;font-size:1.05rem;}
+    .topbar{justify-content:center;gap:6px;margin-bottom:10px;}
+    .player-chip{font-size:0.75rem;padding:6px 10px;}
+    .room-tag{width:100%;text-align:center;order:3;font-size:0.68rem;}
+    .controls{
+      flex-direction:column;align-items:stretch;gap:10px;margin-top:12px;
+    }
+    .dice-area{justify-content:center;}
+    .status-text{text-align:center;order:-1;}
+    .action-buttons{width:100%;}
+    .action-buttons .btn{flex:1;}
+    #rollBtn, #passBtn{width:100%;}
   }
+  @media(max-width:400px){
+    .board{grid-template-columns:repeat(6,1fr) 18px repeat(6,1fr);}
+    .checker{max-width:18px;}
+    .bar-half .checker{max-width:14px;}
+    .brand{font-size:1.3rem;}
+    .code-display{font-size:1.5rem;letter-spacing:0.15em;}
+  }
+  html,body{overflow-x:hidden;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -257,12 +308,53 @@
     </div>
   </div>
 
-  <!-- LOBBY -->
+  <!-- MAIN MENU -->
+  <div id="mainMenu" style="display:none;">
+    <div class="card" id="mainMenuCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">Ana Menü</h2>
+        <button class="btn small secondary" id="logoutBtn2" style="margin:0;">Çıkış</button>
+      </div>
+      <p class="sub">Bir genel odaya gir ve orada bekleyen biriyle eşleş, ya da arkadaşınla özel oynamak için kod paylaş.</p>
+
+      <button class="btn" id="playFriendBtn" style="margin-top:6px;">👥 Arkadaşınla Oyna</button>
+
+      <div class="divider">genel odalar</div>
+      <div id="roomGrid" class="room-grid"></div>
+    </div>
+  </div>
+
+  <!-- PUBLIC CHANNEL LOBBY -->
+  <div id="channelLobby" style="display:none;">
+    <div class="card" id="channelLobbyCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;" id="channelTitle">Oda 1</h2>
+        <button class="btn small secondary" id="leaveChannelBtn" style="margin:0;">Geri</button>
+      </div>
+      <p class="sub">Bekleyen bir oyuncuya tıkla, meydan oku. Kabul ederse oyun başlar.</p>
+      <div id="channelPlayerList" class="channel-list"></div>
+      <p class="hint" id="channelEmptyHint" style="display:none;">Şu an bu odada bekleyen başka kimse yok — biraz bekle, ya da başka bir odayı dene.</p>
+    </div>
+  </div>
+
+  <!-- INCOMING CHALLENGE -->
+  <div class="overlay" id="challengeOverlay">
+    <div class="card">
+      <h2 id="challengeTitle" style="margin:0 0 6px;">Meydan okuma!</h2>
+      <p class="sub" id="challengeText">birisi sana meydan okuyor.</p>
+      <div class="row">
+        <button class="btn secondary" id="challengeDeclineBtn">Reddet</button>
+        <button class="btn" id="challengeAcceptBtn">Kabul Et</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOBBY (private room create/join) -->
   <div id="lobby" style="display:none;">
     <div class="card" id="entryCard">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h2 style="margin:0;">Oyuna başla</h2>
-        <button class="btn small secondary" id="logoutBtn" style="margin:0;">Çıkış</button>
+        <h2 style="margin:0;">Arkadaşınla Oyna</h2>
+        <button class="btn small secondary" id="backToMenuBtn" style="margin:0;">Geri</button>
       </div>
       <p class="sub">Bir oda kur ve kodu arkadaşına gönder, ya da onun kurduğu odaya katıl.</p>
       <label for="nameInput">Adın</label>
@@ -534,13 +626,16 @@ function translateAuthError(msg){
 
 function onLoggedIn(user){
   document.getElementById('authScreen').style.display='none';
-  document.getElementById('lobby').style.display='block';
-  const displayName = user.user_metadata?.display_name || (user.email||'').split('@')[0] || '';
+  document.getElementById('mainMenu').style.display='block';
+  const displayName = user.user_metadata?.display_name || (user.email||'').split('@')[0] || 'Oyuncu';
+  myName = displayName;
   const nameInput = document.getElementById('nameInput');
   if(displayName) nameInput.value = displayName;
+  renderRoomGrid();
+  connectWS().catch(()=>{});
 }
 
-document.getElementById('logoutBtn').onclick = async ()=>{
+document.getElementById('logoutBtn2').onclick = async ()=>{
   await sb.auth.signOut();
   location.reload();
 };
@@ -557,6 +652,14 @@ checkExistingSession();
 let ROOM=null, ME=null, myName='', lastSeq=-1;
 let selectedPoint=null; // number 1-24, or 'bar'
 let localGame=null;
+
+/* ============ genel oda (public lobby) state ============ */
+const CHANNEL_IDS=['1','2','3','4','5','6'];
+let channelCounts={};
+let currentChannel=null;
+let channelPlayers=[];
+let myConnId=null;
+let pendingChallengeFromId=null;
 
 /* ============ websocket connection ============ */
 let ws=null, wsReady=null;
@@ -646,6 +749,66 @@ function handleServerMessage(msg){
     }
     return;
   }
+
+  // ---- Genel odalar (public lobby) ----
+  if(msg.type==='channelCounts'){
+    channelCounts = msg.counts;
+    if(document.getElementById('mainMenu').style.display!=='none') renderRoomGrid();
+    return;
+  }
+  if(msg.type==='channelFull'){
+    alert('Bu oda dolu (50/50). Başka bir oda dene.');
+    return;
+  }
+  if(msg.type==='channelJoined'){
+    myConnId = msg.yourId;
+    currentChannel = msg.channel;
+    channelPlayers = msg.players;
+    document.getElementById('mainMenu').style.display='none';
+    document.getElementById('channelLobby').style.display='block';
+    document.getElementById('channelTitle').textContent = 'Oda ' + msg.channel;
+    renderChannelList();
+    return;
+  }
+  if(msg.type==='channelList'){
+    if(String(msg.channel)!==String(currentChannel)) return;
+    channelPlayers = msg.players;
+    renderChannelList();
+    return;
+  }
+  if(msg.type==='challengeReceived'){
+    pendingChallengeFromId = msg.fromId;
+    document.getElementById('challengeText').textContent = msg.fromName + ' sana meydan okuyor. Kabul edersen oyun hemen başlar.';
+    document.getElementById('challengeOverlay').classList.add('active');
+    return;
+  }
+  if(msg.type==='challengeDeclined'){
+    alert(msg.byName + ' meydan okumanı reddetti.');
+    return;
+  }
+  if(msg.type==='challengeFailed'){
+    alert('O oyuncu artık burada değil.');
+    return;
+  }
+  if(msg.type==='matched'){
+    ROOM = msg.code;
+    ME = msg.youAre;
+    document.getElementById('channelLobby').style.display='none';
+    document.getElementById('mainMenu').style.display='none';
+    document.getElementById('lobby').style.display='none';
+    if(ME==='w'){
+      localGame = freshState(myName);
+      localGame.players.b = msg.opponentName;
+      localGame.status = 'playing';
+      enterGame();
+      render();
+      pushState();
+    } else {
+      // Beyaz tarafı state'i gönderene kadar bekleniyor; 'state' mesajı
+      // geldiğinde mevcut handleServerMessage('state') zaten oyunu açacak.
+    }
+    return;
+  }
 }
 
 function pushState(){
@@ -659,6 +822,87 @@ function resetJoinButton(){
   const btn=document.getElementById('joinBtn');
   btn.disabled=false; btn.textContent='Odaya Katıl';
 }
+
+function renderRoomGrid(){
+  const grid=document.getElementById('roomGrid');
+  grid.innerHTML='';
+  CHANNEL_IDS.forEach(id=>{
+    const count = channelCounts[id]||0;
+    const full = count>=50;
+    const btn=document.createElement('div');
+    btn.className='room-btn'+(full?' full':'');
+    btn.innerHTML=`<div class="room-name">Oda ${id}</div><div class="room-count">${count}/50</div>`;
+    if(!full) btn.addEventListener('click', ()=>joinPublicChannel(id));
+    grid.appendChild(btn);
+  });
+}
+
+async function joinPublicChannel(id){
+  try{
+    await connectWS();
+    wsSend({type:'joinChannel', channel:id, name:myName});
+  }catch(e){
+    alert('Sunucuya bağlanılamadı. Sunucunun çalıştığından emin ol ve tekrar dene.');
+  }
+}
+
+function renderChannelList(){
+  const list=document.getElementById('channelPlayerList');
+  const emptyHint=document.getElementById('channelEmptyHint');
+  list.innerHTML='';
+  if(channelPlayers.length===0){
+    emptyHint.style.display='block';
+    return;
+  }
+  emptyHint.style.display='none';
+  channelPlayers.forEach(p=>{
+    const row=document.createElement('div');
+    row.className='channel-list-item';
+    row.innerHTML=`<span class="pname">${p.name}</span>`;
+    const btn=document.createElement('button');
+    btn.className='btn small';
+    btn.textContent='Meydan Oku';
+    btn.addEventListener('click', ()=>{
+      wsSend({type:'challenge', targetId:p.id});
+      btn.disabled=true; btn.textContent='Davet gönderildi';
+    });
+    row.appendChild(btn);
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('playFriendBtn').onclick = ()=>{
+  document.getElementById('mainMenu').style.display='none';
+  document.getElementById('lobby').style.display='block';
+};
+
+document.getElementById('backToMenuBtn').onclick = ()=>{
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('mainMenu').style.display='block';
+};
+
+document.getElementById('leaveChannelBtn').onclick = ()=>{
+  wsSend({type:'leaveChannel'});
+  currentChannel=null;
+  document.getElementById('channelLobby').style.display='none';
+  document.getElementById('mainMenu').style.display='block';
+};
+
+document.getElementById('challengeAcceptBtn').onclick = ()=>{
+  document.getElementById('challengeOverlay').classList.remove('active');
+  if(pendingChallengeFromId){
+    wsSend({type:'challengeResponse', challengerId:pendingChallengeFromId, accept:true});
+    pendingChallengeFromId=null;
+  }
+};
+
+document.getElementById('challengeDeclineBtn').onclick = ()=>{
+  document.getElementById('challengeOverlay').classList.remove('active');
+  if(pendingChallengeFromId){
+    wsSend({type:'challengeResponse', challengerId:pendingChallengeFromId, accept:false});
+    pendingChallengeFromId=null;
+  }
+};
 
 /* ============ lobby wiring ============ */
 document.getElementById('createBtn').onclick = async ()=>{
@@ -702,6 +946,8 @@ document.getElementById('joinBtn').onclick = async ()=>{
 
 function enterGame(){
   document.getElementById('lobby').style.display='none';
+  document.getElementById('mainMenu').style.display='none';
+  document.getElementById('channelLobby').style.display='none';
   document.getElementById('gameWrap').classList.add('active');
 }
 
