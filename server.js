@@ -121,7 +121,7 @@ function randomGhostName() {
 // channelId -> Map<ghostId, { name }>
 const ghostPlayers = new Map(CHANNEL_IDS.map(id => [id, new Map()]));
 let ghostSeq = 1;
-const GHOST_RANGE = { min: 2, max: 7 }; // her kanalda bulunmasını istediğimiz aralık
+const GHOST_RANGE = { min: 1, max: 3 }; // her kanalda bulunmasını istediğimiz aralık
 
 function ghostCount(channelId) {
   return ghostPlayers.get(channelId).size;
