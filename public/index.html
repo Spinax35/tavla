@@ -1018,6 +1018,13 @@ function handleServerMessage(msg){
       document.getElementById('winOverlay').classList.remove('active');
       resetRematchUI();
     }
+    if(localGame.status==='finished' && currentMatchIsRanked && rankedReportedForRoom !== ROOM){
+      // Maçı BEN bitirmedim (rakip kazandı ya da rakip teslim oldu) —
+      // yine de kendi tarafımdan sonucu bildirmem lazım, çünkü puan
+      // güncellemesi ancak iki taraf da aynı sonucu bildirince işleniyor.
+      rankedReportedForRoom = ROOM;
+      reportRankedResultIfNeeded(localGame);
+    }
     render();
     return;
   }
@@ -1124,6 +1131,7 @@ function handleServerMessage(msg){
     ME = msg.youAre;
     currentMatchIsRanked = true;
     currentMatchOpponentUserId = msg.opponentUserId;
+    rankedReportedForRoom = null;
     document.getElementById('rankedWaitingScreen').style.display='none';
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('channelLobby').style.display='none';
@@ -1209,6 +1217,7 @@ document.getElementById('playFriendBtn').onclick = ()=>{
 /* ============ rekabetçi (sıralı/ranked) mod ============ */
 let currentMatchIsRanked=false;
 let currentMatchOpponentUserId=null;
+let rankedReportedForRoom=null; // hangi oda icin sonucu zaten bildirdik
 
 function updateRankedButtonState(){
   const btn=document.getElementById('rankedBtn');
@@ -1390,6 +1399,7 @@ document.getElementById('rankedCancelBtn').onclick = ()=>{
 // yapılıyor, burada sadece kendi gördüğümüz sonucu gönderiyoruz.
 async function reportRankedResultIfNeeded(g){
   if(!currentMatchIsRanked || !myUserId || !currentMatchOpponentUserId || !g.winner) return;
+  rankedReportedForRoom = ROOM;
   const winnerUserId = g.winner===ME ? myUserId : currentMatchOpponentUserId;
   try{
     await sb.rpc('report_match_result', {
