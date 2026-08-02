@@ -55,7 +55,7 @@ function scheduleCleanup(code) {
 
 function channelCounts() {
   const counts = {};
-  for (const id of CHANNEL_IDS) counts[id] = channels.get(id).size;
+  for (const id of CHANNEL_IDS) counts[id] = channels.get(id).size + ghostCount(id);
   return counts;
 }
 
@@ -66,11 +66,18 @@ function broadcastChannelCounts() {
 
 function channelWaitingList(channelId, exceptConnId) {
   const map = channels.get(channelId);
-  if (!map) return [];
   const list = [];
-  for (const [connId, entry] of map) {
-    if (connId === exceptConnId) continue;
-    list.push({ id: connId, name: entry.name });
+  if (map) {
+    for (const [connId, entry] of map) {
+      if (connId === exceptConnId) continue;
+      list.push({ id: connId, name: entry.name });
+    }
+  }
+  const gmap = ghostPlayers.get(channelId);
+  if (gmap) {
+    for (const [ghostId, entry] of gmap) {
+      list.push({ id: ghostId, name: entry.name });
+    }
   }
   return list;
 }
@@ -93,6 +100,65 @@ function leaveChannel(ws) {
   }
   ws.channelId = null;
 }
+
+// ---- Hayalet (görünüm için) oyuncular ----
+// Genel odaların bomboş görünmemesi için gerçek oyunculara ek olarak
+// rastgele isimli "hayalet" oyuncular gösteriyoruz. Bunlar gerçek bir
+// bağlantı değil, sadece listede görünürler. Birine meydan okunursa,
+// gerçek bir oyuncuymuş gibi kısa bir süre sonra nazikçe "meşgul" ya da
+// "reddetti" cevabı döner — sistemde hiçbir yerde çökme/kilitlenme olmaz.
+const GHOST_NAMES = [
+  'Ahmet', 'Mehmet', 'Mustafa', 'Ali', 'Hüseyin', 'Hasan', 'İbrahim', 'Yusuf', 'Emre', 'Burak',
+  'Kerem', 'Onur', 'Deniz', 'Serkan', 'Cem', 'Barış', 'Kaan', 'Eren', 'Berk', 'Umut',
+  'Ayşe', 'Fatma', 'Zeynep', 'Elif', 'Emine', 'Hatice', 'Merve', 'Selin', 'Ece', 'Buse',
+  'Aslı', 'Gizem', 'İrem', 'Melis', 'Sude', 'Yasemin', 'Pınar', 'Nazlı', 'Ceren', 'Duygu'
+];
+function randomGhostName() {
+  const base = GHOST_NAMES[Math.floor(Math.random() * GHOST_NAMES.length)];
+  return Math.random() < 0.35 ? base + (10 + Math.floor(Math.random() * 89)) : base;
+}
+
+// channelId -> Map<ghostId, { name }>
+const ghostPlayers = new Map(CHANNEL_IDS.map(id => [id, new Map()]));
+let ghostSeq = 1;
+const GHOST_RANGE = { min: 2, max: 7 }; // her kanalda bulunmasını istediğimiz aralık
+
+function ghostCount(channelId) {
+  return ghostPlayers.get(channelId).size;
+}
+
+function addGhost(channelId) {
+  const id = 'ghost_' + (ghostSeq++);
+  ghostPlayers.get(channelId).set(id, { name: randomGhostName() });
+}
+
+function removeRandomGhost(channelId) {
+  const map = ghostPlayers.get(channelId);
+  const keys = [...map.keys()];
+  if (keys.length === 0) return;
+  map.delete(keys[Math.floor(Math.random() * keys.length)]);
+}
+
+// Kanallardaki hayalet sayısını hafifçe dalgalandırır (biri gidip biri
+// gelir gibi), böylece liste zaman içinde canlı görünür.
+function tickGhosts() {
+  for (const channelId of CHANNEL_IDS) {
+    const target = GHOST_RANGE.min + Math.floor(Math.random() * (GHOST_RANGE.max - GHOST_RANGE.min + 1));
+    const current = ghostCount(channelId);
+    if (current < target) addGhost(channelId);
+    else if (current > target && Math.random() < 0.5) removeRandomGhost(channelId);
+    else if (Math.random() < 0.15) { removeRandomGhost(channelId); addGhost(channelId); }
+  }
+  broadcastChannelCounts();
+  for (const channelId of CHANNEL_IDS) broadcastChannelList(channelId);
+}
+
+// Sunucu ayağa kalkar kalkmaz odalar bomboş görünmesin diye hemen doldur.
+for (const channelId of CHANNEL_IDS) {
+  const initial = GHOST_RANGE.min + Math.floor(Math.random() * (GHOST_RANGE.max - GHOST_RANGE.min + 1));
+  for (let i = 0; i < initial; i++) addGhost(channelId);
+}
+setInterval(tickGhosts, 20000); // 20 saniyede bir hafifçe değişsin
 
 // ---- Rekabetci (siralanmis) esleştirme kuyrugu ----
 // Basit "en yakin puanli rakibi bul" mantigi: biri kuyruga girince,
@@ -284,13 +350,30 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'challenge') {
       if (!ws.channelId) return;
-      const map = channels.get(ws.channelId);
+      const channelId = ws.channelId;
+      const map = channels.get(channelId);
       const target = map && map.get(msg.targetId);
-      if (!target) {
-        send(ws, { type: 'challengeFailed', reason: 'left' });
+      if (target) {
+        send(target.ws, { type: 'challengeReceived', fromId: ws.connId, fromName: ws.publicName, channel: channelId });
         return;
       }
-      send(target.ws, { type: 'challengeReceived', fromId: ws.connId, fromName: ws.publicName, channel: ws.channelId });
+      // Hedef gercek bir oyuncu degil, hayalet olabilir mi diye bak.
+      const gmap = ghostPlayers.get(channelId);
+      const ghost = gmap && gmap.get(msg.targetId);
+      if (ghost) {
+        const delay = 1200 + Math.random() * 2500; // gercekci bir bekleme
+        setTimeout(() => {
+          // istek sahibi hala bagliysa ve ayni kanaldaysa cevap gonder
+          if (ws.readyState !== ws.OPEN || ws.channelId !== channelId) return;
+          if (Math.random() < 0.5) {
+            send(ws, { type: 'challengeDeclined', byName: ghost.name });
+          } else {
+            send(ws, { type: 'challengeFailed', reason: 'left' });
+          }
+        }, delay);
+        return;
+      }
+      send(ws, { type: 'challengeFailed', reason: 'left' });
       return;
     }
 
