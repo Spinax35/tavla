@@ -94,6 +94,77 @@ function leaveChannel(ws) {
   ws.channelId = null;
 }
 
+// ---- Rekabetci (siralanmis) esleştirme kuyrugu ----
+// Basit "en yakin puanli rakibi bul" mantigi: biri kuyruga girince,
+// kuyrukta bekleyen herkes arasindan puani en yakin olani aranir.
+// Eslesme bulunursa ikisi de kuyruktan cikarilip ozel bir oyun odasi acilir.
+let rankedQueue = []; // { ws, connId, name, rating, userId, joinedAt }
+const RATING_MATCH_THRESHOLD = 150; // bu araliktaki en yakin rakip hemen eslesir
+
+function leaveRanked(ws) {
+  const idx = rankedQueue.findIndex(e => e.ws === ws);
+  if (idx !== -1) rankedQueue.splice(idx, 1);
+}
+
+function findClosestRankedMatch(rating, exceptWs) {
+  let best = null;
+  let bestDiff = Infinity;
+  for (const entry of rankedQueue) {
+    if (entry.ws === exceptWs) continue;
+    const diff = Math.abs(entry.rating - rating);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = entry;
+    }
+  }
+  if (best && bestDiff <= RATING_MATCH_THRESHOLD) return best;
+  return null;
+}
+
+// entryA once kuyruga girmisti (beyaz), entryB yeni eslesen (siyah).
+function createRankedMatch(entryA, entryB) {
+  leaveRanked(entryA);
+  leaveRanked(entryB);
+  const code = genCode();
+  const room = { clients: new Set([entryA.ws, entryB.ws]), state: null };
+  rooms.set(code, room);
+  entryA.ws.roomCode = code;
+  entryB.ws.roomCode = code;
+  send(entryA.ws, {
+    type: 'rekabetciEslesti', code, youAre: 'w',
+    opponentName: entryB.name, opponentRating: entryB.rating, opponentUserId: entryB.userId,
+    yourRating: entryA.rating
+  });
+  send(entryB.ws, {
+    type: 'rekabetciEslesti', code, youAre: 'b',
+    opponentName: entryA.name, opponentRating: entryA.rating, opponentUserId: entryA.userId,
+    yourRating: entryB.rating
+  });
+}
+
+// Kuyrukta uzun suredir bekleyenler icin puan toleransini kademeli genisletir,
+// boylece kimse sonsuza kadar beklemez. Her 4 saniyede bir calisir.
+setInterval(() => {
+  if (rankedQueue.length < 2) return;
+  const now = Date.now();
+  const sorted = [...rankedQueue].sort((a, b) => a.rating - b.rating);
+  const matched = new Set();
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const e1 = sorted[i];
+    if (matched.has(e1)) continue;
+    const e2 = sorted[i + 1];
+    if (matched.has(e2)) continue;
+    const diff = Math.abs(e1.rating - e2.rating);
+    const waitedSec = Math.min(now - e1.joinedAt, now - e2.joinedAt) / 1000;
+    const threshold = RATING_MATCH_THRESHOLD + Math.floor(waitedSec / 10) * 50;
+    if (diff <= threshold) {
+      matched.add(e1);
+      matched.add(e2);
+      createRankedMatch(e1, e2);
+    }
+  }
+}, 4000);
+
 wss.on('connection', (ws) => {
   ws.roomCode = null;
   ws.channelId = null;
@@ -140,6 +211,49 @@ wss.on('connection', (ws) => {
       const room = rooms.get(code);
       room.state = msg.state;
       broadcast(code, { type: 'state', state: room.state }, ws);
+      return;
+    }
+
+    // ---- Rekabetci (siralanmis) mod ----
+
+    if (msg.type === 'rekabetciyeKatil') {
+      leaveRanked(ws); // onceki bekleyisi varsa temizle
+      const rating = Number.isFinite(msg.rating) ? msg.rating : 1000;
+      const name = (msg.name || 'Oyuncu').slice(0, 20);
+      const userId = msg.userId || null;
+      const myEntry = { ws, connId: ws.connId, name, rating, userId, joinedAt: Date.now() };
+
+      const opponent = findClosestRankedMatch(rating, ws);
+
+      if (opponent) {
+        createRankedMatch(opponent, myEntry);
+      } else {
+        rankedQueue.push(myEntry);
+        send(ws, { type: 'rekabetciBekleniyor', queueSize: rankedQueue.length });
+      }
+      return;
+    }
+
+    if (msg.type === 'rekabetcidenAyril') {
+      leaveRanked(ws);
+      send(ws, { type: 'rekabetcidenAyrildi' });
+      return;
+    }
+
+    // ---- Mac ici rovans (rematch) istegi / cevabi ----
+    // Bu mesajlar sadece odadaki diger oyuncuya iletilir, sunucu
+    // skor veya oyun durumu hakkinda hicbir sey bilmez/saklamaz.
+    if (msg.type === 'rematchRequest') {
+      const code = ws.roomCode;
+      if (!code) return;
+      broadcast(code, { type: 'rematchRequest', fromName: msg.fromName || 'Rakibin' }, ws);
+      return;
+    }
+
+    if (msg.type === 'rematchResponse') {
+      const code = ws.roomCode;
+      if (!code) return;
+      broadcast(code, { type: 'rematchResponse', accept: !!msg.accept, fromName: msg.fromName || 'Rakibin' }, ws);
       return;
     }
 
@@ -208,6 +322,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     leaveChannel(ws);
+    leaveRanked(ws);
     const code = ws.roomCode;
     if (!code) return;
     const room = rooms.get(code);
