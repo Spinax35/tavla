@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tavla Nova</title>
+<title>Tavla</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -168,16 +168,6 @@
     background:rgba(90,200,120,0.85);transform:translate(-50%,-50%);
     box-shadow:0 0 12px rgba(90,200,120,0.7);z-index:5;pointer-events:none;
   }
-  .point.combo::after{
-    content:"";position:absolute;top:50%;left:50%;width:18px;height:18px;border-radius:50%;
-    background:rgba(66,140,255,0.9);transform:translate(-50%,-50%);
-    box-shadow:0 0 14px rgba(66,140,255,0.85);z-index:6;pointer-events:none;
-    animation:comboPulse 1s infinite ease-in-out;
-  }
-  @keyframes comboPulse{
-    0%,100%{opacity:0.65;transform:translate(-50%,-50%) scale(0.85);}
-    50%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}
-  }
   .point.selected .tri{filter:brightness(1.35);}
   .checkers{
     display:flex;flex-direction:column;align-items:center;gap:2px;z-index:2;
@@ -251,11 +241,6 @@
   .overlay.active{display:flex;}
   .overlay .card{text-align:center;}
   .overlay .display{font-size:1.8rem;color:var(--brass-light);margin-bottom:6px;}
-  .score-display{
-    font-family:'Fraunces',serif;font-size:1.35rem;color:var(--cream);
-    background:#120b06;border:1px solid rgba(201,162,39,0.3);border-radius:9px;
-    padding:10px 14px;margin:6px 0 20px;letter-spacing:0.02em;
-  }
 
   @media(max-width:640px){
     body{padding:14px 8px 40px;}
@@ -295,46 +280,31 @@
 </head>
 <body>
 
-  <div class="brand">Tavla Nova</div>
+  <div class="brand">Tavla</div>
   <div class="brand-sub">Arkadaşınla çevrimiçi oyna</div>
 
   <!-- AUTH -->
   <div id="authScreen">
     <div class="card" id="authCard">
-      <div id="authFormWrap">
-        <h2 id="authTitle">Giriş yap</h2>
-        <p class="sub" id="authSub">Devam etmek için hesabına giriş yap.</p>
+      <h2 id="authTitle">Giriş yap</h2>
+      <p class="sub" id="authSub">Devam etmek için hesabına giriş yap.</p>
 
-        <div id="signupOnlyField" style="display:none;">
-          <label for="authDisplayName">Görünen adın</label>
-          <input type="text" id="authDisplayName" placeholder="Rakiplerin seni böyle görecek" maxlength="20">
-        </div>
-
-        <label for="authEmail">E-posta</label>
-        <input type="text" id="authEmail" placeholder="ornek@eposta.com">
-
-        <label for="authPassword">Şifre</label>
-        <input type="password" id="authPassword" placeholder="En az 6 karakter">
-
-        <button class="btn" id="authSubmitBtn">Giriş Yap</button>
-        <p class="hint" id="authError" style="color:#e07a5f;display:none;"></p>
-
-        <div class="divider">veya</div>
-        <button class="btn secondary" id="authSwitchBtn">Hesabın yok mu? Kayıt ol</button>
-
-        <div class="divider">veya</div>
-        <button class="btn secondary" id="guestBtn">🎭 Misafir olarak devam et</button>
+      <div id="signupOnlyField" style="display:none;">
+        <label for="authDisplayName">Görünen adın</label>
+        <input type="text" id="authDisplayName" placeholder="Rakiplerin seni böyle görecek" maxlength="20">
       </div>
 
-      <div id="guestPanel" style="display:none;">
-        <h2 style="margin:0 0 4px;">Misafir olarak gir</h2>
-        <p class="sub">Hesap açmadan hemen oynamaya başla.</p>
-        <label for="guestNameInput">Görünen adın</label>
-        <input type="text" id="guestNameInput" placeholder="Adını yaz" maxlength="20">
-        <p class="hint">Misafir girişinde hesabın kaydedilmez — oturumu kapatınca ya da sayfayı kapatınca tekrar isim girmen gerekir.</p>
-        <button class="btn" id="guestContinueBtn">Devam Et</button>
-        <button class="btn small secondary" id="guestBackBtn" style="width:100%;margin-top:10px;">← Geri</button>
-      </div>
+      <label for="authEmail">E-posta</label>
+      <input type="text" id="authEmail" placeholder="ornek@eposta.com">
+
+      <label for="authPassword">Şifre</label>
+      <input type="password" id="authPassword" placeholder="En az 6 karakter">
+
+      <button class="btn" id="authSubmitBtn">Giriş Yap</button>
+      <p class="hint" id="authError" style="color:#e07a5f;display:none;"></p>
+
+      <div class="divider">veya</div>
+      <button class="btn secondary" id="authSwitchBtn">Hesabın yok mu? Kayıt ol</button>
     </div>
   </div>
 
@@ -423,7 +393,6 @@
       <div class="dice-area" id="diceArea"></div>
       <div class="status-text" id="statusText"></div>
       <div class="action-buttons">
-        <button class="btn small secondary" id="undoBtn" style="display:none;">↩ Geri Al</button>
         <button class="btn small" id="rollBtn">Zar At</button>
         <button class="btn small secondary" id="passBtn" style="display:none;">Sırayı Geç</button>
       </div>
@@ -433,24 +402,8 @@
   <div class="overlay" id="winOverlay">
     <div class="card">
       <div class="display" id="winText">Oyun bitti</div>
-      <div class="score-display" id="scoreDisplay"></div>
-
-      <div id="rematchIdle">
-        <button class="btn" id="offerRematchBtn">🔁 Rövanş İste</button>
-        <button class="btn secondary" id="reloadBtn" style="margin-top:10px;">Ana Menüye Dön</button>
-      </div>
-
-      <div id="rematchWaiting" style="display:none;">
-        <p class="hint" id="rematchWaitingText">Rövanş isteği gönderildi, rakibinin cevabı bekleniyor…</p>
-      </div>
-
-      <div id="rematchIncoming" style="display:none;">
-        <p class="sub" id="rematchIncomingText"></p>
-        <div class="row">
-          <button class="btn secondary" id="rematchDeclineBtn">Reddet</button>
-          <button class="btn" id="rematchAcceptBtn">Kabul Et</button>
-        </div>
-      </div>
+      <p class="sub">Yeni bir oyun için sayfayı yenileyebilirsin.</p>
+      <button class="btn" onclick="location.reload()">Yeniden Oyna</button>
     </div>
   </div>
 
@@ -588,40 +541,8 @@ function freshState(hostName){
     players:{ w: hostName, b: null },
     status:'waiting', // waiting | playing | finished
     winner:null,
-    score:{ w:0, b:0 }, // mac skoru — rövanşlarda korunur
     seq:1
   };
-}
-
-// Skoru ve oyuncu isimlerini koruyarak yeni bir tur (rövanş) başlatır.
-// Sadece 'w' tarafı bu fonksiyonu çağırır (oda kurma mantığıyla tutarlı
-// olması için tek bir taraf yetkilidir); diğer taraf gelen 'state'
-// mesajıyla yeni turu otomatik olarak alır.
-function startNewRound(){
-  if(!localGame) return;
-  const prevScore = localGame.score || { w:0, b:0 };
-  const wName = localGame.players.w;
-  const bName = localGame.players.b;
-  const ns = freshState(wName);
-  ns.players.b = bName;
-  ns.status = 'playing';
-  ns.score = prevScore;
-  localGame = ns;
-  selectedPoint = null;
-  undoStack = [];
-  document.getElementById('winOverlay').classList.remove('active');
-  resetRematchUI();
-  pushState();
-  render();
-}
-
-function resetRematchUI(){
-  const idle = document.getElementById('rematchIdle');
-  const waiting = document.getElementById('rematchWaiting');
-  const incoming = document.getElementById('rematchIncoming');
-  if(idle) idle.style.display='block';
-  if(waiting) waiting.style.display='none';
-  if(incoming) incoming.style.display='none';
 }
 
 /* ============ Supabase auth ============ */
@@ -708,43 +629,14 @@ function onLoggedIn(user){
   document.getElementById('mainMenu').style.display='block';
   const displayName = user.user_metadata?.display_name || (user.email||'').split('@')[0] || 'Oyuncu';
   myName = displayName;
-  isGuest = false;
   const nameInput = document.getElementById('nameInput');
   if(displayName) nameInput.value = displayName;
   renderRoomGrid();
   connectWS().catch(()=>{});
 }
 
-let isGuest = false;
-
-document.getElementById('guestBtn').onclick = ()=>{
-  clearAuthError();
-  document.getElementById('authFormWrap').style.display='none';
-  document.getElementById('guestPanel').style.display='block';
-};
-
-document.getElementById('guestBackBtn').onclick = ()=>{
-  document.getElementById('guestPanel').style.display='none';
-  document.getElementById('authFormWrap').style.display='block';
-};
-
-document.getElementById('guestContinueBtn').onclick = ()=>{
-  let name = document.getElementById('guestNameInput').value.trim();
-  if(!name) name = 'Misafir' + (100 + Math.floor(Math.random()*900));
-  myName = name.slice(0,20);
-  isGuest = true;
-  document.getElementById('authScreen').style.display='none';
-  document.getElementById('mainMenu').style.display='block';
-  const nameInput = document.getElementById('nameInput');
-  nameInput.value = myName;
-  renderRoomGrid();
-  connectWS().catch(()=>{});
-};
-
 document.getElementById('logoutBtn2').onclick = async ()=>{
-  if(!isGuest){
-    try{ await sb.auth.signOut(); }catch(e){}
-  }
+  await sb.auth.signOut();
   location.reload();
 };
 
@@ -768,61 +660,6 @@ let currentChannel=null;
 let channelPlayers=[];
 let myConnId=null;
 let pendingChallengeFromId=null;
-let comboTarget=null; // {finalIdx, midIdx, dieOrder:[d1,d2]} or null
-let undoStack=[]; // bu tur icinde yapilan hamlelerin geri alinabilir anlik goruntuleri
-
-function snapshotGame(g){
-  return {
-    points: g.points.slice(),
-    bar: { w:g.bar.w, b:g.bar.b },
-    off: { w:g.off.w, b:g.off.b },
-    diceUsed: g.diceUsed.slice(),
-    selectedPoint: selectedPoint
-  };
-}
-function pushUndoSnapshot(){
-  if(!localGame) return;
-  undoStack.push(snapshotGame(localGame));
-}
-function undoLastMove(){
-  if(!localGame || undoStack.length===0) return;
-  const g=localGame;
-  if(g.turn!==ME) return;
-  const snap=undoStack.pop();
-  g.points=snap.points;
-  g.bar=snap.bar;
-  g.off=snap.off;
-  g.diceUsed=snap.diceUsed;
-  selectedPoint=snap.selectedPoint;
-  sfxClick();
-  pushState();
-  render();
-}
-
-// Zarların TOPLAMIYLA (iki adımda) ulaşılabilecek son noktayı hesaplar.
-// Ara nokta kapalıysa (bloklanmışsa) iki sırayı da dener.
-function computeComboDestination(g, fromIdx, remaining){
-  if(remaining.length<2) return null;
-  const dA=remaining[0], dB=remaining[1];
-  function tryOrder(d1,d2){
-    const legs1=legalDestinationsFromPoint(g, ME, fromIdx, [d1]);
-    const mid=legs1.find(d=>d.type==='point');
-    if(!mid) return null;
-    const legs2=legalDestinationsFromPoint(g, ME, mid.idx, [d2]);
-    const fin=legs2.find(d=>d.type==='point');
-    if(!fin) return null;
-    return { finalIdx: fin.idx, midIdx: mid.idx, dieOrder:[d1,d2] };
-  }
-  return tryOrder(dA,dB) || tryOrder(dB,dA);
-}
-
-function applyCombo(g, fromIdx, combo){
-  const leg1=legalDestinationsFromPoint(g, ME, fromIdx, [combo.dieOrder[0]]).find(d=>d.type==='point'&&d.idx===combo.midIdx);
-  const r1=applyMoveOnBoard(g, fromIdx, leg1);
-  const leg2=legalDestinationsFromPoint(g, ME, combo.midIdx, [combo.dieOrder[1]]).find(d=>d.type==='point'&&d.idx===combo.finalIdx);
-  const r2=applyMoveOnBoard(g, combo.midIdx, leg2);
-  return (r1==='hit'||r2==='hit') ? 'hit' : 'move';
-}
 
 /* ============ websocket connection ============ */
 let ws=null, wsReady=null;
@@ -903,38 +740,12 @@ function handleServerMessage(msg){
     if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')){
       enterGame();
     }
-    if(localGame.status!=='finished'){
-      // Yeni tur (rövanş) başlamış olabilir — kazanma ekranını kapat.
-      document.getElementById('winOverlay').classList.remove('active');
-      resetRematchUI();
-    }
     render();
     return;
   }
   if(msg.type==='peer-left'){
     if(localGame && localGame.status==='playing'){
       document.getElementById('statusText').textContent='Arkadaşının bağlantısı kesildi — belki yeniden bağlanır, bekle.';
-    }
-    return;
-  }
-  if(msg.type==='rematchRequest'){
-    document.getElementById('rematchIdle').style.display='none';
-    document.getElementById('rematchWaiting').style.display='none';
-    document.getElementById('rematchIncoming').style.display='block';
-    document.getElementById('rematchIncomingText').textContent =
-      (msg.fromName||'Rakibin') + ' rövanş istiyor. Kabul ediyor musun?';
-    return;
-  }
-  if(msg.type==='rematchResponse'){
-    if(msg.accept){
-      document.getElementById('rematchIdle').style.display='none';
-      document.getElementById('rematchIncoming').style.display='none';
-      document.getElementById('rematchWaiting').style.display='block';
-      document.getElementById('rematchWaitingText').textContent = 'Rakibin kabul etti, yeni tur başlıyor…';
-      if(ME==='w') startNewRound();
-    } else {
-      alert((msg.fromName||'Rakibin') + ' rövanşı reddetti.');
-      resetRematchUI();
     }
     return;
   }
@@ -1244,8 +1055,7 @@ function render(){
   const canDrag = myTurnActive(g);
   const myBarCount = ME==='w'?g.bar.w:g.bar.b;
 
-  const sc = g.score || { w:0, b:0 };
-  document.getElementById('roomTag').textContent='Oda: '+ROOM+'  •  Skor: '+sc.w+' - '+sc.b;
+  document.getElementById('roomTag').textContent='Oda: '+ROOM;
   document.getElementById('nameWhite').textContent = g.players.w || 'Beyaz';
   document.getElementById('nameBlack').textContent = g.players.b || 'Siyah (bekleniyor)';
   document.getElementById('chipWhite').classList.toggle('active-turn', g.turn==='w');
@@ -1302,11 +1112,8 @@ function render(){
   const statusEl=document.getElementById('statusText');
   const rollBtn=document.getElementById('rollBtn');
   const passBtn=document.getElementById('passBtn');
-  const undoBtn=document.getElementById('undoBtn');
   const myTurn = g.turn===ME;
   const oppMissing = !g.players.b;
-
-  undoBtn.style.display = (myTurn && g.diceRolledThisTurn && g.status==='playing' && undoStack.length>0) ? 'inline-flex' : 'none';
 
   if(oppMissing){
     statusEl.textContent = 'Arkadaşının katılması bekleniyor…';
@@ -1358,7 +1165,7 @@ function renderBarStack(color, count){
 }
 
 function clearHighlights(){
-  boardEl.querySelectorAll('.point').forEach(p=>{p.classList.remove('legal');p.classList.remove('selected');p.classList.remove('combo');});
+  boardEl.querySelectorAll('.point').forEach(p=>{p.classList.remove('legal');p.classList.remove('selected');});
   document.getElementById('barWhiteSlot').classList.remove('legal');
   document.getElementById('barBlackSlot').classList.remove('legal');
   document.getElementById('offWhite').classList.remove('legal');
@@ -1368,10 +1175,6 @@ function clearHighlights(){
 function showWin(g){
   const ov=document.getElementById('winOverlay');
   document.getElementById('winText').textContent = (g.winner==='w'?g.players.w:g.players.b) + ' kazandı! 🎉';
-  const score = g.score || { w:0, b:0 };
-  document.getElementById('scoreDisplay').textContent =
-    (g.players.w||'Beyaz') + '  ' + score.w + ' — ' + score.b + '  ' + (g.players.b||'Siyah');
-  if(!ov.classList.contains('active')) resetRematchUI();
   ov.classList.add('active');
 }
 
@@ -1500,7 +1303,6 @@ function onPointClick(point){
     const dests = legalDestinationsFromBar(g, ME, remaining);
     const match = dests.find(d=>d.idx===idx);
     if(match){
-      pushUndoSnapshot();
       const result = applyMoveFromBar(g, match);
       playMoveResultSound(result);
       const stillHasBar = (ME==='w'?g.bar.w:g.bar.b) > 0;
@@ -1522,19 +1324,9 @@ function onPointClick(point){
   const dests = legalDestinationsFromPoint(g, ME, selectedPoint, remaining);
   const match = dests.find(d=>d.type==='point' && d.idx===idx);
   if(match){
-    pushUndoSnapshot();
     const result = applyMoveOnBoard(g, selectedPoint, match);
     playMoveResultSound(result);
     selectedPoint = autoSelectContinuation(g, match.idx);
-    afterMove();
-    return;
-  }
-  if(comboTarget && comboTarget.finalIdx===idx){
-    const fromIdx=selectedPoint;
-    pushUndoSnapshot();
-    const result = applyCombo(g, fromIdx, comboTarget);
-    playMoveResultSound(result);
-    selectedPoint = autoSelectContinuation(g, comboTarget.finalIdx);
     afterMove();
     return;
   }
@@ -1557,7 +1349,6 @@ function attemptBearOff(){
   const dests = legalDestinationsFromPoint(g, ME, selectedPoint, remaining);
   const offMove = dests.find(d=>d.type==='off');
   if(!offMove) return;
-  pushUndoSnapshot();
   applyMoveOnBoard(g, selectedPoint, offMove);
   sfxBearOff();
   selectedPoint=null;
@@ -1592,22 +1383,17 @@ function highlightSelectable(g){
 
 function highlightDestinations(g, from){
   const remaining=remainingDiceValues(g);
-  comboTarget=null;
   let dests;
   if(from==='bar'){
     dests = legalDestinationsFromBar(g, ME, remaining);
   } else {
     pointEl(from+1).classList.add('selected');
     dests = legalDestinationsFromPoint(g, ME, from, remaining);
-    comboTarget = computeComboDestination(g, from, remaining);
   }
   dests.forEach(d=>{
     if(d.type==='point') pointEl(d.idx+1).classList.add('legal');
     if(d.type==='off') document.getElementById(ME==='w'?'offWhite':'offBlack').classList.add('legal');
   });
-  if(comboTarget && !dests.some(d=>d.type==='point'&&d.idx===comboTarget.finalIdx)){
-    pointEl(comboTarget.finalIdx+1).classList.add('combo');
-  }
 }
 
 function markDieUsed(g, die){
@@ -1657,9 +1443,8 @@ function applyMoveOnBoard(g, fromIdx, dest){
 async function afterMove(){
   const g=localGame;
   const wasPlaying = g.status==='playing';
-  if(!g.score) g.score = { w:0, b:0 };
-  if(g.off.w>=15){ g.status='finished'; g.winner='w'; g.score.w=(g.score.w||0)+1; }
-  if(g.off.b>=15){ g.status='finished'; g.winner='b'; g.score.b=(g.score.b||0)+1; }
+  if(g.off.w>=15){ g.status='finished'; g.winner='w'; }
+  if(g.off.b>=15){ g.status='finished'; g.winner='b'; }
   if(wasPlaying && g.status==='finished') sfxWin();
 
   if(g.status==='playing'){
@@ -1678,7 +1463,6 @@ async function afterMove(){
 function switchTurn(g){
   g.turn = g.turn==='w'?'b':'w';
   g.dice=[]; g.diceUsed=[]; g.diceRolledThisTurn=false;
-  undoStack=[];
   if(g.turn==='w'&&g.bar.w>0) selectedPoint='bar'; else if(g.turn==='b'&&g.bar.b>0) selectedPoint='bar'; else selectedPoint=null;
 }
 
@@ -1690,13 +1474,10 @@ document.getElementById('rollBtn').onclick = ()=>{
   if(d1===d2){ g.dice=[d1,d1,d1,d1]; } else { g.dice=[d1,d2]; }
   g.diceUsed = g.dice.map(()=>false);
   g.diceRolledThisTurn = true;
-  undoStack=[];
   // if no legal moves at all with this roll, will be handled by pass button after render
   pushState();
   render();
 };
-
-document.getElementById('undoBtn').onclick = undoLastMove;
 
 document.getElementById('passBtn').onclick = ()=>{
   const g=localGame;
@@ -1713,30 +1494,6 @@ document.getElementById('soundToggleBtn').onclick = ()=>{
   if(soundOn) sfxClick();
 };
 document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
-
-/* ============ rövanş (rematch) akışı ============ */
-document.getElementById('offerRematchBtn').onclick = ()=>{
-  wsSend({type:'rematchRequest', fromName: myName});
-  document.getElementById('rematchIdle').style.display='none';
-  document.getElementById('rematchIncoming').style.display='none';
-  document.getElementById('rematchWaiting').style.display='block';
-  document.getElementById('rematchWaitingText').textContent = 'Rövanş isteği gönderildi, rakibinin cevabı bekleniyor…';
-};
-
-document.getElementById('rematchAcceptBtn').onclick = ()=>{
-  wsSend({type:'rematchResponse', accept:true, fromName: myName});
-  document.getElementById('rematchIncoming').style.display='none';
-  document.getElementById('rematchWaiting').style.display='block';
-  document.getElementById('rematchWaitingText').textContent = 'Yeni tur başlıyor…';
-  if(ME==='w') startNewRound();
-};
-
-document.getElementById('rematchDeclineBtn').onclick = ()=>{
-  wsSend({type:'rematchResponse', accept:false, fromName: myName});
-  resetRematchUI();
-};
-
-document.getElementById('reloadBtn').onclick = ()=> location.reload();
 </script>
 </body>
 </html>
