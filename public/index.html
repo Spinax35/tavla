@@ -124,6 +124,37 @@
   .dot-pulse{width:9px;height:9px;border-radius:50%;background:var(--brass);animation:pulse 1.2s infinite ease-in-out;}
   @keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1.1);}}
 
+  /* ---- Profil / lig / liderlik ---- */
+  .profile-badge{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:#1c1109;border:1px solid rgba(201,162,39,0.25);border-radius:10px;
+    padding:10px 14px;margin-top:14px;cursor:pointer;color:var(--cream);font-family:inherit;
+    transition:border-color .12s ease;
+  }
+  .profile-badge:hover{border-color:var(--brass);}
+  .profile-badge .pb-league{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-size:1rem;}
+  .profile-badge .pb-rating{font-size:0.85rem;color:#8a7a5f;}
+  .league-pill{
+    display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+    font-size:0.78rem;font-weight:600;border:1px solid currentColor;
+  }
+  .profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;}
+  .profile-stat{
+    background:#1c1109;border:1px solid rgba(201,162,39,0.2);border-radius:9px;
+    padding:12px 8px;text-align:center;
+  }
+  .profile-stat .val{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--brass-light);}
+  .profile-stat .lab{font-size:0.72rem;color:#8a7a5f;margin-top:2px;text-transform:uppercase;letter-spacing:0.05em;}
+  .leaderboard-row{
+    display:flex;align-items:center;gap:12px;
+    background:#1c1109;border:1px solid rgba(201,162,39,0.2);border-radius:9px;
+    padding:10px 12px;margin-bottom:8px;
+  }
+  .leaderboard-row.me{border-color:var(--brass);background:#241708;}
+  .leaderboard-row .lb-rank{width:28px;text-align:center;font-family:'Fraunces',serif;color:#8a7a5f;}
+  .leaderboard-row .lb-name{flex:1;font-size:0.92rem;}
+  .leaderboard-row .lb-rating{font-family:'Fraunces',serif;color:var(--brass-light);}
+
   /* ---- Game screen ---- */
   .game-wrap{width:100%;max-width:900px;display:none;flex-direction:column;align-items:center;}
   .game-wrap.active{display:flex;}
@@ -357,14 +388,49 @@
         <h2 style="margin:0;">Ana Menü</h2>
         <button class="btn small secondary" id="logoutBtn2" style="margin:0;">Çıkış</button>
       </div>
+
+      <button type="button" id="myProfileBadge" class="profile-badge" style="display:none;"></button>
+      <p class="hint" id="profileGuestHint" style="display:none;">Puanını ve ligini görmek için hesabına giriş yap — misafir girişinde takip edilmiyor.</p>
+
       <p class="sub">Bir genel odaya gir ve orada bekleyen biriyle eşleş, ya da arkadaşınla özel oynamak için kod paylaş.</p>
 
       <button class="btn" id="playFriendBtn" style="margin-top:6px;">👥 Arkadaşınla Oyna</button>
       <button class="btn ranked-btn" id="rankedBtn" style="margin-top:10px;">🏆 Rekabetçi</button>
       <p class="hint" id="rankedGuestHint" style="display:none;">Rekabetçi modda oynamak için hesap açıp giriş yapmalısın — misafir girişiyle oynanmıyor.</p>
 
+      <div class="row" style="margin-top:10px;">
+        <button class="btn small secondary" id="openProfileBtn" style="margin-top:0;">👤 Profilim</button>
+        <button class="btn small secondary" id="openLeaderboardBtn" style="margin-top:0;">📊 Liderlik Tablosu</button>
+      </div>
+
       <div class="divider">genel odalar</div>
       <div id="roomGrid" class="room-grid"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div id="profileScreen" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">👤 Profilim</h2>
+        <button class="btn small secondary" id="profileBackBtn" style="margin:0;">Geri</button>
+      </div>
+      <div id="profileContent" style="margin-top:14px;">
+        <p class="sub">Yükleniyor…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="leaderboardScreen" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">📊 Liderlik Tablosu</h2>
+        <button class="btn small secondary" id="leaderboardBackBtn" style="margin:0;">Geri</button>
+      </div>
+      <div id="leaderboardContent" style="margin-top:14px;">
+        <p class="sub">Yükleniyor…</p>
+      </div>
     </div>
   </div>
 
@@ -746,6 +812,7 @@ function onLoggedIn(user){
   if(displayName) nameInput.value = displayName;
   renderRoomGrid();
   updateRankedButtonState();
+  loadMyProfile();
   connectWS().catch(()=>{});
 }
 
@@ -775,6 +842,7 @@ document.getElementById('guestContinueBtn').onclick = ()=>{
   nameInput.value = myName;
   renderRoomGrid();
   updateRankedButtonState();
+  loadMyProfile();
   connectWS().catch(()=>{});
 };
 
@@ -1158,6 +1226,127 @@ function updateRankedButtonState(){
   }
 }
 
+/* ============ profil / lig / liderlik tablosu ============ */
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const LEAGUE_TIERS = [
+  { max: 999,      name: 'Bronz',  emoji: '🥉', color: '#c17a3d' },
+  { max: 1299,     name: 'Gümüş',  emoji: '🥈', color: '#b9c1cc' },
+  { max: 1599,     name: 'Altın',  emoji: '🥇', color: '#d9b34a' },
+  { max: 1899,     name: 'Platin', emoji: '💠', color: '#6fd6cf' },
+  { max: Infinity, name: 'Elmas',  emoji: '💎', color: '#7fb8ff' }
+];
+function leagueForRating(rating){
+  return LEAGUE_TIERS.find(t => rating <= t.max) || LEAGUE_TIERS[LEAGUE_TIERS.length-1];
+}
+
+let myProfileCache = null; // { rating, wins, losses }
+
+async function loadMyProfile(){
+  const badge = document.getElementById('myProfileBadge');
+  const guestHint = document.getElementById('profileGuestHint');
+  if(isGuest || !myUserId){
+    badge.style.display='none';
+    guestHint.style.display='block';
+    myProfileCache = null;
+    return;
+  }
+  guestHint.style.display='none';
+  try{
+    await sb.rpc('ensure_profile', { p_display_name: myName });
+    const { data, error } = await sb.from('profiles').select('rating,wins,losses').eq('id', myUserId).single();
+    if(error || !data){ badge.style.display='none'; return; }
+    myProfileCache = data;
+    const league = leagueForRating(data.rating);
+    badge.style.display='flex';
+    badge.innerHTML =
+      '<span class="pb-league">'+league.emoji+' '+league.name+'</span>'+
+      '<span class="pb-rating">'+data.rating+' puan · '+data.wins+'G / '+data.losses+'M</span>';
+  }catch(e){
+    badge.style.display='none';
+  }
+}
+
+function renderProfileScreen(){
+  const el = document.getElementById('profileContent');
+  if(isGuest || !myUserId){
+    el.innerHTML = '<p class="sub">Profilini görmek için hesabına giriş yapmalısın — misafir girişinde puan/lig takibi yapılmıyor.</p>';
+    return;
+  }
+  if(!myProfileCache){
+    el.innerHTML = '<p class="sub">Yükleniyor…</p>';
+    return;
+  }
+  const rating = myProfileCache.rating, wins = myProfileCache.wins, losses = myProfileCache.losses;
+  const league = leagueForRating(rating);
+  const total = wins + losses;
+  const winRate = total > 0 ? Math.round((wins/total)*100) : 0;
+  el.innerHTML =
+    '<div style="text-align:center;">'+
+      '<div class="league-pill" style="color:'+league.color+';">'+league.emoji+' '+league.name+' Ligi</div>'+
+      '<div style="font-family:\'Fraunces\',serif;font-size:2.2rem;color:var(--brass-light);margin-top:10px;">'+rating+'</div>'+
+      '<div class="hint" style="margin-top:0;">güncel puan</div>'+
+    '</div>'+
+    '<div class="profile-stats">'+
+      '<div class="profile-stat"><div class="val">'+wins+'</div><div class="lab">Galibiyet</div></div>'+
+      '<div class="profile-stat"><div class="val">'+losses+'</div><div class="lab">Mağlubiyet</div></div>'+
+      '<div class="profile-stat"><div class="val">%'+winRate+'</div><div class="lab">Kazanma</div></div>'+
+    '</div>';
+}
+
+async function openProfileScreen(){
+  document.getElementById('mainMenu').style.display='none';
+  document.getElementById('profileScreen').style.display='block';
+  renderProfileScreen();
+  if(!isGuest && myUserId){
+    await loadMyProfile();
+    renderProfileScreen();
+  }
+}
+
+document.getElementById('myProfileBadge').onclick = openProfileScreen;
+document.getElementById('openProfileBtn').onclick = openProfileScreen;
+document.getElementById('profileBackBtn').onclick = ()=>{
+  document.getElementById('profileScreen').style.display='none';
+  document.getElementById('mainMenu').style.display='block';
+};
+
+async function loadLeaderboard(){
+  const el = document.getElementById('leaderboardContent');
+  el.innerHTML = '<p class="sub">Yükleniyor…</p>';
+  try{
+    const { data, error } = await sb.from('leaderboard').select('*').order('rank', { ascending:true }).limit(50);
+    if(error || !data || data.length===0){
+      el.innerHTML = '<p class="sub">Henüz sıralamada kimse yok — ilk rekabetçi maçını sen oyna!</p>';
+      return;
+    }
+    el.innerHTML = data.map(row=>{
+      const league = leagueForRating(row.rating);
+      const isMe = myUserId && row.id === myUserId;
+      return '<div class="leaderboard-row'+(isMe?' me':'')+'">'+
+        '<span class="lb-rank">#'+row.rank+'</span>'+
+        '<span class="lb-name">'+escapeHtml(row.display_name)+(isMe?' (sen)':'')+'</span>'+
+        '<span class="league-pill" style="color:'+league.color+';">'+league.emoji+' '+league.name+'</span>'+
+        '<span class="lb-rating">'+row.rating+'</span>'+
+      '</div>';
+    }).join('');
+  }catch(e){
+    el.innerHTML = '<p class="sub">Liderlik tablosu yüklenemedi, tekrar dene.</p>';
+  }
+}
+
+document.getElementById('openLeaderboardBtn').onclick = ()=>{
+  document.getElementById('mainMenu').style.display='none';
+  document.getElementById('leaderboardScreen').style.display='block';
+  loadLeaderboard();
+};
+document.getElementById('leaderboardBackBtn').onclick = ()=>{
+  document.getElementById('leaderboardScreen').style.display='none';
+  document.getElementById('mainMenu').style.display='block';
+};
+
 async function getMyRating(){
   try{
     await sb.rpc('ensure_profile', { p_display_name: myName });
@@ -1208,6 +1397,7 @@ async function reportRankedResultIfNeeded(g){
       p_opponent_id: currentMatchOpponentUserId,
       p_winner_id: winnerUserId
     });
+    loadMyProfile();
   }catch(e){
     console.error('report_match_result basarisiz', e);
   }

@@ -161,3 +161,5 @@ select
   row_number() over (order by rating desc) as rank
 from public.profiles
 order by rating desc;
+
+grant select on public.leaderboard to anon, authenticated;
