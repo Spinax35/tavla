@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tavla</title>
+<title>Tavla Nova</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -235,12 +235,6 @@
     margin-top:16px;flex-wrap:wrap;gap:12px;
   }
   .dice-area{display:flex;gap:10px;align-items:center;min-height:52px;}
-  .turn-timer{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:64px;}
-  .turn-timer .ttext{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--brass-light);letter-spacing:0.03em;}
-  .turn-timer .tbar{width:58px;height:5px;border-radius:3px;background:rgba(201,162,39,0.15);overflow:hidden;}
-  .turn-timer .tbar-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--brass),var(--brass-light));transition:width .25s linear;}
-  .turn-timer.warning .ttext{color:var(--danger);}
-  .turn-timer.warning .tbar-fill{background:var(--danger);}
   .die{
     width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#fff,#e6ddc7);
     display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.4rem;
@@ -301,7 +295,7 @@
 </head>
 <body>
 
-  <div class="brand">Tavla</div>
+  <div class="brand">Tavla Nova</div>
   <div class="brand-sub">Arkadaşınla çevrimiçi oyna</div>
 
   <!-- AUTH -->
@@ -426,10 +420,6 @@
     </div>
 
     <div class="controls">
-      <div class="turn-timer" id="turnTimer" style="visibility:hidden;">
-        <div class="ttext" id="turnTimerText">01:00</div>
-        <div class="tbar"><div class="tbar-fill" id="turnTimerFill"></div></div>
-      </div>
       <div class="dice-area" id="diceArea"></div>
       <div class="status-text" id="statusText"></div>
       <div class="action-buttons">
@@ -599,7 +589,6 @@ function freshState(hostName){
     status:'waiting', // waiting | playing | finished
     winner:null,
     score:{ w:0, b:0 }, // mac skoru — rövanşlarda korunur
-    turnStartedAt:null, // oyun 'playing' olunca doldurulur — tur süresi bunun üzerinden hesaplanır
     seq:1
   };
 }
@@ -616,7 +605,6 @@ function startNewRound(){
   const ns = freshState(wName);
   ns.players.b = bName;
   ns.status = 'playing';
-  ns.turnStartedAt = Date.now();
   ns.score = prevScore;
   localGame = ns;
   selectedPoint = null;
@@ -892,7 +880,6 @@ function handleServerMessage(msg){
     if(!state.players.b){
       state.players.b = myName;
       state.status='playing';
-      state.turnStartedAt = Date.now();
       state.seq=(state.seq||0)+1;
     }
     localGame = state;
@@ -1002,7 +989,6 @@ function handleServerMessage(msg){
       localGame = freshState(myName);
       localGame.players.b = msg.opponentName;
       localGame.status = 'playing';
-      localGame.turnStartedAt = Date.now();
       enterGame();
       render();
       pushState();
@@ -1692,60 +1678,9 @@ async function afterMove(){
 function switchTurn(g){
   g.turn = g.turn==='w'?'b':'w';
   g.dice=[]; g.diceUsed=[]; g.diceRolledThisTurn=false;
-  g.turnStartedAt = Date.now();
   undoStack=[];
   if(g.turn==='w'&&g.bar.w>0) selectedPoint='bar'; else if(g.turn==='b'&&g.bar.b>0) selectedPoint='bar'; else selectedPoint=null;
 }
-
-/* ============ tur süresi (1 dakika) ============ */
-// Her tur en fazla TURN_SECONDS kadar sürebilir. Süre biterse, sırası
-// gelen oyuncunun kendi tarayıcısı sırayı otomatik olarak diğer oyuncuya
-// geçirir (tıpkı "Sırayı Geç" butonuna basılmış gibi) ve bunu state
-// mesajıyla rakibe iletir. Rakip taraf sadece geri sayımı izler, kendi
-// sırası olmadığı için otomatik geçiş tetiklemez — bu sayede iki taraf da
-// aynı anda sırayı geçirmeye çalışmaz.
-const TURN_SECONDS = 60;
-let lastKnownTurnStartedAt = null;
-let turnTimedOutForThisTurn = false;
-
-function tickTurnTimer(){
-  const g = localGame;
-  const timerEl = document.getElementById('turnTimer');
-  if(!timerEl) return;
-  if(!g || g.status!=='playing' || !g.turnStartedAt){
-    timerEl.style.visibility='hidden';
-    return;
-  }
-  if(g.turnStartedAt !== lastKnownTurnStartedAt){
-    lastKnownTurnStartedAt = g.turnStartedAt;
-    turnTimedOutForThisTurn = false;
-  }
-  timerEl.style.visibility='visible';
-  const elapsed = (Date.now() - g.turnStartedAt)/1000;
-  const remaining = Math.max(0, TURN_SECONDS - elapsed);
-  const mm = Math.floor(remaining/60);
-  const ss = Math.floor(remaining%60);
-  const label = (g.turn===ME ? 'Sende: ' : 'Rakipte: ') + String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
-  document.getElementById('turnTimerText').textContent = label;
-  document.getElementById('turnTimerFill').style.width = (remaining/TURN_SECONDS*100)+'%';
-  timerEl.classList.toggle('warning', remaining<=10);
-
-  if(remaining<=0 && g.turn===ME && !turnTimedOutForThisTurn){
-    turnTimedOutForThisTurn = true;
-    handleTurnTimeout();
-  }
-}
-
-function handleTurnTimeout(){
-  const g = localGame;
-  if(!g || g.turn!==ME || g.status!=='playing') return;
-  selectedPoint = null;
-  switchTurn(g);
-  pushState();
-  render();
-}
-
-setInterval(tickTurnTimer, 250);
 
 document.getElementById('rollBtn').onclick = ()=>{
   const g=localGame;
