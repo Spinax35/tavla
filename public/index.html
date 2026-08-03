@@ -417,36 +417,40 @@
   .turn-timer.warning .ttext{color:var(--danger);}
   .turn-timer.warning .tbar-fill{background:var(--danger);}
   
-  /* --- PREMİUM ZARLAR (DICE) --- */
-  .dice-area{perspective:400px;}
-  .die{
-    width:48px;height:48px;border-radius:12px;
+  /* --- PREMİUM ZARLAR (DICE) — gerçek 3D küp --- */
+  .dice-area{perspective:520px;}
+  .die-wrap{width:48px;height:48px;--die-r:24px;}
+  .die-wrap.landing{animation:diceLand .26s ease-out both;}
+  .die-wrap.used .die-cube{filter:grayscale(0.75) brightness(0.55);}
+  .die-cube{
+    position:relative;width:100%;height:100%;
+    transform-style:preserve-3d;
+    transition:transform .85s cubic-bezier(.22,.9,.24,1);
+    transform:rotateX(0) rotateY(0);
+  }
+  .die-face{
+    position:absolute;inset:0;border-radius:12px;
     background:linear-gradient(145deg, #ffffff, #e8dfcb 65%, #cbbba1 100%);
     display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
     padding:8px;gap:1px;
-    box-shadow:0 6px 16px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.9), inset 0 -3px 5px rgba(100,80,50,0.3);
+    box-shadow:0 6px 16px rgba(0,0,0,0.45), inset 0 2px 3px rgba(255,255,255,0.9), inset 0 -3px 5px rgba(100,80,50,0.3);
     border:1px solid rgba(180,150,110,0.5);
-    transform-style:preserve-3d;
+    backface-visibility:hidden;
   }
-  .die .pip{
+  .die-face.front{transform:translateZ(var(--die-r));}
+  .die-face.back{transform:rotateY(180deg) translateZ(var(--die-r));}
+  .die-face.right{transform:rotateY(90deg) translateZ(var(--die-r));}
+  .die-face.left{transform:rotateY(-90deg) translateZ(var(--die-r));}
+  .die-face.top{transform:rotateX(90deg) translateZ(var(--die-r));}
+  .die-face.bottom{transform:rotateX(-90deg) translateZ(var(--die-r));}
+  .die-face .pip{
     width:62%;height:62%;margin:auto;border-radius:50%;justify-self:center;align-self:center;
     background:radial-gradient(circle at 32% 28%, #4a3520, #1a0f04 75%);
     box-shadow:inset 0 1px 1px rgba(255,255,255,0.35), 0 1px 1px rgba(0,0,0,0.4);
   }
-  .die .pip.tl{grid-column:1;grid-row:1;} .die .pip.tc{grid-column:2;grid-row:1;} .die .pip.tr{grid-column:3;grid-row:1;}
-  .die .pip.ml{grid-column:1;grid-row:2;} .die .pip.mc{grid-column:2;grid-row:2;} .die .pip.mr{grid-column:3;grid-row:2;}
-  .die .pip.bl{grid-column:1;grid-row:3;} .die .pip.bc{grid-column:2;grid-row:3;} .die .pip.br{grid-column:3;grid-row:3;}
-  .die.used{opacity:0.3;filter:grayscale(0.7);box-shadow:0 2px 6px rgba(0,0,0,0.3);}
-  .die.rolling{animation:diceTumble .68s cubic-bezier(.36,.15,.2,1) both;}
-  .die.landing{animation:diceLand .26s ease-out both;}
-  @keyframes diceTumble{
-    0%{transform:rotateX(0) rotateY(0) rotateZ(0) scale(1);}
-    18%{transform:rotateX(160deg) rotateY(60deg) rotateZ(40deg) translateY(-10px) scale(1.08);}
-    38%{transform:rotateX(330deg) rotateY(230deg) rotateZ(150deg) translateY(2px) scale(0.94);}
-    58%{transform:rotateX(480deg) rotateY(400deg) rotateZ(260deg) translateY(-6px) scale(1.05);}
-    78%{transform:rotateX(620deg) rotateY(560deg) rotateZ(330deg) translateY(1px) scale(0.98);}
-    100%{transform:rotateX(720deg) rotateY(720deg) rotateZ(360deg) translateY(0) scale(1);}
-  }
+  .die-face .pip.tl{grid-column:1;grid-row:1;} .die-face .pip.tc{grid-column:2;grid-row:1;} .die-face .pip.tr{grid-column:3;grid-row:1;}
+  .die-face .pip.ml{grid-column:1;grid-row:2;} .die-face .pip.mc{grid-column:2;grid-row:2;} .die-face .pip.mr{grid-column:3;grid-row:2;}
+  .die-face .pip.bl{grid-column:1;grid-row:3;} .die-face .pip.bc{grid-column:2;grid-row:3;} .die-face .pip.br{grid-column:3;grid-row:3;}
   @keyframes diceLand{
     0%{transform:scale(1.22);}
     55%{transform:scale(0.92);}
@@ -483,7 +487,7 @@
     .board-frame{padding:10px;}
     .off-tray-label{font-size:0.5rem;}
     .off-tray{min-width:48px;padding:4px 6px;}
-    .die{width:36px;height:36px;font-size:1.1rem;}
+    .die-wrap{width:36px;height:36px;--die-r:18px;}
     .topbar{justify-content:center;gap:6px;margin-bottom:12px;}
     .player-chip{font-size:0.78rem;padding:7px 12px;}
     .room-tag{width:100%;text-align:center;order:3;font-size:0.72rem;}
@@ -1642,7 +1646,7 @@ function attachDrag(el, source){
   });
 }
 
-// --- Gerçek zar yüzleri (pip/nokta düzeni) ve atma animasyonu ---
+// --- Gerçek 3D zar küpü (6 yüz) ve fiziksel dönerek atma animasyonu ---
 const DIE_PIPS = {
   1: ['mc'],
   2: ['tr','bl'],
@@ -1651,57 +1655,72 @@ const DIE_PIPS = {
   5: ['tl','tr','mc','bl','br'],
   6: ['tl','ml','bl','tr','mr','br']
 };
+// front=1, right=2, top=3, bottom=4, left=5, back=6 (karşılıklı yüzler toplamı 7)
+const DIE_FACES = ['front','right','top','bottom','left','back'];
+// bu değeri öne getirmek için küpe uygulanacak rotasyon
+const FACE_ROTATION = {
+  1:{x:0,   y:0},
+  2:{x:0,   y:-90},
+  3:{x:-90, y:0},
+  4:{x:90,  y:0},
+  5:{x:0,   y:90},
+  6:{x:0,   y:180}
+};
 
-function buildDieFace(value, extraClass){
-  const el = document.createElement('div');
-  el.className = 'die' + (extraClass ? ' '+extraClass : '');
-  (DIE_PIPS[value]||[]).forEach(pos=>{
-    const dot = document.createElement('div');
-    dot.className = 'pip '+pos;
-    el.appendChild(dot);
+function buildDieCube(restValue, extraClass){
+  const wrap = document.createElement('div');
+  wrap.className = 'die-wrap' + (extraClass ? ' '+extraClass : '');
+  const cube = document.createElement('div');
+  cube.className = 'die-cube';
+  DIE_FACES.forEach((faceName, i)=>{
+    const val = i+1;
+    const face = document.createElement('div');
+    face.className = 'die-face '+faceName;
+    (DIE_PIPS[val]||[]).forEach(pos=>{
+      const dot=document.createElement('div');
+      dot.className = 'pip '+pos;
+      face.appendChild(dot);
+    });
+    cube.appendChild(face);
   });
-  return el;
+  const t = FACE_ROTATION[restValue] || {x:0,y:0};
+  cube.style.transform = `rotateX(${t.x}deg) rotateY(${t.y}deg)`;
+  wrap.appendChild(cube);
+  return wrap;
 }
 
-function setDieFace(el, value){
-  el.innerHTML = '';
-  (DIE_PIPS[value]||[]).forEach(pos=>{
-    const dot = document.createElement('div');
-    dot.className = 'pip '+pos;
-    el.appendChild(dot);
-  });
-}
-
-// finalValues: gösterilecek gerçek zar sonuçları. Önce zarlar tumbling
-// (dönerek) rastgele yüzler gösterir, sonra gerçek sonuca "iniş" yapar.
+// finalValues: atılan gerçek zar sonuçları. Küpler fiziksel olarak dönerek
+// (birkaç tam tur + gerçek sonucun yüzü öne bakacak şekilde) yerine oturur.
 function rollDiceAnimation(finalValues, onDone){
   const diceArea = document.getElementById('diceArea');
   diceArea.innerHTML = '';
-  const dieEls = finalValues.map(()=>{
-    const el = buildDieFace(1, 'rolling');
-    diceArea.appendChild(el);
-    return el;
+  const cubes = finalValues.map(()=>{
+    const wrap = buildDieCube(1, 'rolling');
+    diceArea.appendChild(wrap);
+    return wrap.querySelector('.die-cube');
   });
 
-  let ticks = 0;
-  const maxTicks = 9;
-  const flicker = setInterval(()=>{
-    ticks++;
-    dieEls.forEach(el=>{
-      if(ticks>=maxTicks) return;
-      setDieFace(el, 1+Math.floor(Math.random()*6));
-    });
-    if(ticks>=maxTicks){
-      clearInterval(flicker);
-      dieEls.forEach((el,i)=>{
-        setDieFace(el, finalValues[i]);
-        el.classList.remove('rolling');
-        el.classList.add('landing');
-        setTimeout(()=>el.classList.remove('landing'), 280);
+  // bir sonraki karede hedef rotasyonu uygula ki transition tetiklensin
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      cubes.forEach((cube, idx)=>{
+        const t = FACE_ROTATION[finalValues[idx]] || {x:0,y:0};
+        const dir = ()=> (Math.random()<0.5 ? 1 : -1);
+        const spinsX = 360 * (2 + Math.floor(Math.random()*2)) * dir();
+        const spinsY = 360 * (2 + Math.floor(Math.random()*2)) * dir();
+        cube.style.transform = `rotateX(${t.x + spinsX}deg) rotateY(${t.y + spinsY}deg)`;
       });
-      onDone();
-    }
-  }, 68);
+    });
+  });
+
+  setTimeout(()=>{
+    diceArea.querySelectorAll('.die-wrap').forEach(w=>{
+      w.classList.remove('rolling');
+      w.classList.add('landing');
+      setTimeout(()=>w.classList.remove('landing'), 280);
+    });
+    onDone();
+  }, 900);
 }
 
 function render(){
@@ -1753,7 +1772,7 @@ function render(){
   diceArea.innerHTML='';
   g.dice.forEach((d,idx)=>{
     const used = g.diceUsed[idx];
-    diceArea.appendChild(buildDieFace(d, used?'used':''));
+    diceArea.appendChild(buildDieCube(d, used?'used':''));
   });
 
   const statusEl=document.getElementById('statusText');
