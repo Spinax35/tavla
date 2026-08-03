@@ -1972,79 +1972,99 @@ function applyMoveFromBar(g, dest){
 }
 
 function applyMoveOnBoard(g, fromIdx, dest){
-  g.points[fromIdx] += ME==='w'?-1:1;
+  const color = ME;
+  g.points[fromIdx] -= color==='w' ? 1 : -1;
+
   if(dest.type==='off'){
-    if(ME==='w') g.off.w++; else g.off.b++;
+    if(color==='w') g.off.w++; else g.off.b++;
     markDieUsed(g, dest.die);
-    return 'off';
+    return 'move';
+  }
+
+  const vDest = g.points[dest.idx];
+  let hit = false;
+  if((color==='w' && vDest===-1) || (color==='b' && vDest===1)){
+    if(color==='w') g.bar.b++; else g.bar.w++;
+    g.points[dest.idx] = color==='w' ? 1 : -1;
+    hit = true;
   } else {
-    const v=g.points[dest.idx];
-    let hit=false;
-    if((ME==='w' && v===-1) || (ME==='b' && v===1)){
-      if(ME==='w') g.bar.b++; else g.bar.w++;
-      g.points[dest.idx] = ME==='w'?1:-1;
-      hit=true;
-    } else {
-      g.points[dest.idx] += ME==='w'?1:-1;
-    }
-    markDieUsed(g, dest.die);
-    return hit ? 'hit' : 'move';
+    g.points[dest.idx] += color==='w' ? 1 : -1;
+  }
+  markDieUsed(g, dest.die);
+  return hit ? 'hit' : 'move';
+}
+
+function afterMove(){
+  const remaining = remainingDiceValues(localGame);
+  const hasMoves = anyLegalMoveExists(localGame, ME, remaining);
+  const myBar = ME==='w' ? localGame.bar.w : localGame.bar.b;
+
+  if(remaining.length===0 || (!hasMoves && myBar===0)){
+    endTurn();
+  } else if(!hasMoves && myBar>0){
+    endTurn();
+  } else {
+    pushState();
+    render();
   }
 }
 
-async function afterMove(){
-  const g=localGame;
-  const wasPlaying = g.status==='playing';
-  if(!g.score) g.score = { w:0, b:0 };
-  if(g.off.w>=15){ g.status='finished'; g.winner='w'; g.score.w++; }
-  if(g.off.b>=15){ g.status='finished'; g.winner='b'; g.score.b++; }
-  if(wasPlaying && g.status==='finished'){
+function endTurn(){
+  const g = localGame;
+  g.turn = g.turn==='w' ? 'b' : 'w';
+  g.dice = [];
+  g.diceUsed = [];
+  g.diceRolledThisTurn = false;
+  selectedPoint = null;
+  undoStack = [];
+
+  if(g.off.w===15){
+    g.status = 'finished';
+    g.winner = 'w';
+    g.score.w++;
     sfxWin();
-    reportRankedResultIfNeeded(g);
+  } else if(g.off.b===15){
+    g.status = 'finished';
+    g.winner = 'b';
+    g.score.b++;
+    sfxWin();
   }
 
-  if(g.status==='playing'){
-    const remaining = remainingDiceValues(g);
-    if(!anyLegalMoveExists(g, ME, remaining) && remaining.length===0){
-      switchTurn(g);
-    }
-  }
   pushState();
   render();
 }
 
-function switchTurn(g){
-  g.turn = g.turn==='w'?'b':'w';
-  g.dice=[]; g.diceUsed=[]; g.diceRolledThisTurn=false;
-  g.turnStartedAt = Date.now();
-  undoStack=[];
-  selectedPoint = ((g.turn==='w'&&g.bar.w>0)||(g.turn==='b'&&g.bar.b>0)) ? 'bar' : null;
-}
-
-/* ============ buton tetikleyicileri ============ */
 document.getElementById('rollBtn').onclick = ()=>{
   if(!localGame || localGame.turn!==ME || localGame.diceRolledThisTurn) return;
-  pushUndoSnapshot();
   sfxDiceRoll();
-  const d1=roll1(), d2=roll1();
+  const d1 = roll1();
+  const d2 = roll1();
   localGame.dice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
-  localGame.diceUsed = new Array(localGame.dice.length).fill(false);
+  localGame.diceUsed = [false, false, false, false];
   localGame.diceRolledThisTurn = true;
-  const myBar = ME==='w'?localGame.bar.w:localGame.bar.b;
-  if(myBar>0) selectedPoint='bar';
-  afterMove();
+  undoStack = [];
+  selectedPoint = null;
+
+  const remaining = remainingDiceValues(localGame);
+  if(!anyLegalMoveExists(localGame, ME, remaining)){
+    setTimeout(()=>{
+      alert('Oynayabilecek hamle yok, sıra diğer oyuncuya geçiyor.');
+      endTurn();
+    }, 400);
+  } else {
+    pushState();
+    render();
+  }
 };
 
 document.getElementById('passBtn').onclick = ()=>{
   if(!localGame || localGame.turn!==ME) return;
-  pushUndoSnapshot();
-  sfxClick();
-  switchTurn(localGame);
-  pushState();
-  render();
+  endTurn();
 };
 
-document.getElementById('undoBtn').onclick = undoLastMove;
+document.getElementById('undoBtn').onclick = ()=>{
+  undoLastMove();
+};
 
 document.getElementById('surrenderBtn').onclick = ()=>{
   if(!localGame || localGame.status!=='playing') return;
@@ -2052,17 +2072,17 @@ document.getElementById('surrenderBtn').onclick = ()=>{
     localGame.status = 'finished';
     localGame.winner = ME==='w' ? 'b' : 'w';
     localGame.surrendered = true;
-    if(!localGame.score) localGame.score={w:0,b:0};
     if(localGame.winner==='w') localGame.score.w++; else localGame.score.b++;
     sfxWin();
-    reportRankedResultIfNeeded(localGame);
     pushState();
     render();
   }
 };
 
 document.getElementById('leaveGameBtn').onclick = ()=>{
-  if(confirm('Ana menüye dönmek istiyor musun?')){ location.reload(); }
+  if(confirm('Oyundan ayrılmak istiyorsun, ana menüye dönülsün mü?')){
+    location.reload();
+  }
 };
 
 document.getElementById('soundToggleBtn').onclick = ()=>{
@@ -2071,17 +2091,14 @@ document.getElementById('soundToggleBtn').onclick = ()=>{
   document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
 };
 
-document.getElementById('offerRematchBtn').onclick = ()=>{
-  wsSend({type:'rematchRequest'});
-  document.getElementById('rematchIdle').style.display='none';
-  document.getElementById('rematchWaiting').style.display='block';
+document.getElementById('reloadBtn').onclick = ()=>{
+  location.reload();
 };
 
-document.getElementById('rematchAcceptBtn').onclick = ()=>{
-  wsSend({type:'rematchResponse', accept:true});
-  document.getElementById('rematchIncoming').style.display='none';
+document.getElementById('offerRematchBtn').onclick = ()=>{
+  document.getElementById('rematchIdle').style.display='none';
   document.getElementById('rematchWaiting').style.display='block';
-  document.getElementById('rematchWaitingText').textContent = 'Kabul edildi, yeni tur başlıyor…';
+  wsSend({type:'rematchRequest'});
 };
 
 document.getElementById('rematchDeclineBtn').onclick = ()=>{
@@ -2089,7 +2106,29 @@ document.getElementById('rematchDeclineBtn').onclick = ()=>{
   resetRematchUI();
 };
 
-document.getElementById('reloadBtn').onclick = ()=>{ location.reload(); };
+document.getElementById('rematchAcceptBtn').onclick = ()=>{
+  wsSend({type:'rematchResponse', accept:true});
+  resetRematchUI();
+  if(ME==='w') startNewRound();
+};
+
+setInterval(()=>{
+  if(!localGame || localGame.status!=='playing') return;
+  const timerEl = document.getElementById('turnTimer');
+  timerEl.style.visibility = 'visible';
+  const elapsed = Math.floor((Date.now() - (localGame.turnStartedAt || Date.now())) / 1000);
+  const remaining = Math.max(0, 60 - elapsed);
+  const mins = String(Math.floor(remaining/60)).padStart(2,'0');
+  const secs = String(Math.floor(remaining%60)).padStart(2,'0');
+  document.getElementById('turnTimerText').textContent = `${mins}:${secs}`;
+  const fillPct = (remaining / 60) * 100;
+  document.getElementById('turnTimerFill').style.width = `${fillPct}%`;
+  timerEl.classList.toggle('warning', remaining <= 10);
+
+  if(remaining<=0 && localGame.turn===ME && ME==='w'){
+    endTurn();
+  }
+}, 1000);
 </script>
 </body>
 </html>
