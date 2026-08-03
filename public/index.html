@@ -1015,6 +1015,8 @@ checkExistingSession();
 let ROOM=null, ME=null, myName='', lastSeq=-1;
 let selectedPoint=null;
 let localGame=null;
+let opponentLeftDeadline=null, opponentLeftInterval=null;
+const OPPONENT_LEAVE_GRACE_SEC = 20;
 
 const CHANNEL_IDS=['1','2','3','4','5','6'];
 let channelCounts={};
@@ -1113,6 +1115,42 @@ function wsSend(obj){
   if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
 }
 
+function clearOpponentLeftTimer(){
+  if(opponentLeftInterval){ clearInterval(opponentLeftInterval); opponentLeftInterval=null; }
+  opponentLeftDeadline = null;
+}
+
+function startOpponentLeftTimer(){
+  // zaten sayım varsa yeniden başlatma (art arda gelen olaylarla süreyi sıfırlama)
+  if(opponentLeftDeadline) return;
+  opponentLeftDeadline = Date.now() + OPPONENT_LEAVE_GRACE_SEC*1000;
+
+  const tick = ()=>{
+    if(!localGame || localGame.status!=='playing'){ clearOpponentLeftTimer(); return; }
+    const remaining = Math.max(0, Math.ceil((opponentLeftDeadline - Date.now())/1000));
+    document.getElementById('statusText').textContent =
+      `Rakibin bağlantısı kesildi — dönmezse ${remaining} sn içinde oyunu kazanacaksın.`;
+    if(remaining<=0){
+      clearOpponentLeftTimer();
+      winByOpponentLeaving();
+    }
+  };
+  tick();
+  opponentLeftInterval = setInterval(tick, 1000);
+}
+
+function winByOpponentLeaving(){
+  const g = localGame;
+  if(!g || g.status==='finished') return;
+  g.status = 'finished';
+  g.winner = ME;
+  g.leftGame = true;
+  if(g.winner==='w') g.score.w++; else g.score.b++;
+  sfxWin();
+  pushState();
+  render();
+}
+
 function handleServerMessage(msg){
   if(msg.type==='created'){
     ROOM = msg.code;
@@ -1151,6 +1189,7 @@ function handleServerMessage(msg){
   }
   if(msg.type==='state'){
     if(!msg.state) return;
+    clearOpponentLeftTimer();
     localGame = msg.state;
     lastSeq = localGame.seq;
     if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')) enterGame();
@@ -1167,7 +1206,7 @@ function handleServerMessage(msg){
   }
   if(msg.type==='peer-left'){
     if(localGame && localGame.status==='playing'){
-      document.getElementById('statusText').textContent='Rakibin bağlantısı kesildi, bekleniyor…';
+      startOpponentLeftTimer();
     }
     return;
   }
@@ -1839,7 +1878,9 @@ function clearHighlights(){
 function showWin(g){
   const ov=document.getElementById('winOverlay');
   const winnerName = (g.winner==='w'?g.players.w:g.players.b);
-  document.getElementById('winText').textContent = g.surrendered ? winnerName + ' kazandı! 🏳️' : winnerName + ' kazandı! 🎉';
+  document.getElementById('winText').textContent = g.leftGame
+    ? winnerName + ' kazandı! (rakip oyunu terk etti) 🚪'
+    : g.surrendered ? winnerName + ' kazandı! 🏳️' : winnerName + ' kazandı! 🎉';
   const score = g.score || { w:0, b:0 };
   document.getElementById('scoreDisplay').textContent = `${g.players.w||'Beyaz'}  ${score.w} — ${score.b}  ${g.players.b||'Siyah'}`;
   if(!ov.classList.contains('active')) resetRematchUI();
