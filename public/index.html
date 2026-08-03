@@ -3,33 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tavla Nova</title>
+<title>Tavla Nova - Deluxe Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --wood-dark:#2a1810;
-    --wood-mid:#4a2c1a;
-    --wood-light:#6b4226;
-    --felt-a:#e7d8b3;
-    --felt-b:#6e1c22;
-    --point-gold-1:#e6bf5e;
-    --point-gold-2:#b8863a;
-    --point-dark-1:#3a2b1e;
-    --point-dark-2:#1c130c;
-    --brass:#c9a227;
-    --brass-light:#e8c85f;
-    --ivory:#f1e9d8;
-    --ebony:#1c1410;
-    --cream:#f4ead9;
-    --board-bg:#1a0f08;
-    --danger:#a8412e;
+    --wood-black:#120a06;
+    --wood-dark:#241209;
+    --wood-mid:#452211;
+    --wood-light:#6d3b20;
+    --wood-panel:#32180c;
+    --felt-dark:#18100c;
+    --felt-rich:#261810;
+    --point-gold-1:#f3d273;
+    --point-gold-2:#c7983e;
+    --point-gold-3:#825f1b;
+    --point-dark-1:#3b2d22;
+    --point-dark-2:#1f1712;
+    --point-dark-3:#0c0907;
+    --brass:#d4af37;
+    --brass-light:#f5d77f;
+    --brass-dark:#997a15;
+    --ivory:#f7f1e3;
+    --ebony:#18120e;
+    --cream:#f9f4ed;
+    --board-bg:#160c07;
+    --danger:#b8422f;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     font-family:'Manrope',sans-serif;
-    background:radial-gradient(ellipse at top, #1e130c 0%, #0d0704 70%);
+    background:
+      radial-gradient(circle at 50% 20%, #2c180e 0%, #0c0502 85%),
+      linear-gradient(to bottom, #180d07, #080301);
     color:var(--cream);
     min-height:100vh;
     display:flex;
@@ -39,351 +46,425 @@
   }
   h1,.display{font-family:'Fraunces',serif;}
   .brand{
-    font-size:2.1rem;
+    font-size:2.3rem;
     font-weight:700;
-    letter-spacing:0.02em;
+    letter-spacing:0.04em;
     color:var(--brass-light);
     margin:6px 0 2px;
-    text-shadow:0 2px 12px rgba(201,162,39,0.25);
+    text-shadow:0 3px 15px rgba(212,175,55,0.35), 0 1px 3px rgba(0,0,0,0.8);
+    font-family:'Fraunces',serif;
   }
   .brand-sub{
-    font-size:0.8rem;
-    color:#b8a583;
-    letter-spacing:0.18em;
+    font-size:0.78rem;
+    color:#bca77d;
+    letter-spacing:0.25em;
     text-transform:uppercase;
-    margin-bottom:22px;
+    margin-bottom:24px;
+    font-weight:600;
   }
 
   /* ---- Landing / Lobby ---- */
   .card{
-    background:linear-gradient(180deg, #2a1a10, #1c1109);
-    border:1px solid rgba(201,162,39,0.25);
-    border-radius:16px;
-    padding:28px 26px;
+    background:linear-gradient(145deg, #28170e, #160c07);
+    border:1px solid rgba(212,175,55,0.3);
+    border-radius:18px;
+    padding:32px 28px;
     width:100%;
-    max-width:420px;
-    box-shadow:0 20px 50px rgba(0,0,0,0.5);
+    max-width:440px;
+    box-shadow:0 25px 60px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.1);
   }
-  .card h2{margin:0 0 4px;font-size:1.3rem;color:var(--brass-light);}
-  .card p.sub{margin:0 0 20px;color:#b8a583;font-size:0.88rem;}
-  label{display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#c9a227;margin:14px 0 6px;}
-  input[type=text]{
-    width:100%;padding:11px 13px;border-radius:9px;border:1px solid rgba(201,162,39,0.35);
-    background:#120b06;color:var(--cream);font-size:1rem;font-family:inherit;
+  .card h2{margin:0 0 6px;font-size:1.4rem;color:var(--brass-light);font-family:'Fraunces',serif;}
+  .card p.sub{margin:0 0 22px;color:#bca77d;font-size:0.88rem;line-height:1.5;}
+  label{display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--brass);margin:14px 0 6px;font-weight:700;}
+  input[type=text], input[type=password]{
+    width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(212,175,55,0.3);
+    background:#0d0603;color:var(--cream);font-size:1rem;font-family:inherit;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,0.5);
+    transition:border-color .2s, box-shadow .2s;
   }
-  input[type=text]:focus{outline:none;border-color:var(--brass);}
+  input[type=text]:focus, input[type=password]:focus{outline:none;border-color:var(--brass-light);box-shadow:inset 0 2px 5px rgba(0,0,0,0.5), 0 0 10px rgba(212,175,55,0.25);}
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    background:linear-gradient(180deg,var(--brass-light),var(--brass));
-    color:#241503;border:none;border-radius:9px;padding:12px 18px;
-    font-family:inherit;font-weight:800;font-size:0.92rem;cursor:pointer;
-    letter-spacing:0.02em;transition:transform .12s ease, box-shadow .12s ease;
+    background:linear-gradient(180deg, var(--brass-light) 0%, var(--brass) 50%, var(--brass-dark) 100%);
+    color:#1a0f04;border:none;border-radius:10px;padding:13px 20px;
+    font-family:inherit;font-weight:800;font-size:0.95rem;cursor:pointer;
+    letter-spacing:0.03em;transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
     width:100%;margin-top:16px;
+    box-shadow:0 6px 20px rgba(212,175,55,0.3), inset 0 1px 0 rgba(255,255,255,0.5);
+    text-shadow:0 1px 0 rgba(255,255,255,0.3);
   }
-  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,162,39,0.3);}
-  .btn:active{transform:translateY(0);}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 10px 25px rgba(212,175,55,0.45), inset 0 1px 0 rgba(255,255,255,0.6);}
+  .btn:active{transform:translateY(1px);filter:brightness(0.95);}
   .btn.secondary{
-    background:transparent;border:1px solid rgba(201,162,39,0.4);color:var(--brass-light);
+    background:linear-gradient(180deg, rgba(50,30,15,0.8), rgba(25,14,7,0.9));
+    border:1px solid rgba(212,175,55,0.35);color:var(--brass-light);
+    box-shadow:0 4px 15px rgba(0,0,0,0.3);
+    text-shadow:none;
   }
+  .btn.secondary:hover{border-color:var(--brass-light);background:linear-gradient(180deg, rgba(70,42,21,0.9), rgba(35,20,10,0.95));box-shadow:0 6px 20px rgba(212,175,55,0.15);}
   .btn.small{width:auto;padding:8px 14px;font-size:0.8rem;margin-top:0;}
   .btn.ranked-btn{
-    background:linear-gradient(180deg,#3a2a10,#1c1109);
-    border:1px solid rgba(201,162,39,0.5);color:var(--brass-light);
-    box-shadow:0 0 0 1px rgba(201,162,39,0.15) inset;
+    background:linear-gradient(180deg,#4a3311,#211504);
+    border:1px solid rgba(212,175,55,0.6);color:var(--brass-light);
+    box-shadow:0 0 0 1px rgba(212,175,55,0.2) inset, 0 6px 20px rgba(0,0,0,0.4);
+    text-shadow:0 1px 2px rgba(0,0,0,0.8);
   }
-  .btn.ranked-btn:hover{border-color:var(--brass-light);box-shadow:0 0 14px rgba(201,162,39,0.25);}
-  .divider{display:flex;align-items:center;gap:10px;color:#7a6a54;font-size:0.75rem;margin:22px 0;text-transform:uppercase;letter-spacing:0.1em;}
-  .divider::before,.divider::after{content:"";flex:1;height:1px;background:rgba(201,162,39,0.2);}
+  .btn.ranked-btn:hover{border-color:#fff;box-shadow:0 0 18px rgba(212,175,55,0.4), 0 8px 25px rgba(0,0,0,0.5);}
+  .divider{display:flex;align-items:center;gap:12px;color:#8c7550;font-size:0.72rem;margin:22px 0;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent);}
   .code-display{
-    font-family:'Fraunces',serif;font-size:2rem;letter-spacing:0.25em;text-align:center;
-    color:var(--brass-light);background:#120b06;border:1px dashed rgba(201,162,39,0.4);
-    border-radius:10px;padding:14px 0;margin-top:10px;
+    font-family:'Fraunces',serif;font-size:2.2rem;letter-spacing:0.3em;text-align:center;
+    color:var(--brass-light);background:#0c0502;border:2px dashed rgba(212,175,55,0.4);
+    border-radius:12px;padding:16px 0;margin-top:12px;
+    box-shadow:inset 0 4px 10px rgba(0,0,0,0.8);
   }
   .row{display:flex;gap:10px;}
   .row>*{flex:1;}
-  .hint{font-size:0.8rem;color:#8a7a5f;margin-top:10px;line-height:1.5;}
+  .hint{font-size:0.8rem;color:#9e8760;margin-top:12px;line-height:1.5;}
 
   .room-grid{
     display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;
   }
   .room-btn{
-    background:#1c1109;border:1px solid rgba(201,162,39,0.25);border-radius:10px;
-    padding:14px 10px;text-align:center;cursor:pointer;transition:transform .12s ease, border-color .12s ease;
+    background:linear-gradient(145deg, #1f1109, #0d0603);
+    border:1px solid rgba(212,175,55,0.25);border-radius:12px;
+    padding:14px 10px;text-align:center;cursor:pointer;transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
     color:var(--cream);font-family:inherit;
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
   }
-  .room-btn:hover{transform:translateY(-2px);border-color:var(--brass);}
-  .room-btn .room-name{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--brass-light);}
-  .room-btn .room-count{font-size:0.75rem;color:#8a7a5f;margin-top:4px;}
-  .room-btn.full{opacity:0.45;cursor:not-allowed;}
-  .room-btn.full:hover{transform:none;border-color:rgba(201,162,39,0.25);}
+  .room-btn:hover{transform:translateY(-2px);border-color:var(--brass);box-shadow:0 6px 18px rgba(212,175,55,0.2);}
+  .room-btn .room-name{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--brass-light);font-weight:600;}
+  .room-btn .room-count{font-size:0.75rem;color:#8c7550;margin-top:4px;letter-spacing:0.05em;}
+  .room-btn.full{opacity:0.4;cursor:not-allowed;}
+  .room-btn.full:hover{transform:none;border-color:rgba(212,175,55,0.25);box-shadow:none;}
 
   .channel-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;max-height:340px;overflow-y:auto;}
   .channel-list-item{
     display:flex;justify-content:space-between;align-items:center;
-    background:#1c1109;border:1px solid rgba(201,162,39,0.2);border-radius:9px;padding:10px 12px;
+    background:linear-gradient(145deg, #1f1109, #0f0703);border:1px solid rgba(212,175,55,0.2);border-radius:10px;padding:10px 14px;
   }
-  .channel-list-item .pname{font-size:0.92rem;}
+  .channel-list-item .pname{font-size:0.92rem;font-weight:600;}
   .channel-list-item .btn{width:auto;margin:0;padding:8px 14px;font-size:0.8rem;}
-  .waiting{display:flex;align-items:center;gap:10px;color:#c9a227;font-size:0.9rem;margin-top:14px;}
-  .dot-pulse{width:9px;height:9px;border-radius:50%;background:var(--brass);animation:pulse 1.2s infinite ease-in-out;}
-  @keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1.1);}}
+  .waiting{display:flex;align-items:center;gap:10px;color:var(--brass);font-size:0.9rem;margin-top:16px;font-weight:500;}
+  .dot-pulse{width:10px;height:10px;border-radius:50%;background:var(--brass);animation:pulse 1.2s infinite ease-in-out;box-shadow:0 0 8px var(--brass);}
+  @keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1.2);}}
 
   /* ---- Profil / lig / liderlik ---- */
   .profile-badge{
     width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
-    background:#1c1109;border:1px solid rgba(201,162,39,0.25);border-radius:10px;
-    padding:10px 14px;margin-top:14px;cursor:pointer;color:var(--cream);font-family:inherit;
-    transition:border-color .12s ease;
+    background:linear-gradient(145deg, #22130a, #110804);border:1px solid rgba(212,175,55,0.3);border-radius:12px;
+    padding:12px 16px;margin-top:16px;cursor:pointer;color:var(--cream);font-family:inherit;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    box-shadow:0 4px 15px rgba(0,0,0,0.3);
   }
-  .profile-badge:hover{border-color:var(--brass);}
-  .profile-badge .pb-league{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-size:1rem;}
-  .profile-badge .pb-rating{font-size:0.85rem;color:#8a7a5f;}
+  .profile-badge:hover{border-color:var(--brass);box-shadow:0 6px 20px rgba(212,175,55,0.2);}
+  .profile-badge .pb-league{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;}
+  .profile-badge .pb-rating{font-size:0.85rem;color:#bca77d;font-weight:600;}
   .league-pill{
-    display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
-    font-size:0.78rem;font-weight:600;border:1px solid currentColor;
+    display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+    font-size:0.78rem;font-weight:700;border:1px solid currentColor;background:rgba(0,0,0,0.3);
+    box-shadow:0 2px 6px rgba(0,0,0,0.4);
   }
-  .profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;}
+  .profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:18px;}
   .profile-stat{
-    background:#1c1109;border:1px solid rgba(201,162,39,0.2);border-radius:9px;
-    padding:12px 8px;text-align:center;
+    background:linear-gradient(145deg, #1f1109, #0d0603);border:1px solid rgba(212,175,55,0.2);border-radius:10px;
+    padding:14px 8px;text-align:center;box-shadow:inset 0 2px 4px rgba(0,0,0,0.5);
   }
-  .profile-stat .val{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--brass-light);}
-  .profile-stat .lab{font-size:0.72rem;color:#8a7a5f;margin-top:2px;text-transform:uppercase;letter-spacing:0.05em;}
+  .profile-stat .val{font-family:'Fraunces',serif;font-size:1.4rem;color:var(--brass-light);font-weight:700;}
+  .profile-stat .lab{font-size:0.7rem;color:#8c7550;margin-top:4px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;}
   .leaderboard-row{
     display:flex;align-items:center;gap:12px;
-    background:#1c1109;border:1px solid rgba(201,162,39,0.2);border-radius:9px;
-    padding:10px 12px;margin-bottom:8px;
+    background:linear-gradient(145deg, #1f1109, #0d0603);border:1px solid rgba(212,175,55,0.2);border-radius:10px;
+    padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.3);
   }
-  .leaderboard-row.me{border-color:var(--brass);background:#241708;}
-  .leaderboard-row .lb-rank{width:28px;text-align:center;font-family:'Fraunces',serif;color:#8a7a5f;}
-  .leaderboard-row .lb-name{flex:1;font-size:0.92rem;}
-  .leaderboard-row .lb-rating{font-family:'Fraunces',serif;color:var(--brass-light);}
+  .leaderboard-row.me{border-color:var(--brass);background:linear-gradient(145deg, #2c1a0e, #180e07);box-shadow:0 0 15px rgba(212,175,55,0.2);}
+  .leaderboard-row .lb-rank{width:32px;text-align:center;font-family:'Fraunces',serif;font-weight:700;color:var(--brass-light);font-size:1.05rem;}
+  .leaderboard-row .lb-name{flex:1;font-size:0.95rem;font-weight:600;}
+  .leaderboard-row .lb-rating{font-family:'Fraunces',serif;color:var(--brass-light);font-weight:700;font-size:1.1rem;}
 
-  /* ---- Game screen ---- */
-  .game-wrap{width:100%;max-width:900px;display:none;flex-direction:column;align-items:center;}
+  /* ---- Game screen (PREMIUM ULTRA-REALISTIC WOODEN TABLE) ---- */
+  .game-wrap{width:100%;max-width:980px;display:none;flex-direction:column;align-items:center;}
   .game-wrap.active{display:flex;}
   .topbar{
     width:100%;display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:14px;flex-wrap:wrap;gap:10px;
+    margin-bottom:16px;flex-wrap:wrap;gap:10px;
   }
   .player-chip{
-    display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
-    background:#1c1109;border:1px solid rgba(201,162,39,0.2);font-size:0.85rem;
+    display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;
+    background:linear-gradient(145deg, #22130a, #110703);border:1px solid rgba(212,175,55,0.25);font-size:0.88rem;
+    box-shadow:0 4px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    font-weight:600;
   }
-  .player-chip .swatch{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(0,0,0,0.3);}
-  .swatch.white{background:radial-gradient(circle at 35% 30%, var(--ivory), #c9b98f);}
-  .swatch.black{background:radial-gradient(circle at 35% 30%, #4a3a2a, var(--ebony));}
-  .player-chip.active-turn{border-color:var(--brass);box-shadow:0 0 0 2px rgba(201,162,39,0.25);}
-  .room-tag{font-size:0.75rem;color:#8a7a5f;letter-spacing:0.05em;}
+  .player-chip .swatch{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 1px 3px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.6);}
+  .swatch.white{background:radial-gradient(circle at 35% 30%, #fffbf0, #e2d1a9 60%, #b39b69 100%);}
+  .swatch.black{background:radial-gradient(circle at 35% 30%, #594738, #1e140d 65%, #080503 100%);}
+  .player-chip.active-turn{border-color:var(--brass);box-shadow:0 0 20px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.2);background:linear-gradient(145deg, #321c0e, #1a0b04);}
+  .room-tag{font-size:0.8rem;color:#bca77d;letter-spacing:0.08em;font-weight:700;text-transform:uppercase;}
 
+  /* --- MÜKEMMEL GERÇEKÇİ TAVLA KUTUSU / ÇERÇEVE --- */
   .board-frame{
     position:relative;
     background:
-      radial-gradient(circle at 16px 16px, var(--brass-light) 0 2px, rgba(232,200,95,0.22) 5px, transparent 9px),
-      radial-gradient(circle at calc(100% - 16px) 16px, var(--brass-light) 0 2px, rgba(232,200,95,0.22) 5px, transparent 9px),
-      radial-gradient(circle at 16px calc(100% - 16px), var(--brass-light) 0 2px, rgba(232,200,95,0.22) 5px, transparent 9px),
-      radial-gradient(circle at calc(100% - 16px) calc(100% - 16px), var(--brass-light) 0 2px, rgba(232,200,95,0.22) 5px, transparent 9px),
-      linear-gradient(115deg, transparent 42%, rgba(255,225,175,0.07) 50%, transparent 58%),
-      radial-gradient(ellipse 60% 34% at 22% 15%, rgba(20,10,4,0.22), transparent 72%),
-      radial-gradient(ellipse 44% 26% at 78% 84%, rgba(20,10,4,0.18), transparent 72%),
-      repeating-linear-gradient(91deg, rgba(0,0,0,0.07) 0 1px, rgba(255,206,150,0.025) 1px 3px, transparent 3px 9px),
-      linear-gradient(160deg, #7d4e28, var(--wood-mid) 48%, var(--wood-dark) 100%);
+      /* Köşe pirinç bağlantıları (fitings) */
+      radial-gradient(circle at 20px 20px, var(--brass-light) 0 3px, var(--brass) 6px, var(--brass-dark) 9px, transparent 12px),
+      radial-gradient(circle at calc(100% - 20px) 20px, var(--brass-light) 0 3px, var(--brass) 6px, var(--brass-dark) 9px, transparent 12px),
+      radial-gradient(circle at 20px calc(100% - 20px), var(--brass-light) 0 3px, var(--brass) 6px, var(--brass-dark) 9px, transparent 12px),
+      radial-gradient(circle at calc(100% - 20px) calc(100% - 20px), var(--brass-light) 0 3px, var(--brass) 6px, var(--brass-dark) 9px, transparent 12px),
+      /* Ahşap damarları ve lüks maun cilası */
+      linear-gradient(135deg, rgba(255,225,175,0.06) 0%, transparent 40%, rgba(0,0,0,0.3) 100%),
+      repeating-linear-gradient(88deg, rgba(0,0,0,0.08) 0 1px, rgba(120,60,20,0.04) 1px 4px, transparent 4px 12px),
+      linear-gradient(165deg, #61361c, #3d1c0b 45%, #210e05 100%);
     background-repeat:no-repeat;
-    border-radius:18px;padding:18px;
-    box-shadow:0 30px 70px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(201,162,39,0.14), inset 0 0 40px rgba(0,0,0,0.3);
+    border-radius:24px;
+    padding:22px;
+    box-shadow:
+      0 40px 90px rgba(0,0,0,0.7),
+      0 10px 30px rgba(0,0,0,0.5),
+      inset 0 0 0 2px rgba(212,175,55,0.35),
+      inset 0 0 0 4px rgba(35,16,6,0.9),
+      inset 0 0 60px rgba(0,0,0,0.6);
     width:100%;
   }
+  
+  /* İç oyun alanı (Kadife zemin ve derinlik hissi) */
   .board{
     display:grid;
-    grid-template-columns:repeat(6,1fr) 34px repeat(6,1fr);
-    grid-template-rows:1fr 46px 1fr;
+    grid-template-columns:repeat(6,1fr) 42px repeat(6,1fr);
+    grid-template-rows:1fr 54px 1fr;
     background:
-      radial-gradient(ellipse at 22% 28%, rgba(255,175,90,0.10), transparent 58%),
-      radial-gradient(ellipse at 78% 72%, rgba(255,155,70,0.09), transparent 58%),
-      repeating-linear-gradient(91deg, rgba(0,0,0,0.14) 0 1px, rgba(255,196,120,0.02) 1px 2px, transparent 2px 8px),
-      radial-gradient(ellipse at 50% 50%, #3a2114 0%, var(--board-bg) 80%);
-    border-radius:10px;
+      /* İç kadife gölgelendirmeleri */
+      radial-gradient(ellipse at 25% 30%, rgba(255,180,90,0.07), transparent 60%),
+      radial-gradient(ellipse at 75% 70%, rgba(255,150,70,0.06), transparent 60%),
+      repeating-linear-gradient(92deg, rgba(0,0,0,0.18) 0 1px, rgba(255,200,140,0.015) 1px 3px, transparent 3px 10px),
+      radial-gradient(ellipse at 50% 50%, #2b140a 0%, #110703 85%);
+    border-radius:14px;
     aspect-ratio:15/10;
     overflow:hidden;
-    box-shadow:inset 0 0 0 2px rgba(201,162,39,0.22), inset 0 0 34px rgba(0,0,0,0.5);
+    box-shadow:
+      inset 0 0 0 3px rgba(212,175,55,0.25),
+      inset 0 0 45px rgba(0,0,0,0.8),
+      0 5px 15px rgba(0,0,0,0.5);
   }
+  
   .point{
     position:relative;display:flex;flex-direction:column;align-items:center;
     padding:2px 0;cursor:pointer;
   }
   .point.top{justify-content:flex-start;}
   .point.bottom{justify-content:flex-end;}
+  
+  /* Üçgenler (İşçilikli ahşap haneler) */
   .tri{
-    position:absolute;left:8%;width:84%;height:88%;
-    filter:drop-shadow(0 0 0.5px rgba(0,0,0,0.35)) drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+    position:absolute;left:6%;width:88%;height:90%;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
   }
   .tri::after{
-    content:"";position:absolute;left:50%;top:2%;bottom:2%;width:1.5px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.22), rgba(201,162,39,0.1) 60%, transparent);
+    content:"";position:absolute;left:50%;top:1%;bottom:1%;width:1.5px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(212,175,55,0.2) 60%, transparent);
     transform:translateX(-50%);pointer-events:none;
   }
   .point.top .tri{top:0;clip-path:polygon(0 0,100% 0,50% 100%);}
   .point.bottom .tri{bottom:0;clip-path:polygon(50% 0,0 100%,100% 100%);}
+  
+  /* Açık ve koyu hanelerin lüks ahşap / sedef tonları */
   .point:nth-child(odd) .tri{background:
-    repeating-linear-gradient(4deg, rgba(140,95,20,0.07) 0 2px, transparent 2px 8px),
-    linear-gradient(180deg, var(--point-gold-1), var(--point-gold-2) 68%, #9c7332);}
+    repeating-linear-gradient(5deg, rgba(160,110,30,0.08) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, var(--point-gold-1), var(--point-gold-2) 60%, var(--point-gold-3));}
   .point:nth-child(even) .tri{background:
-    repeating-linear-gradient(4deg, rgba(255,220,160,0.035) 0 2px, transparent 2px 8px),
-    linear-gradient(180deg, var(--point-dark-1), var(--point-dark-2) 68%, #100b07);}
+    repeating-linear-gradient(5deg, rgba(255,220,170,0.03) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, var(--point-dark-1), var(--point-dark-2) 70%, var(--point-dark-3));}
+
   .point.legal::after{
-    content:"";position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;
-    background:rgba(90,200,120,0.85);transform:translate(-50%,-50%);
-    box-shadow:0 0 12px rgba(90,200,120,0.7);z-index:5;pointer-events:none;
+    content:"";position:absolute;top:50%;left:50%;width:20px;height:20px;border-radius:50%;
+    background:rgba(80,210,120,0.9);transform:translate(-50%,-50%);
+    box-shadow:0 0 16px rgba(80,210,120,0.9);z-index:5;pointer-events:none;
+    border:2px solid #fff;
   }
   .point.combo::after{
-    content:"";position:absolute;top:50%;left:50%;width:18px;height:18px;border-radius:50%;
-    background:rgba(66,140,255,0.9);transform:translate(-50%,-50%);
-    box-shadow:0 0 14px rgba(66,140,255,0.85);z-index:6;pointer-events:none;
+    content:"";position:absolute;top:50%;left:50%;width:22px;height:22px;border-radius:50%;
+    background:rgba(60,150,255,0.95);transform:translate(-50%,-50%);
+    box-shadow:0 0 18px rgba(60,150,255,0.9);z-index:6;pointer-events:none;
+    border:2px solid #fff;
     animation:comboPulse 1s infinite ease-in-out;
   }
   @keyframes comboPulse{
-    0%,100%{opacity:0.65;transform:translate(-50%,-50%) scale(0.85);}
-    50%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}
+    0%,100%{opacity:0.7;transform:translate(-50%,-50%) scale(0.85);}
+    50%{opacity:1;transform:translate(-50%,-50%) scale(1.25);}
   }
-  .point.selected .tri{filter:brightness(1.35);}
+  .point.selected .tri{filter:brightness(1.4) drop-shadow(0 0 8px rgba(212,175,55,0.6));}
+
   .checkers{
     display:flex;flex-direction:column;align-items:center;gap:2px;z-index:2;
     padding:3px 0;width:100%;
   }
   .point.top .checkers{flex-direction:column;}
   .point.bottom .checkers{flex-direction:column-reverse;}
+
+  /* --- GERÇEKÇİ PREMİUM PULLAR (CHECKERS) --- */
   .checker{
     position:relative;
-    width:78%;max-width:34px;aspect-ratio:1;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;
+    width:82%;max-width:38px;aspect-ratio:1;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;
     flex-shrink:0;
-    --cap-inner:#2c2620;--cap-outer:#0a0705;
+    transition:transform 0.1s ease;
   }
   .checker::before{
     content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
     background:
-      radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.4), rgba(255,255,255,0) 46%),
-      radial-gradient(circle at 50% 52%, transparent 24%, rgba(0,0,0,0.18) 26%, transparent 30%),
-      radial-gradient(circle at 50% 52%, var(--cap-inner) 0%, var(--cap-inner) 27%, var(--cap-outer) 55%, transparent 60%);
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1);
+      radial-gradient(circle at 32% 25%, rgba(255,255,255,0.55), rgba(255,255,255,0) 48%),
+      radial-gradient(circle at 50% 50%, transparent 22%, rgba(0,0,0,0.3) 25%, transparent 29%),
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.7) 100%);
+    box-shadow:inset 0 1px 2px rgba(255,255,255,0.4);
   }
   .checker.white{
-    --cap-inner:#fffaf0;--cap-outer:#d2b779;
-    background:radial-gradient(circle at 35% 28%, #fffef8, var(--ivory) 58%, #d3c299 100%);
+    background:radial-gradient(circle at 35% 28%, #ffffff, #f2e5c6 55%, #c8b07e 100%);
     box-shadow:
-      inset 0 0 0 2px rgba(180,155,105,0.35),
-      inset 0 2px 3px rgba(255,255,255,0.7),
-      inset 0 -3px 5px rgba(110,85,50,0.22),
-      0 2px 5px rgba(0,0,0,0.35);
-    color:#7a6a4a;
+      inset 0 0 0 2px rgba(190,165,110,0.5),
+      inset 0 3px 5px rgba(255,255,255,0.9),
+      inset 0 -4px 6px rgba(110,80,40,0.4),
+      0 4px 8px rgba(0,0,0,0.45);
+    color:#594522;
+    text-shadow:0 1px 0 rgba(255,255,255,0.8);
   }
   .checker.black{
-    --cap-inner:#463c30;--cap-outer:#1a130c;
-    background:radial-gradient(circle at 35% 28%, #6b5442, var(--ebony) 62%, #14100a 100%);
+    background:radial-gradient(circle at 35% 28%, #524133, #241b14 60%, #0d0805 100%);
     box-shadow:
-      inset 0 0 0 2px rgba(70,50,30,0.4),
-      inset 0 2px 3px rgba(255,255,255,0.1),
-      inset 0 -3px 5px rgba(0,0,0,0.4),
-      0 2px 5px rgba(0,0,0,0.4);
-    color:#8a7a63;
+      inset 0 0 0 2px rgba(80,60,40,0.6),
+      inset 0 3px 4px rgba(255,255,255,0.2),
+      inset 0 -4px 6px rgba(0,0,0,0.8),
+      0 4px 8px rgba(0,0,0,0.55);
+    color:#d9c5a0;
+    text-shadow:0 1px 1px rgba(0,0,0,0.9);
   }
-  .checker.movable{box-shadow:0 0 0 2px var(--brass), inset 0 0 0 3px rgba(180,155,105,0.55), inset 0 2px 2px rgba(255,255,255,0.5), 0 2px 6px rgba(0,0,0,0.5);cursor:pointer;}
-  .checker.stack-count{font-size:0.65rem;}
+  .checker.movable{
+    box-shadow:0 0 0 3px var(--brass), inset 0 0 0 3px rgba(212,175,55,0.6), inset 0 3px 4px rgba(255,255,255,0.7), 0 6px 12px rgba(0,0,0,0.6);
+    cursor:pointer;
+    animation:checkerGlow 1.5s infinite alternate;
+  }
+  @keyframes checkerGlow{
+    from{filter:brightness(1);}
+    to{filter:brightness(1.15) drop-shadow(0 0 6px var(--brass));}
+  }
+  .checker.stack-count{font-size:0.7rem;}
   .checker[draggable="true"]{cursor:grab;}
-  .checker.dragging{opacity:0.35;}
-  .point.dragover .tri{filter:brightness(1.5);}
-  .off-tray.dragover{border-color:rgba(90,200,120,1);}
+  .checker.dragging{opacity:0.3;transform:scale(0.9);}
+  .point.dragover .tri{filter:brightness(1.6);}
+  .off-tray.dragover{border-color:rgba(80,210,120,1);background:rgba(80,210,120,0.15);}
 
-  .bar-col{grid-row:1/4;
+  /* --- ORTA BAR (MARŞ) BÖLÜMÜ --- */
+  .bar-col{
+    grid-row:1/4;
     background:
-      radial-gradient(circle at 50% 10px, var(--brass-light) 0 3px, rgba(232,200,95,0.3) 4px, transparent 6px),
-      radial-gradient(circle at 50% calc(100% - 10px), var(--brass-light) 0 3px, rgba(232,200,95,0.3) 4px, transparent 6px),
-      repeating-linear-gradient(135deg, rgba(0,0,0,0.3) 0 2px, rgba(255,255,255,0.02) 2px 5px),
-      linear-gradient(90deg, var(--wood-dark), var(--wood-mid), var(--wood-dark));
+      radial-gradient(circle at 50% 16px, var(--brass-light) 0 3px, var(--brass) 6px, transparent 9px),
+      radial-gradient(circle at 50% calc(100% - 16px), var(--brass-light) 0 3px, var(--brass) 6px, transparent 9px),
+      repeating-linear-gradient(135deg, rgba(0,0,0,0.4) 0 2px, rgba(255,255,255,0.015) 2px 6px),
+      linear-gradient(90deg, #3d1c0b, #542912, #3d1c0b);
     background-repeat:no-repeat;
-    box-shadow:inset 0 0 10px rgba(0,0,0,0.55);
-    display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 0;position:relative;}
-  .bar-half{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;flex:1;width:100%;padding-top:6px;overflow:hidden;z-index:20;}
-  .bar-half .checker{width:80%;max-width:28px;}
+    box-shadow:inset 0 0 15px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5);
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0;position:relative;
+    border-left:1px solid rgba(212,175,55,0.2);
+    border-right:1px solid rgba(212,175,55,0.2);
+  }
+  .bar-half{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;flex:1;width:100%;padding-top:8px;overflow:hidden;z-index:20;}
+  .bar-half .checker{width:82%;max-width:32px;}
   .bar-half.clickable{cursor:pointer;}
   .bar-half.legal{
-    outline:2px solid rgba(90,200,120,0.85);border-radius:8px;
+    outline:3px solid rgba(80,210,120,0.9);border-radius:10px;
     animation:barPulse 1.1s infinite ease-in-out;
+    background:rgba(80,210,120,0.1);
   }
   @keyframes barPulse{
-    0%,100%{ box-shadow:0 0 6px 2px rgba(90,200,120,0.5); }
-    50%{ box-shadow:0 0 16px 6px rgba(90,200,120,0.85); }
+    0%,100%{ box-shadow:0 0 10px 2px rgba(80,210,120,0.6); }
+    50%{ box-shadow:0 0 22px 8px rgba(80,210,120,0.95); }
   }
 
-  .mid-strip{grid-column:1/14;grid-row:2;background:linear-gradient(180deg, var(--wood-mid), var(--wood-light), var(--wood-mid));
-    display:flex;align-items:center;justify-content:space-between;padding:0 14px;}
+  /* --- ORTA BAND VE TOPLAMA ALANLARI --- */
+  .mid-strip{
+    grid-column:1/14;grid-row:2;
+    background:linear-gradient(180deg, #4d2613, #2e170a, #4d2613);
+    display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+    box-shadow:inset 0 4px 10px rgba(0,0,0,0.7), inset 0 -4px 10px rgba(0,0,0,0.7);
+    border-top:1px solid rgba(212,175,55,0.25);
+    border-bottom:1px solid rgba(212,175,55,0.25);
+  }
   .off-tray{
     display:flex;flex-direction:column;align-items:center;gap:4px;
-    min-width:64px;padding:4px 6px;border-radius:8px;
-    border:1px dashed rgba(201,162,39,0.35);
-    background:linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.05));
-    box-shadow:inset 0 3px 8px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(0,0,0,0.25);
+    min-width:76px;padding:6px 10px;border-radius:10px;
+    border:1px dashed rgba(212,175,55,0.4);
+    background:linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15));
+    box-shadow:inset 0 4px 10px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(0,0,0,0.4);
+    transition:all 0.2s;
   }
-  .off-tray-label{font-size:0.55rem;letter-spacing:0.06em;color:#8a7a5f;text-transform:uppercase;}
-  .off-tray-checkers{display:flex;gap:3px;align-items:center;flex-wrap:wrap;max-width:120px;}
-  .off-tray .checker{width:16px;box-shadow:none;}
+  .off-tray-label{font-size:0.6rem;letter-spacing:0.08em;color:var(--brass);text-transform:uppercase;font-weight:700;}
+  .off-tray-checkers{display:flex;gap:3px;align-items:center;flex-wrap:wrap;max-width:130px;}
+  .off-tray .checker{width:18px;box-shadow:none;}
   .off-tray.legal{
-    border:1px dashed rgba(90,200,120,0.9);
+    border:2px dashed rgba(80,210,120,1);
+    background:rgba(80,210,120,0.15);
     animation:barPulse 1.1s infinite ease-in-out;
     cursor:pointer;
   }
 
   .controls{
     width:100%;display:flex;justify-content:space-between;align-items:center;
-    margin-top:16px;flex-wrap:wrap;gap:12px;
+    margin-top:20px;flex-wrap:wrap;gap:12px;
   }
-  .dice-area{display:flex;gap:10px;align-items:center;min-height:52px;}
-  .turn-timer{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:64px;}
-  .turn-timer .ttext{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--brass-light);letter-spacing:0.03em;}
-  .turn-timer .tbar{width:58px;height:5px;border-radius:3px;background:rgba(201,162,39,0.15);overflow:hidden;}
-  .turn-timer .tbar-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--brass),var(--brass-light));transition:width .25s linear;}
+  .dice-area{display:flex;gap:12px;align-items:center;min-height:56px;}
+  .turn-timer{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px;}
+  .turn-timer .ttext{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--brass-light);letter-spacing:0.04em;font-weight:700;}
+  .turn-timer .tbar{width:64px;height:6px;border-radius:3px;background:rgba(212,175,55,0.2);overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);}
+  .turn-timer .tbar-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--brass-dark),var(--brass),var(--brass-light));transition:width .25s linear;}
   .turn-timer.warning .ttext{color:var(--danger);}
   .turn-timer.warning .tbar-fill{background:var(--danger);}
+  
+  /* --- PREMİUM ZARLAR (DICE) --- */
   .die{
-    width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#fff,#e6ddc7);
-    display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.4rem;
-    font-weight:700;color:#241503;box-shadow:0 4px 10px rgba(0,0,0,0.4);
+    width:48px;height:48px;border-radius:12px;
+    background:linear-gradient(145deg, #ffffff, #e8dfcb 65%, #cbbba1 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:#1a0f04;
+    box-shadow:0 6px 16px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.9), inset 0 -3px 5px rgba(100,80,50,0.3);
+    border:1px solid rgba(180,150,110,0.5);
+    text-shadow:0 1px 1px rgba(255,255,255,0.7);
   }
-  .die.used{opacity:0.28;filter:grayscale(0.6);}
-  .status-text{font-size:0.9rem;color:#c9a227;min-height:1.3em;}
+  .die.used{opacity:0.3;filter:grayscale(0.7);box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+  
+  .status-text{font-size:0.95rem;color:var(--brass-light);min-height:1.4em;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
   .action-buttons{display:flex;gap:10px;}
-  .action-buttons .btn{width:auto;margin-top:0;padding:10px 16px;}
+  .action-buttons .btn{width:auto;margin-top:0;padding:11px 18px;}
 
   .overlay{
-    position:fixed;inset:0;background:rgba(10,6,3,0.82);display:none;align-items:center;justify-content:center;z-index:50;
+    position:fixed;inset:0;background:rgba(8,3,1,0.88);display:none;align-items:center;justify-content:center;z-index:50;
+    backdrop-filter:blur(5px);
   }
   .overlay.active{display:flex;}
   .overlay .card{text-align:center;}
-  .overlay .display{font-size:1.8rem;color:var(--brass-light);margin-bottom:6px;}
+  .overlay .display{font-size:2rem;color:var(--brass-light);margin-bottom:8px;font-weight:700;}
   .score-display{
-    font-family:'Fraunces',serif;font-size:1.35rem;color:var(--cream);
-    background:#120b06;border:1px solid rgba(201,162,39,0.3);border-radius:9px;
-    padding:10px 14px;margin:6px 0 20px;letter-spacing:0.02em;
+    font-family:'Fraunces',serif;font-size:1.45rem;color:var(--cream);
+    background:linear-gradient(145deg, #1f1109, #0d0603);border:1px solid rgba(212,175,55,0.35);border-radius:12px;
+    padding:12px 18px;margin:10px 0 22px;letter-spacing:0.03em;font-weight:700;
+    box-shadow:inset 0 3px 8px rgba(0,0,0,0.8);
   }
 
   @media(max-width:640px){
     body{padding:14px 8px 40px;}
-    .brand{font-size:1.5rem;}
+    .brand{font-size:1.6rem;}
     .brand-sub{font-size:0.68rem;margin-bottom:14px;}
-    .card{padding:20px 16px;}
-    .checker{max-width:22px;}
-    .off-tray .checker{width:13px;}
-    .bar-half .checker{max-width:18px;}
-    .board{grid-template-columns:repeat(6,1fr) 22px repeat(6,1fr);}
-    .board-frame{padding:8px;}
-    .off-tray-label{font-size:0.48rem;}
-    .off-tray{min-width:44px;padding:3px 4px;}
-    .die{width:34px;height:34px;font-size:1.05rem;}
-    .topbar{justify-content:center;gap:6px;margin-bottom:10px;}
-    .player-chip{font-size:0.75rem;padding:6px 10px;}
-    .room-tag{width:100%;text-align:center;order:3;font-size:0.68rem;}
+    .card{padding:22px 16px;}
+    .checker{max-width:24px;}
+    .off-tray .checker{width:14px;}
+    .bar-half .checker{max-width:20px;}
+    .board{grid-template-columns:repeat(6,1fr) 26px repeat(6,1fr);}
+    .board-frame{padding:10px;}
+    .off-tray-label{font-size:0.5rem;}
+    .off-tray{min-width:48px;padding:4px 6px;}
+    .die{width:36px;height:36px;font-size:1.1rem;}
+    .topbar{justify-content:center;gap:6px;margin-bottom:12px;}
+    .player-chip{font-size:0.78rem;padding:7px 12px;}
+    .room-tag{width:100%;text-align:center;order:3;font-size:0.72rem;}
     .controls{
-      flex-direction:column;align-items:stretch;gap:10px;margin-top:12px;
+      flex-direction:column;align-items:stretch;gap:12px;margin-top:14px;
     }
     .dice-area{justify-content:center;}
     .status-text{text-align:center;order:-1;}
@@ -392,11 +473,9 @@
     #rollBtn, #passBtn{width:100%;}
   }
   @media(max-width:400px){
-    .board{grid-template-columns:repeat(6,1fr) 18px repeat(6,1fr);}
-    .checker{max-width:18px;}
-    .bar-half .checker{max-width:14px;}
-    .brand{font-size:1.3rem;}
-    .code-display{font-size:1.5rem;letter-spacing:0.15em;}
+    .board{grid-template-columns:repeat(6,1fr) 20px repeat(6,1fr);}
+    .checker{max-width:20px;}
+    .bar-half .checker{max-width:16px;}
   }
   html,body{overflow-x:hidden;}
 </style>
@@ -405,7 +484,7 @@
 <body>
 
   <div class="brand">Tavla Nova</div>
-  <div class="brand-sub">Arkadaşınla çevrimiçi oyna</div>
+  <div class="brand-sub">Deluxe Çevrimiçi Deneyim</div>
 
   <!-- AUTH -->
   <div id="authScreen">
@@ -464,7 +543,7 @@
       <button class="btn ranked-btn" id="rankedBtn" style="margin-top:10px;">🏆 Rekabetçi</button>
       <p class="hint" id="rankedGuestHint" style="display:none;">Rekabetçi modda oynamak için hesap açıp giriş yapmalısın — misafir girişiyle oynanmıyor.</p>
 
-      <div class="row" style="margin-top:10px;">
+      <div class="row" style="margin-top:12px;">
         <button class="btn small secondary" id="openProfileBtn" style="margin-top:0;">👤 Profilim</button>
         <button class="btn small secondary" id="openLeaderboardBtn" style="margin-top:0;">📊 Liderlik Tablosu</button>
       </div>
@@ -558,7 +637,7 @@
       <div class="code-display" id="roomCodeDisplay">----</div>
       <button class="btn small secondary" id="copyBtn" style="width:100%;margin-top:12px;">Kodu Kopyala</button>
       <div class="waiting"><span class="dot-pulse"></span> Arkadaşının katılması bekleniyor…</div>
-      <p class="hint">Bu sayfayı (aynı sekmeyi) arkadaşınla paylaş, o da "Odaya Katıl" kısmına bu kodu girsin. İkiniz de bu artefaktı açık tutun.</p>
+      <p class="hint">Bu sayfayı arkadaşınla paylaş, o da "Odaya Katıl" kısmına bu kodu girsin.</p>
     </div>
   </div>
 
@@ -626,7 +705,7 @@ function genCode(){
 }
 function roll1(){ return 1+Math.floor(Math.random()*6); }
 
-/* ============ ses efektleri (dosya gerektirmez) ============ */
+/* ============ ses efektleri ============ */
 let audioCtx = null;
 let soundOn = localStorage.getItem('tavlaSound') !== 'off';
 
@@ -650,19 +729,6 @@ function playTone(freq, duration, type='sine', volume=0.2, delay=0){
   osc.start(t); osc.stop(t+duration+0.02);
 }
 
-function playNoiseBurst(duration, volume=0.15, delay=0){
-  if(!soundOn) return;
-  const ctx=getAudioCtx();
-  const size=Math.max(1, Math.floor(ctx.sampleRate*duration));
-  const buffer=ctx.createBuffer(1, size, ctx.sampleRate);
-  const data=buffer.getChannelData(0);
-  for(let i=0;i<size;i++) data[i]=(Math.random()*2-1)*volume;
-  const src=ctx.createBufferSource();
-  src.buffer=buffer;
-  src.connect(ctx.destination);
-  src.start(ctx.currentTime+delay);
-}
-
 function playFilteredNoise(duration, volume=0.2, delay=0, freqLow=1500, freqHigh=3000){
   if(!soundOn) return;
   const ctx=getAudioCtx();
@@ -684,39 +750,37 @@ function playFilteredNoise(duration, volume=0.2, delay=0, freqLow=1500, freqHigh
   src.start(t);
 }
 
-// A short, low "tok" — like a wooden checker being set down on the board.
-function playThud(freq=170, duration=0.08, volume=0.3, delay=0){
+function playThud(freq=160, duration=0.08, volume=0.35, delay=0){
   if(!soundOn) return;
   const ctx=getAudioCtx();
   const osc=ctx.createOscillator();
   const gain=ctx.createGain();
   osc.type='sine';
   const t=ctx.currentTime+delay;
-  osc.frequency.setValueAtTime(freq*2, t);
-  osc.frequency.exponentialRampToValueAtTime(freq*0.55, t+duration);
+  osc.frequency.setValueAtTime(freq*2.2, t);
+  osc.frequency.exponentialRampToValueAtTime(freq*0.5, t+duration);
   gain.gain.setValueAtTime(volume, t);
   gain.gain.exponentialRampToValueAtTime(0.001, t+duration);
   osc.connect(gain); gain.connect(ctx.destination);
   osc.start(t); osc.stop(t+duration+0.02);
-  playFilteredNoise(0.012, volume*0.5, delay, 2200, 5000);
+  playFilteredNoise(0.015, volume*0.6, delay, 1800, 4500);
 }
 
 function sfxDiceRoll(){
-  // irregular clatter that settles down, like real dice in a cup
   const hits=7;
   let t=0;
   for(let i=0;i<hits;i++){
     t += 0.05 + Math.random()*0.03;
-    const base=1400+Math.random()*1600;
+    const base=1300+Math.random()*1500;
     playFilteredNoise(0.028, 0.22*(1-i/hits*0.45), t, base, base+900);
   }
-  playThud(190, 0.1, 0.22, t+0.06);
+  playThud(180, 0.1, 0.25, t+0.06);
 }
-function sfxMove(){ playThud(175, 0.07, 0.24); }
-function sfxHit(){ playThud(105, 0.17, 0.34); playFilteredNoise(0.06, 0.26, 0.015, 1000, 2600); }
-function sfxBearOff(){ playTone(700, 0.1, 'sine', 0.18); playTone(950, 0.14, 'sine', 0.16, 0.09); }
+function sfxMove(){ playThud(165, 0.07, 0.28); }
+function sfxHit(){ playThud(95, 0.18, 0.38); playFilteredNoise(0.06, 0.28, 0.015, 900, 2400); }
+function sfxBearOff(){ playTone(720, 0.1, 'sine', 0.18); playTone(980, 0.14, 'sine', 0.16, 0.09); }
 function sfxWin(){ [523,659,784,1046].forEach((f,i)=>playTone(f,0.2,'sine',0.22,i*0.15)); }
-function sfxClick(){ playTone(340, 0.05, 'sine', 0.1); }
+function sfxClick(){ playTone(360, 0.05, 'sine', 0.1); }
 
 function playMoveResultSound(result){
   if(result==='hit') sfxHit();
@@ -724,7 +788,6 @@ function playMoveResultSound(result){
 }
 
 /* ============ initial board setup ============ */
-// index 0..23 == point (idx+1). positive => white(p1) count, negative => black(p2) count
 function initialPoints(){
   const p=new Array(24).fill(0);
   p[23]=2;   // point24 white
@@ -748,18 +811,14 @@ function freshState(hostName){
     diceUsed: [],
     diceRolledThisTurn:false,
     players:{ w: hostName, b: null },
-    status:'waiting', // waiting | playing | finished
+    status:'waiting',
     winner:null,
-    score:{ w:0, b:0 }, // mac skoru — rövanşlarda korunur
-    turnStartedAt:null, // oyun 'playing' olunca doldurulur — tur süresi bunun üzerinden hesaplanır
+    score:{ w:0, b:0 },
+    turnStartedAt:null,
     seq:1
   };
 }
 
-// Skoru ve oyuncu isimlerini koruyarak yeni bir tur (rövanş) başlatır.
-// Sadece 'w' tarafı bu fonksiyonu çağırır (oda kurma mantığıyla tutarlı
-// olması için tek bir taraf yetkilidir); diğer taraf gelen 'state'
-// mesajıyla yeni turu otomatik olarak alır.
 function startNewRound(){
   if(!localGame) return;
   const prevScore = localGame.score || { w:0, b:0 };
@@ -793,7 +852,7 @@ const SUPABASE_URL = 'https://bosspxhnpgjagvyfxljo.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pObaUy-NGv5KLaItVmJpGg_n17GTsAp';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let authMode = 'login'; // 'login' | 'signup'
+let authMode = 'login';
 
 function showAuthError(msg){
   const el = document.getElementById('authError');
@@ -810,7 +869,7 @@ function setAuthMode(mode){
   const isSignup = mode==='signup';
   document.getElementById('authTitle').textContent = isSignup ? 'Hesap oluştur' : 'Giriş yap';
   document.getElementById('authSub').textContent = isSignup
-    ? 'Birkaç saniye sürer, kredi kartı falan istemiyoruz.'
+    ? 'Birkaç saniye sürer, hemen oynamaya başla.'
     : 'Devam etmek için hesabına giriş yap.';
   document.getElementById('signupOnlyField').style.display = isSignup ? 'block' : 'none';
   document.getElementById('authSubmitBtn').textContent = isSignup ? 'Kayıt Ol' : 'Giriş Yap';
@@ -844,7 +903,6 @@ document.getElementById('authSubmitBtn').onclick = async ()=>{
       if(data.session){
         onLoggedIn(data.user);
       } else {
-        // e-posta onayı açık ise oturum hemen gelmeyebilir
         showAuthError('Kayıt oldu! E-postana gelen onay linkine tıkla, sonra giriş yap.');
         setAuthMode('login');
       }
@@ -874,8 +932,7 @@ function onLoggedIn(user){
   myName = displayName;
   isGuest = false;
   myUserId = user.id;
-  const nameInput = document.getElementById('nameInput');
-  if(displayName) nameInput.value = displayName;
+  document.getElementById('nameInput').value = displayName;
   renderRoomGrid();
   updateRankedButtonState();
   loadMyProfile();
@@ -904,8 +961,7 @@ document.getElementById('guestContinueBtn').onclick = ()=>{
   myUserId = null;
   document.getElementById('authScreen').style.display='none';
   document.getElementById('mainMenu').style.display='block';
-  const nameInput = document.getElementById('nameInput');
-  nameInput.value = myName;
+  document.getElementById('nameInput').value = myName;
   renderRoomGrid();
   updateRankedButtonState();
   loadMyProfile();
@@ -929,18 +985,17 @@ checkExistingSession();
 
 /* ============ app state ============ */
 let ROOM=null, ME=null, myName='', lastSeq=-1;
-let selectedPoint=null; // number 1-24, or 'bar'
+let selectedPoint=null;
 let localGame=null;
 
-/* ============ genel oda (public lobby) state ============ */
 const CHANNEL_IDS=['1','2','3','4','5','6'];
 let channelCounts={};
 let currentChannel=null;
 let channelPlayers=[];
 let myConnId=null;
 let pendingChallengeFromId=null;
-let comboTarget=null; // {finalIdx, midIdx, dieOrder:[d1,d2]} or null
-let undoStack=[]; // bu tur icinde yapilan hamlelerin geri alinabilir anlik goruntuleri
+let comboTarget=null;
+let undoStack=[];
 
 function snapshotGame(g){
   return {
@@ -970,8 +1025,6 @@ function undoLastMove(){
   render();
 }
 
-// Zarların TOPLAMIYLA (iki adımda) ulaşılabilecek son noktayı hesaplar.
-// Ara nokta kapalıysa (bloklanmışsa) iki sırayı da dener.
 function computeComboDestination(g, fromIdx, remaining){
   if(remaining.length<2) return null;
   const dA=remaining[0], dB=remaining[1];
@@ -995,7 +1048,7 @@ function applyCombo(g, fromIdx, combo){
   return (r1==='hit'||r2==='hit') ? 'hit' : 'move';
 }
 
-/* ============ websocket connection ============ */
+/* ============ websocket ============ */
 let ws=null, wsReady=null;
 function connectWS(){
   if(ws && (ws.readyState===WebSocket.OPEN || ws.readyState===WebSocket.CONNECTING)) return wsReady;
@@ -1012,7 +1065,7 @@ function connectWS(){
   });
   ws.addEventListener('close', ()=>{
     if(ROOM && document.getElementById('gameWrap').classList.contains('active')){
-      document.getElementById('statusText').textContent='Bağlantı koptu, yeniden bağlanmaya çalışılıyor…';
+      document.getElementById('statusText').textContent='Bağlantı koptu, yeniden bağlanılıyor…';
       setTimeout(reconnect, 1500);
     }
   });
@@ -1022,9 +1075,7 @@ function connectWS(){
 async function reconnect(){
   try{
     await connectWS();
-    if(ROOM){
-      wsSend({type:'join', code:ROOM, name:myName});
-    }
+    if(ROOM) wsSend({type:'join', code:ROOM, name:myName});
   }catch(e){
     setTimeout(reconnect, 2000);
   }
@@ -1047,7 +1098,7 @@ function handleServerMessage(msg){
   if(msg.type==='joined'){
     let state = msg.state;
     if(!state){
-      alert('Bu odanın kurucusu artık bağlı değil. Kodu kontrol et ve tekrar dene.');
+      alert('Bu odanın kurucusu artık bağlı değil.');
       return;
     }
     currentMatchIsRanked = false;
@@ -1066,9 +1117,7 @@ function handleServerMessage(msg){
     return;
   }
   if(msg.type==='error'){
-    if(msg.message==='not_found'){
-      alert('Bu kodla bir oda bulunamadı. Kodu kontrol et ve tekrar dene.');
-    }
+    if(msg.message==='not_found') alert('Oda bulunamadı.');
     resetJoinButton();
     return;
   }
@@ -1076,18 +1125,12 @@ function handleServerMessage(msg){
     if(!msg.state) return;
     localGame = msg.state;
     lastSeq = localGame.seq;
-    if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')){
-      enterGame();
-    }
+    if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')) enterGame();
     if(localGame.status!=='finished'){
-      // Yeni tur (rövanş) başlamış olabilir — kazanma ekranını kapat.
       document.getElementById('winOverlay').classList.remove('active');
       resetRematchUI();
     }
     if(localGame.status==='finished' && currentMatchIsRanked && rankedReportedForRoom !== ROOM){
-      // Maçı BEN bitirmedim (rakip kazandı ya da rakip teslim oldu) —
-      // yine de kendi tarafımdan sonucu bildirmem lazım, çünkü puan
-      // güncellemesi ancak iki taraf da aynı sonucu bildirince işleniyor.
       rankedReportedForRoom = ROOM;
       reportRankedResultIfNeeded(localGame);
     }
@@ -1096,7 +1139,7 @@ function handleServerMessage(msg){
   }
   if(msg.type==='peer-left'){
     if(localGame && localGame.status==='playing'){
-      document.getElementById('statusText').textContent='Arkadaşının bağlantısı kesildi — belki yeniden bağlanır, bekle.';
+      document.getElementById('statusText').textContent='Rakibin bağlantısı kesildi, bekleniyor…';
     }
     return;
   }
@@ -1104,8 +1147,7 @@ function handleServerMessage(msg){
     document.getElementById('rematchIdle').style.display='none';
     document.getElementById('rematchWaiting').style.display='none';
     document.getElementById('rematchIncoming').style.display='block';
-    document.getElementById('rematchIncomingText').textContent =
-      (msg.fromName||'Rakibin') + ' rövanş istiyor. Kabul ediyor musun?';
+    document.getElementById('rematchIncomingText').textContent = (msg.fromName||'Rakibin') + ' rövanş istiyor. Kabul ediyor musun?';
     return;
   }
   if(msg.type==='rematchResponse'){
@@ -1113,7 +1155,7 @@ function handleServerMessage(msg){
       document.getElementById('rematchIdle').style.display='none';
       document.getElementById('rematchIncoming').style.display='none';
       document.getElementById('rematchWaiting').style.display='block';
-      document.getElementById('rematchWaitingText').textContent = 'Rakibin kabul etti, yeni tur başlıyor…';
+      document.getElementById('rematchWaitingText').textContent = 'Rövanş kabul edildi, yeni tur başlıyor…';
       if(ME==='w') startNewRound();
     } else {
       alert((msg.fromName||'Rakibin') + ' rövanşı reddetti.');
@@ -1122,16 +1164,12 @@ function handleServerMessage(msg){
     return;
   }
 
-  // ---- Genel odalar (public lobby) ----
   if(msg.type==='channelCounts'){
     channelCounts = msg.counts;
     if(document.getElementById('mainMenu').style.display!=='none') renderRoomGrid();
     return;
   }
-  if(msg.type==='channelFull'){
-    alert('Bu oda dolu (50/50). Başka bir oda dene.');
-    return;
-  }
+  if(msg.type==='channelFull'){ alert('Oda dolu (50/50).'); return; }
   if(msg.type==='channelJoined'){
     myConnId = msg.yourId;
     currentChannel = msg.channel;
@@ -1150,18 +1188,12 @@ function handleServerMessage(msg){
   }
   if(msg.type==='challengeReceived'){
     pendingChallengeFromId = msg.fromId;
-    document.getElementById('challengeText').textContent = msg.fromName + ' sana meydan okuyor. Kabul edersen oyun hemen başlar.';
+    document.getElementById('challengeText').textContent = msg.fromName + ' sana meydan okuyor.';
     document.getElementById('challengeOverlay').classList.add('active');
     return;
   }
-  if(msg.type==='challengeDeclined'){
-    alert(msg.byName + ' meydan okumanı reddetti.');
-    return;
-  }
-  if(msg.type==='challengeFailed'){
-    alert('O oyuncu artık burada değil.');
-    return;
-  }
+  if(msg.type==='challengeDeclined'){ alert(msg.byName + ' reddetti.'); return; }
+  if(msg.type==='challengeFailed'){ alert('Oyuncu artık odada yok.'); return; }
   if(msg.type==='matched'){
     ROOM = msg.code;
     ME = msg.youAre;
@@ -1178,20 +1210,10 @@ function handleServerMessage(msg){
       enterGame();
       render();
       pushState();
-    } else {
-      // Beyaz tarafı state'i gönderene kadar bekleniyor; 'state' mesajı
-      // geldiğinde mevcut handleServerMessage('state') zaten oyunu açacak.
     }
     return;
   }
 
-  // ---- Rekabetçi (sıralı) mod ----
-  if(msg.type==='rekabetciBekleniyor'){
-    return;
-  }
-  if(msg.type==='rekabetcidenAyrildi'){
-    return;
-  }
   if(msg.type==='rekabetciEslesti'){
     ROOM = msg.code;
     ME = msg.youAre;
@@ -1246,7 +1268,7 @@ async function joinPublicChannel(id){
     await connectWS();
     wsSend({type:'joinChannel', channel:id, name:myName});
   }catch(e){
-    alert('Sunucuya bağlanılamadı. Sunucunun çalıştığından emin ol ve tekrar dene.');
+    alert('Bağlantı kurulamadı.');
   }
 }
 
@@ -1254,10 +1276,7 @@ function renderChannelList(){
   const list=document.getElementById('channelPlayerList');
   const emptyHint=document.getElementById('channelEmptyHint');
   list.innerHTML='';
-  if(channelPlayers.length===0){
-    emptyHint.style.display='block';
-    return;
-  }
+  if(channelPlayers.length===0){ emptyHint.style.display='block'; return; }
   emptyHint.style.display='none';
   channelPlayers.forEach(p=>{
     const row=document.createElement('div');
@@ -1280,30 +1299,20 @@ document.getElementById('playFriendBtn').onclick = ()=>{
   document.getElementById('lobby').style.display='block';
 };
 
-/* ============ rekabetçi (sıralı/ranked) mod ============ */
 let currentMatchIsRanked=false;
 let currentMatchOpponentUserId=null;
-let rankedReportedForRoom=null; // hangi oda icin sonucu zaten bildirdik
+let rankedReportedForRoom=null;
 
 function updateRankedButtonState(){
   const btn=document.getElementById('rankedBtn');
   const hint=document.getElementById('rankedGuestHint');
   if(isGuest){
-    btn.disabled=true;
-    btn.style.opacity='0.45';
-    btn.style.cursor='not-allowed';
+    btn.disabled=true; btn.style.opacity='0.45'; btn.style.cursor='not-allowed';
     hint.style.display='block';
   } else {
-    btn.disabled=false;
-    btn.style.opacity='1';
-    btn.style.cursor='pointer';
+    btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
     hint.style.display='none';
   }
-}
-
-/* ============ profil / lig / liderlik tablosu ============ */
-function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 const LEAGUE_TIERS = [
@@ -1317,17 +1326,12 @@ function leagueForRating(rating){
   return LEAGUE_TIERS.find(t => rating <= t.max) || LEAGUE_TIERS[LEAGUE_TIERS.length-1];
 }
 
-let myProfileCache = null; // { rating, wins, losses }
+let myProfileCache = null;
 
 async function loadMyProfile(){
   const badge = document.getElementById('myProfileBadge');
   const guestHint = document.getElementById('profileGuestHint');
-  if(isGuest || !myUserId){
-    badge.style.display='none';
-    guestHint.style.display='block';
-    myProfileCache = null;
-    return;
-  }
+  if(isGuest || !myUserId){ badge.style.display='none'; guestHint.style.display='block'; myProfileCache=null; return; }
   guestHint.style.display='none';
   try{
     await sb.rpc('ensure_profile', { p_display_name: myName });
@@ -1336,49 +1340,36 @@ async function loadMyProfile(){
     myProfileCache = data;
     const league = leagueForRating(data.rating);
     badge.style.display='flex';
-    badge.innerHTML =
-      '<span class="pb-league">'+league.emoji+' '+league.name+'</span>'+
-      '<span class="pb-rating">'+data.rating+' puan · '+data.wins+'G / '+data.losses+'M</span>';
-  }catch(e){
-    badge.style.display='none';
-  }
+    badge.innerHTML = `<span class="pb-league">${league.emoji} ${league.name}</span><span class="pb-rating">${data.rating} puan · ${data.wins}G / ${data.losses}M</span>`;
+  }catch(e){ badge.style.display='none'; }
 }
 
 function renderProfileScreen(){
   const el = document.getElementById('profileContent');
-  if(isGuest || !myUserId){
-    el.innerHTML = '<p class="sub">Profilini görmek için hesabına giriş yapmalısın — misafir girişinde puan/lig takibi yapılmıyor.</p>';
-    return;
-  }
-  if(!myProfileCache){
-    el.innerHTML = '<p class="sub">Yükleniyor…</p>';
-    return;
-  }
-  const rating = myProfileCache.rating, wins = myProfileCache.wins, losses = myProfileCache.losses;
+  if(isGuest || !myUserId){ el.innerHTML = '<p class="sub">Misafir hesabında profil istatistikleri tutulmaz.</p>'; return; }
+  if(!myProfileCache){ el.innerHTML = '<p class="sub">Yükleniyor…</p>'; return; }
+  const { rating, wins, losses } = myProfileCache;
   const league = leagueForRating(rating);
   const total = wins + losses;
   const winRate = total > 0 ? Math.round((wins/total)*100) : 0;
-  el.innerHTML =
-    '<div style="text-align:center;">'+
-      '<div class="league-pill" style="color:'+league.color+';">'+league.emoji+' '+league.name+' Ligi</div>'+
-      '<div style="font-family:\'Fraunces\',serif;font-size:2.2rem;color:var(--brass-light);margin-top:10px;">'+rating+'</div>'+
-      '<div class="hint" style="margin-top:0;">güncel puan</div>'+
-    '</div>'+
-    '<div class="profile-stats">'+
-      '<div class="profile-stat"><div class="val">'+wins+'</div><div class="lab">Galibiyet</div></div>'+
-      '<div class="profile-stat"><div class="val">'+losses+'</div><div class="lab">Mağlubiyet</div></div>'+
-      '<div class="profile-stat"><div class="val">%'+winRate+'</div><div class="lab">Kazanma</div></div>'+
-    '</div>';
+  el.innerHTML = `
+    <div style="text-align:center;">
+      <div class="league-pill" style="color:${league.color};">${league.emoji} ${league.name} Ligi</div>
+      <div style="font-family:'Fraunces',serif;font-size:2.4rem;color:var(--brass-light);margin-top:10px;font-weight:700;">${rating}</div>
+      <div class="hint" style="margin-top:0;">güncel lig puanı</div>
+    </div>
+    <div class="profile-stats">
+      <div class="profile-stat"><div class="val">${wins}</div><div class="lab">Galibiyet</div></div>
+      <div class="profile-stat"><div class="val">${losses}</div><div class="lab">Mağlubiyet</div></div>
+      <div class="profile-stat"><div class="val">%${winRate}</div><div class="lab">Kazanma</div></div>
+    </div>`;
 }
 
 async function openProfileScreen(){
   document.getElementById('mainMenu').style.display='none';
   document.getElementById('profileScreen').style.display='block';
   renderProfileScreen();
-  if(!isGuest && myUserId){
-    await loadMyProfile();
-    renderProfileScreen();
-  }
+  if(!isGuest && myUserId){ await loadMyProfile(); renderProfileScreen(); }
 }
 
 document.getElementById('myProfileBadge').onclick = openProfileScreen;
@@ -1393,23 +1384,22 @@ async function loadLeaderboard(){
   el.innerHTML = '<p class="sub">Yükleniyor…</p>';
   try{
     const { data, error } = await sb.from('leaderboard').select('*').order('rank', { ascending:true }).limit(50);
-    if(error || !data || data.length===0){
-      el.innerHTML = '<p class="sub">Henüz sıralamada kimse yok — ilk rekabetçi maçını sen oyna!</p>';
-      return;
-    }
+    if(error || !data || data.length===0){ el.innerHTML = '<p class="sub">Henüz sıralamada kimse yok.</p>'; return; }
     el.innerHTML = data.map(row=>{
       const league = leagueForRating(row.rating);
       const isMe = myUserId && row.id === myUserId;
-      return '<div class="leaderboard-row'+(isMe?' me':'')+'">'+
-        '<span class="lb-rank">#'+row.rank+'</span>'+
-        '<span class="lb-name">'+escapeHtml(row.display_name)+(isMe?' (sen)':'')+'</span>'+
-        '<span class="league-pill" style="color:'+league.color+';">'+league.emoji+' '+league.name+'</span>'+
-        '<span class="lb-rating">'+row.rating+'</span>'+
-      '</div>';
+      return `<div class="leaderboard-row${isMe?' me':''}">
+        <span class="lb-rank">#${row.rank}</span>
+        <span class="lb-name">${escapeHtml(row.display_name)}${isMe?' (sen)':''}</span>
+        <span class="league-pill" style="color:${league.color};">${league.emoji} ${league.name}</span>
+        <span class="lb-rating">${row.rating}</span>
+      </div>`;
     }).join('');
-  }catch(e){
-    el.innerHTML = '<p class="sub">Liderlik tablosu yüklenemedi, tekrar dene.</p>';
-  }
+  }catch(e){ el.innerHTML = '<p class="sub">Liderlik tablosu yüklenemedi.</p>'; }
+}
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 document.getElementById('openLeaderboardBtn').onclick = ()=>{
@@ -1425,19 +1415,13 @@ document.getElementById('leaderboardBackBtn').onclick = ()=>{
 async function getMyRating(){
   try{
     await sb.rpc('ensure_profile', { p_display_name: myName });
-    const { data, error } = await sb.from('profiles').select('rating').eq('id', myUserId).single();
-    if(error || !data) return 1000;
-    return data.rating;
-  }catch(e){
-    return 1000;
-  }
+    const { data } = await sb.from('profiles').select('rating').eq('id', myUserId).single();
+    return data ? data.rating : 1000;
+  }catch(e){ return 1000; }
 }
 
 document.getElementById('rankedBtn').onclick = async ()=>{
-  if(isGuest){
-    alert('Rekabetçi modda oynamak için hesabına giriş yapmalısın — misafir girişiyle oynanmıyor.');
-    return;
-  }
+  if(isGuest){ alert('Rekabetçi mod için giriş yapmalısın.'); return; }
   const btn=document.getElementById('rankedBtn');
   btn.disabled=true;
   try{
@@ -1445,13 +1429,10 @@ document.getElementById('rankedBtn').onclick = async ()=>{
     await connectWS();
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('rankedWaitingScreen').style.display='block';
-    document.getElementById('rankedWaitingSub').textContent = `Puanın: ${rating} — sana yakın bir rakip aranıyor…`;
+    document.getElementById('rankedWaitingSub').textContent = `Puanın: ${rating} — rakip aranıyor…`;
     wsSend({type:'rekabetciyeKatil', name:myName, rating, userId:myUserId});
-  }catch(e){
-    alert('Sunucuya bağlanılamadı. Sunucunun çalıştığından emin ol ve tekrar dene.');
-  }finally{
-    btn.disabled=false;
-  }
+  }catch(e){ alert('Bağlantı hatası.'); }
+  finally{ btn.disabled=false; }
 };
 
 document.getElementById('rankedCancelBtn').onclick = ()=>{
@@ -1460,37 +1441,26 @@ document.getElementById('rankedCancelBtn').onclick = ()=>{
   document.getElementById('mainMenu').style.display='block';
 };
 
-// Maç bitince, ranked bir maçsa sonucu sessizce (kullanıcıya bir şey
-// sormadan) Supabase'e bildirir. Çift taraflı onay Supabase fonksiyonunda
-// yapılıyor, burada sadece kendi gördüğümüz sonucu gönderiyoruz.
 async function reportRankedResultIfNeeded(g){
   if(!currentMatchIsRanked || !myUserId || !currentMatchOpponentUserId || !g.winner) return;
   rankedReportedForRoom = ROOM;
   const winnerUserId = g.winner===ME ? myUserId : currentMatchOpponentUserId;
   try{
-    await sb.rpc('report_match_result', {
-      p_room_code: ROOM,
-      p_opponent_id: currentMatchOpponentUserId,
-      p_winner_id: winnerUserId
-    });
+    await sb.rpc('report_match_result', { p_room_code: ROOM, p_opponent_id: currentMatchOpponentUserId, p_winner_id: winnerUserId });
     loadMyProfile();
-  }catch(e){
-    console.error('report_match_result basarisiz', e);
-  }
+  }catch(e){}
 }
 
 document.getElementById('backToMenuBtn').onclick = ()=>{
   document.getElementById('lobby').style.display='none';
   document.getElementById('mainMenu').style.display='block';
 };
-
 document.getElementById('leaveChannelBtn').onclick = ()=>{
   wsSend({type:'leaveChannel'});
   currentChannel=null;
   document.getElementById('channelLobby').style.display='none';
   document.getElementById('mainMenu').style.display='block';
 };
-
 document.getElementById('challengeAcceptBtn').onclick = ()=>{
   document.getElementById('challengeOverlay').classList.remove('active');
   if(pendingChallengeFromId){
@@ -1498,7 +1468,6 @@ document.getElementById('challengeAcceptBtn').onclick = ()=>{
     pendingChallengeFromId=null;
   }
 };
-
 document.getElementById('challengeDeclineBtn').onclick = ()=>{
   document.getElementById('challengeOverlay').classList.remove('active');
   if(pendingChallengeFromId){
@@ -1507,7 +1476,6 @@ document.getElementById('challengeDeclineBtn').onclick = ()=>{
   }
 };
 
-/* ============ lobby wiring ============ */
 document.getElementById('createBtn').onclick = async ()=>{
   const btn=document.getElementById('createBtn');
   const name = document.getElementById('nameInput').value.trim() || 'Beyaz';
@@ -1517,11 +1485,8 @@ document.getElementById('createBtn').onclick = async ()=>{
   try{
     await connectWS();
     wsSend({type:'create', state});
-  }catch(e){
-    alert('Sunucuya bağlanılamadı. Sunucunun çalıştığından emin ol ve tekrar dene.');
-  }finally{
-    btn.disabled=false; btn.textContent='Oda Kur';
-  }
+  }catch(e){ alert('Bağlantı hatası.'); }
+  finally{ btn.disabled=false; btn.textContent='Oda Kur'; }
 };
 
 document.getElementById('copyBtn').onclick = ()=>{
@@ -1535,16 +1500,13 @@ document.getElementById('joinBtn').onclick = async ()=>{
   const btn=document.getElementById('joinBtn');
   const name = document.getElementById('nameInput').value.trim() || 'Siyah';
   const code = document.getElementById('codeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if(!code){ alert('Lütfen oda kodunu gir'); return; }
+  if(!code){ alert('Oda kodu gir'); return; }
   myName = name; ME='b'; ROOM=code;
-  btn.disabled=true; btn.textContent='Aranıyor…';
+  btn.disabled=true; btn.textContent='Katılınıyor…';
   try{
     await connectWS();
     wsSend({type:'join', code, name});
-  }catch(e){
-    alert('Sunucuya bağlanılamadı. Sunucunun çalıştığından emin ol ve tekrar dene.');
-    resetJoinButton();
-  }
+  }catch(e){ alert('Bağlantı hatası.'); resetJoinButton(); }
 };
 
 function enterGame(){
@@ -1552,23 +1514,14 @@ function enterGame(){
   document.getElementById('mainMenu').style.display='none';
   document.getElementById('channelLobby').style.display='none';
   document.getElementById('gameWrap').classList.add('active');
-  // ME is known by this point (host='w', joiner/challenged='b') — (re)build the
-  // board grid now so it's oriented correctly for whichever side we're on.
   buildBoardSkeleton();
 }
 
 /* ============ board rendering ============ */
 const boardEl = document.getElementById('board');
-
-// layout order: top row points 13..18, bar, 19..24 ; bottom row 12..7, bar, 6..1
-// (this is the "white" perspective — white's home, points 1-6, sits bottom-right)
 const topOrderWhite = [13,14,15,16,17,18, 'bar', 19,20,21,22,23,24];
 const bottomOrderWhite = [12,11,10,9,8,7, 'bar', 6,5,4,3,2,1];
 
-// For the black player we mirror the board 180° (swap the two rows) so that
-// black's own home (points 19-24) always renders bottom-right too — i.e. each
-// player always sees their own checkers collecting in the same corner,
-// instead of one side collecting bottom-right and the other top-right.
 function currentOrders(){
   if(ME==='b') return { topOrder: bottomOrderWhite, bottomOrder: topOrderWhite };
   return { topOrder: topOrderWhite, bottomOrder: bottomOrderWhite };
@@ -1596,7 +1549,7 @@ function buildBoardSkeleton(){
     }
   });
   bottomOrder.forEach((p,i)=>{
-    if(p==='bar') return; // already added spanning column
+    if(p==='bar') return;
     const d=document.createElement('div');
     d.className='point bottom';
     d.dataset.point=p;
@@ -1645,8 +1598,7 @@ function buildBoardSkeleton(){
 buildBoardSkeleton();
 
 function pointEl(p){ return boardEl.querySelector(`.point[data-point="${p}"]`); }
-
-let dragSource = null; // number (point idx) or 'bar'
+let dragSource = null;
 
 function myTurnActive(g){
   return g && g.turn===ME && g.diceRolledThisTurn && g.status==='playing';
@@ -1679,7 +1631,6 @@ function render(){
   document.getElementById('chipWhite').classList.toggle('active-turn', g.turn==='w');
   document.getElementById('chipBlack').classList.toggle('active-turn', g.turn==='b');
 
-  // checkers
   for(let i=0;i<24;i++){
     const p=i+1;
     const el=pointEl(p);
@@ -1693,8 +1644,6 @@ function render(){
       const chk=document.createElement('div');
       chk.className='checker '+color;
       if(count>showMax && c===showMax-1) chk.textContent='+'+(count-showMax+1);
-      // Only the top checker of your own color is draggable, and only when
-      // you're not forced to enter from the bar first.
       if(canDrag && c===Math.min(count,showMax)-1 && ownsColor(val, ME) && myBarCount===0){
         attachDrag(chk, i);
       }
@@ -1714,8 +1663,6 @@ function render(){
   const offB=document.getElementById('offBlackCheckers'); offB.innerHTML='';
   for(let i=0;i<g.off.b;i++){ const c=document.createElement('div'); c.className='checker black'; offB.appendChild(c); }
 
-
-  // dice
   const diceArea=document.getElementById('diceArea');
   diceArea.innerHTML='';
   g.dice.forEach((d,idx)=>{
@@ -1726,7 +1673,6 @@ function render(){
     diceArea.appendChild(el);
   });
 
-  // status + controls
   const statusEl=document.getElementById('statusText');
   const rollBtn=document.getElementById('rollBtn');
   const passBtn=document.getElementById('passBtn');
@@ -1737,7 +1683,7 @@ function render(){
   undoBtn.style.display = (myTurn && g.diceRolledThisTurn && g.status==='playing' && undoStack.length>0) ? 'inline-flex' : 'none';
 
   if(oppMissing){
-    statusEl.textContent = 'Arkadaşının katılması bekleniyor…';
+    statusEl.textContent = 'Rakibin bekleniyor…';
     rollBtn.style.display='none'; passBtn.style.display='none';
   } else if(g.status==='finished'){
     statusEl.textContent = (g.winner==='w'?g.players.w:g.players.b) + ' kazandı!';
@@ -1755,15 +1701,10 @@ function render(){
     const myBarCount = ME==='w'?g.bar.w:g.bar.b;
     rollBtn.style.display='none';
     if(!hasMoves){
-      statusEl.textContent = myBarCount>0
-        ? 'Bar\'daki taşını giremiyorsun (nokta kapalı) — sırayı geçmen gerekiyor.'
-        : 'Oynayabileceğin hamle yok.';
+      statusEl.textContent = myBarCount>0 ? 'Bar çıkışı kapalı — pas geç.' : 'Oynayabileceğin hamle yok.';
       passBtn.style.display='inline-flex';
     } else if(myBarCount>0 && selectedPoint!=='bar'){
-      statusEl.textContent = '⬆ Önce ortadaki BAR bölümüne tıkla, taşını oyuna sok.';
-      passBtn.style.display='none';
-    } else if(selectedPoint!==null && selectedPoint!=='bar' && legalDestinationsFromPoint(g, ME, selectedPoint, remaining).some(d=>d.type==='off')){
-      statusEl.textContent = '🏁 Taşı toplama alanına sürükle ya da alana tıkla.';
+      statusEl.textContent = '⬆ Önce ortadaki MARŞ alanından taşını oyuna sok.';
       passBtn.style.display='none';
     } else {
       statusEl.textContent = selectedPoint ? 'Hedef noktayı seç.' : 'Bir taş seç.';
@@ -1796,17 +1737,13 @@ function clearHighlights(){
 function showWin(g){
   const ov=document.getElementById('winOverlay');
   const winnerName = (g.winner==='w'?g.players.w:g.players.b);
-  document.getElementById('winText').textContent = g.surrendered
-    ? winnerName + ' kazandı! 🏳️ (rakip teslim oldu)'
-    : winnerName + ' kazandı! 🎉';
+  document.getElementById('winText').textContent = g.surrendered ? winnerName + ' kazandı! 🏳️' : winnerName + ' kazandı! 🎉';
   const score = g.score || { w:0, b:0 };
-  document.getElementById('scoreDisplay').textContent =
-    (g.players.w||'Beyaz') + '  ' + score.w + ' — ' + score.b + '  ' + (g.players.b||'Siyah');
+  document.getElementById('scoreDisplay').textContent = `${g.players.w||'Beyaz'}  ${score.w} — ${score.b}  ${g.players.b||'Siyah'}`;
   if(!ov.classList.contains('active')) resetRematchUI();
   ov.classList.add('active');
 }
 
-/* ============ game rules ============ */
 function remainingDiceValues(g){
   const vals=[];
   g.dice.forEach((d,i)=>{ if(!g.diceUsed[i]) vals.push(d); });
@@ -1814,8 +1751,7 @@ function remainingDiceValues(g){
 }
 
 function ownsColor(val, color){
-  if(color==='w') return val>0;
-  return val<0;
+  return color==='w' ? val>0 : val<0;
 }
 
 function homeRange(color){
@@ -1836,7 +1772,6 @@ function allCheckersHome(g, color){
   return true;
 }
 
-// returns list of destination descriptors {type:'point'|'off', idx, die}
 function legalDestinationsFromBar(g, color, diceVals){
   const results=[];
   const uniq=[...new Set(diceVals)];
@@ -1865,14 +1800,12 @@ function legalDestinationsFromPoint(g, color, fromIdx, diceVals){
       if(d===dist){
         results.push({type:'off', die:d});
       } else if(d>dist){
-        // only legal if no checkers further from home than this one
         const [lo,hi]=homeRange(color);
         let hasFarther=false;
         for(let i=lo;i<=hi;i++){
           const v=g.points[i];
           if(!ownsColor(v,color)) continue;
-          const pd=pipDistanceToOff(i,color);
-          if(pd>dist){ hasFarther=true; break; }
+          if(pipDistanceToOff(i,color)>dist){ hasFarther=true; break; }
         }
         if(!hasFarther) results.push({type:'off', die:d});
       }
@@ -1893,14 +1826,11 @@ function anyLegalMoveExists(g, color, diceVals){
   return false;
 }
 
-/* ============ interaction ============ */
 function onBarClick(color){
   if(!localGame) return;
   const g=localGame;
-  if(g.turn!==ME || !g.diceRolledThisTurn) return;
-  if(color!==ME) return;
-  const barCount = ME==='w'?g.bar.w:g.bar.b;
-  if(barCount<=0) return;
+  if(g.turn!==ME || !g.diceRolledThisTurn || color!==ME) return;
+  if((ME==='w'?g.bar.w:g.bar.b)<=0) return;
   selectedPoint = 'bar';
   render();
 }
@@ -1914,16 +1844,11 @@ function onPointClick(point){
   const myBar = ME==='w'?g.bar.w:g.bar.b;
 
   if(myBar>0 && selectedPoint!=='bar'){
-    selectedPoint='bar';
-    render();
-    return;
+    selectedPoint='bar'; render(); return;
   }
 
   if(selectedPoint===null){
-    if(ownsColor(g.points[idx], ME)){
-      selectedPoint = idx;
-      render();
-    }
+    if(ownsColor(g.points[idx], ME)){ selectedPoint = idx; render(); }
     return;
   }
 
@@ -1934,11 +1859,8 @@ function onPointClick(point){
       pushUndoSnapshot();
       const result = applyMoveFromBar(g, match);
       playMoveResultSound(result);
-      const stillHasBar = (ME==='w'?g.bar.w:g.bar.b) > 0;
+      const stillHasBar = (ME==='w'?g.bar.w:g.bar.b)>0;
       selectedPoint = stillHasBar ? 'bar' : autoSelectContinuation(g, match.idx);
-    } else if(ownsColor(g.points[idx],ME)){
-      // reselect not allowed while bar occupied
-      selectedPoint=null;
     } else {
       selectedPoint=null;
     }
@@ -1946,9 +1868,7 @@ function onPointClick(point){
     return;
   }
 
-  if(selectedPoint===idx){
-    selectedPoint=null; render(); return;
-  }
+  if(selectedPoint===idx){ selectedPoint=null; render(); return; }
 
   const dests = legalDestinationsFromPoint(g, ME, selectedPoint, remaining);
   const match = dests.find(d=>d.type==='point' && d.idx===idx);
@@ -1969,16 +1889,10 @@ function onPointClick(point){
     afterMove();
     return;
   }
-  if(ownsColor(g.points[idx], ME)){
-    selectedPoint=idx; render();
-  } else {
-    selectedPoint=null; render();
-  }
+  if(ownsColor(g.points[idx], ME)){ selectedPoint=idx; render(); }
+  else { selectedPoint=null; render(); }
 }
 
-// Bearing off is a deliberate action: click, or drag a checker, onto your
-// own toplama alanı (collection tray) — never triggered by an accidental
-// click elsewhere on the board.
 function attemptBearOff(){
   if(!localGame) return;
   const g=localGame;
@@ -1995,10 +1909,6 @@ function attemptBearOff(){
   afterMove();
 }
 
-// After a move, if the same checker can still use another remaining die
-// (e.g. moving by both dice combined, like 3+4), keep it selected so the
-// next click only needs to pick the next destination instead of re-clicking
-// the checker.
 function autoSelectContinuation(g, newIdx){
   const remaining = remainingDiceValues(g);
   if(remaining.length===0) return null;
@@ -2015,8 +1925,7 @@ function highlightSelectable(g){
   }
   for(let i=0;i<24;i++){
     if(ownsColor(g.points[i],ME) && legalDestinationsFromPoint(g,ME,i,remaining).length>0){
-      const el=pointEl(i+1);
-      el.querySelectorAll('.checker').forEach(c=>c.classList.add('movable'));
+      pointEl(i+1).querySelectorAll('.checker').forEach(c=>c.classList.add('movable'));
     }
   }
 }
@@ -2048,12 +1957,10 @@ function markDieUsed(g, die){
 }
 
 function applyMoveFromBar(g, dest){
-  const opp = ME==='w'?'b':'w';
   if(ME==='w') g.bar.w--; else g.bar.b--;
   const v=g.points[dest.idx];
   let hit=false;
   if((ME==='w' && v===-1) || (ME==='b' && v===1)){
-    // hit
     if(ME==='w') g.bar.b++; else g.bar.w++;
     g.points[dest.idx] = ME==='w'?1:-1;
     hit=true;
@@ -2089,8 +1996,8 @@ async function afterMove(){
   const g=localGame;
   const wasPlaying = g.status==='playing';
   if(!g.score) g.score = { w:0, b:0 };
-  if(g.off.w>=15){ g.status='finished'; g.winner='w'; g.score.w=(g.score.w||0)+1; }
-  if(g.off.b>=15){ g.status='finished'; g.winner='b'; g.score.b=(g.score.b||0)+1; }
+  if(g.off.w>=15){ g.status='finished'; g.winner='w'; g.score.w++; }
+  if(g.off.b>=15){ g.status='finished'; g.winner='b'; g.score.b++; }
   if(wasPlaying && g.status==='finished'){
     sfxWin();
     reportRankedResultIfNeeded(g);
@@ -2098,11 +2005,8 @@ async function afterMove(){
 
   if(g.status==='playing'){
     const remaining = remainingDiceValues(g);
-    if(!anyLegalMoveExists(g, ME, remaining) ) {
-      // no auto switch immediately render pass button; but if remaining empty, switch now
-      if(remaining.length===0){
-        switchTurn(g);
-      }
+    if(!anyLegalMoveExists(g, ME, remaining) && remaining.length===0){
+      switchTurn(g);
     }
   }
   pushState();
@@ -2114,143 +2018,78 @@ function switchTurn(g){
   g.dice=[]; g.diceUsed=[]; g.diceRolledThisTurn=false;
   g.turnStartedAt = Date.now();
   undoStack=[];
-  if(g.turn==='w'&&g.bar.w>0) selectedPoint='bar'; else if(g.turn==='b'&&g.bar.b>0) selectedPoint='bar'; else selectedPoint=null;
+  selectedPoint = ((g.turn==='w'&&g.bar.w>0)||(g.turn==='b'&&g.bar.b>0)) ? 'bar' : null;
 }
 
-/* ============ tur süresi (1 dakika) ============ */
-// Her tur en fazla TURN_SECONDS kadar sürebilir. Süre biterse, sırası
-// gelen oyuncunun kendi tarayıcısı sırayı otomatik olarak diğer oyuncuya
-// geçirir (tıpkı "Sırayı Geç" butonuna basılmış gibi) ve bunu state
-// mesajıyla rakibe iletir. Rakip taraf sadece geri sayımı izler, kendi
-// sırası olmadığı için otomatik geçiş tetiklemez — bu sayede iki taraf da
-// aynı anda sırayı geçirmeye çalışmaz.
-const TURN_SECONDS = 60;
-let lastKnownTurnStartedAt = null;
-let turnTimedOutForThisTurn = false;
-
-function tickTurnTimer(){
-  const g = localGame;
-  const timerEl = document.getElementById('turnTimer');
-  if(!timerEl) return;
-  if(!g || g.status!=='playing' || !g.turnStartedAt){
-    timerEl.style.visibility='hidden';
-    return;
-  }
-  if(g.turnStartedAt !== lastKnownTurnStartedAt){
-    lastKnownTurnStartedAt = g.turnStartedAt;
-    turnTimedOutForThisTurn = false;
-  }
-  timerEl.style.visibility='visible';
-  const elapsed = (Date.now() - g.turnStartedAt)/1000;
-  const remaining = Math.max(0, TURN_SECONDS - elapsed);
-  const mm = Math.floor(remaining/60);
-  const ss = Math.floor(remaining%60);
-  const label = (g.turn===ME ? 'Sende: ' : 'Rakipte: ') + String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
-  document.getElementById('turnTimerText').textContent = label;
-  document.getElementById('turnTimerFill').style.width = (remaining/TURN_SECONDS*100)+'%';
-  timerEl.classList.toggle('warning', remaining<=10);
-
-  if(remaining<=0 && g.turn===ME && !turnTimedOutForThisTurn){
-    turnTimedOutForThisTurn = true;
-    handleTurnTimeout();
-  }
-}
-
-function handleTurnTimeout(){
-  const g = localGame;
-  if(!g || g.turn!==ME || g.status!=='playing') return;
-  selectedPoint = null;
-  switchTurn(g);
-  pushState();
-  render();
-}
-
-setInterval(tickTurnTimer, 250);
-
+/* ============ buton tetikleyicileri ============ */
 document.getElementById('rollBtn').onclick = ()=>{
-  const g=localGame;
-  if(!g || g.turn!==ME || g.diceRolledThisTurn) return;
+  if(!localGame || localGame.turn!==ME || localGame.diceRolledThisTurn) return;
+  pushUndoSnapshot();
   sfxDiceRoll();
   const d1=roll1(), d2=roll1();
-  if(d1===d2){ g.dice=[d1,d1,d1,d1]; } else { g.dice=[d1,d2]; }
-  g.diceUsed = g.dice.map(()=>false);
-  g.diceRolledThisTurn = true;
-  undoStack=[];
-  // if no legal moves at all with this roll, will be handled by pass button after render
+  localGame.dice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
+  localGame.diceUsed = new Array(localGame.dice.length).fill(false);
+  localGame.diceRolledThisTurn = true;
+  const myBar = ME==='w'?localGame.bar.w:localGame.bar.b;
+  if(myBar>0) selectedPoint='bar';
+  afterMove();
+};
+
+document.getElementById('passBtn').onclick = ()=>{
+  if(!localGame || localGame.turn!==ME) return;
+  pushUndoSnapshot();
+  sfxClick();
+  switchTurn(localGame);
   pushState();
   render();
 };
 
 document.getElementById('undoBtn').onclick = undoLastMove;
 
-document.getElementById('passBtn').onclick = ()=>{
-  const g=localGame;
-  if(!g || g.turn!==ME) return;
-  switchTurn(g);
-  pushState();
-  render();
+document.getElementById('surrenderBtn').onclick = ()=>{
+  if(!localGame || localGame.status!=='playing') return;
+  if(confirm('Teslim olmak istediğine emin misin?')){
+    localGame.status = 'finished';
+    localGame.winner = ME==='w' ? 'b' : 'w';
+    localGame.surrendered = true;
+    if(!localGame.score) localGame.score={w:0,b:0};
+    if(localGame.winner==='w') localGame.score.w++; else localGame.score.b++;
+    sfxWin();
+    reportRankedResultIfNeeded(localGame);
+    pushState();
+    render();
+  }
+};
+
+document.getElementById('leaveGameBtn').onclick = ()=>{
+  if(confirm('Ana menüye dönmek istiyor musun?')){ location.reload(); }
 };
 
 document.getElementById('soundToggleBtn').onclick = ()=>{
   soundOn = !soundOn;
   localStorage.setItem('tavlaSound', soundOn ? 'on' : 'off');
   document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
-  if(soundOn) sfxClick();
-};
-document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
-
-/* ============ oyundan ayrılma / teslim olma ============ */
-function surrenderGame(){
-  const g = localGame;
-  if(!g || g.status!=='playing') return;
-  const winner = ME==='w' ? 'b' : 'w';
-  g.status = 'finished';
-  g.winner = winner;
-  g.surrendered = true;
-  if(!g.score) g.score = { w:0, b:0 };
-  g.score[winner] = (g.score[winner]||0) + 1;
-  selectedPoint = null;
-  sfxWin();
-  reportRankedResultIfNeeded(g);
-  pushState();
-  render();
-}
-
-document.getElementById('surrenderBtn').onclick = ()=>{
-  const g = localGame;
-  if(!g || g.status!=='playing') return;
-  if(!confirm('Teslim olmak istediğine emin misin? Rakibin bu turu kazanmış sayılacak.')) return;
-  surrenderGame();
 };
 
-document.getElementById('leaveGameBtn').onclick = ()=>{
-  if(!confirm('Oyundan ayrılmak istediğine emin misin? Ana menüye döneceksin.')) return;
-  location.reload();
-};
-
-/* ============ rövanş (rematch) akışı ============ */
 document.getElementById('offerRematchBtn').onclick = ()=>{
-  wsSend({type:'rematchRequest', fromName: myName});
+  wsSend({type:'rematchRequest'});
   document.getElementById('rematchIdle').style.display='none';
-  document.getElementById('rematchIncoming').style.display='none';
   document.getElementById('rematchWaiting').style.display='block';
-  document.getElementById('rematchWaitingText').textContent = 'Rövanş isteği gönderildi, rakibinin cevabı bekleniyor…';
 };
 
 document.getElementById('rematchAcceptBtn').onclick = ()=>{
-  wsSend({type:'rematchResponse', accept:true, fromName: myName});
+  wsSend({type:'rematchResponse', accept:true});
   document.getElementById('rematchIncoming').style.display='none';
   document.getElementById('rematchWaiting').style.display='block';
-  document.getElementById('rematchWaitingText').textContent = 'Yeni tur başlıyor…';
-  if(ME==='w') startNewRound();
+  document.getElementById('rematchWaitingText').textContent = 'Kabul edildi, yeni tur başlıyor…';
 };
 
 document.getElementById('rematchDeclineBtn').onclick = ()=>{
-  wsSend({type:'rematchResponse', accept:false, fromName: myName});
+  wsSend({type:'rematchResponse', accept:false});
   resetRematchUI();
 };
 
-document.getElementById('reloadBtn').onclick = ()=> location.reload();
+document.getElementById('reloadBtn').onclick = ()=>{ location.reload(); };
 </script>
 </body>
 </html>
