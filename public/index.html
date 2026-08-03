@@ -1486,17 +1486,31 @@ function enterGame(){
   document.getElementById('mainMenu').style.display='none';
   document.getElementById('channelLobby').style.display='none';
   document.getElementById('gameWrap').classList.add('active');
+  // ME is known by this point (host='w', joiner/challenged='b') — (re)build the
+  // board grid now so it's oriented correctly for whichever side we're on.
+  buildBoardSkeleton();
 }
 
 /* ============ board rendering ============ */
 const boardEl = document.getElementById('board');
 
 // layout order: top row points 13..18, bar, 19..24 ; bottom row 12..7, bar, 6..1
-const topOrder = [13,14,15,16,17,18, 'bar', 19,20,21,22,23,24];
-const bottomOrder = [12,11,10,9,8,7, 'bar', 6,5,4,3,2,1];
+// (this is the "white" perspective — white's home, points 1-6, sits bottom-right)
+const topOrderWhite = [13,14,15,16,17,18, 'bar', 19,20,21,22,23,24];
+const bottomOrderWhite = [12,11,10,9,8,7, 'bar', 6,5,4,3,2,1];
+
+// For the black player we mirror the board 180° (swap the two rows) so that
+// black's own home (points 19-24) always renders bottom-right too — i.e. each
+// player always sees their own checkers collecting in the same corner,
+// instead of one side collecting bottom-right and the other top-right.
+function currentOrders(){
+  if(ME==='b') return { topOrder: bottomOrderWhite, bottomOrder: topOrderWhite };
+  return { topOrder: topOrderWhite, bottomOrder: bottomOrderWhite };
+}
 
 function buildBoardSkeleton(){
   boardEl.innerHTML='';
+  const { topOrder, bottomOrder } = currentOrders();
   topOrder.forEach((p,i)=>{
     if(p==='bar'){
       const d=document.createElement('div');
