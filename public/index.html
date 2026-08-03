@@ -704,41 +704,6 @@ function genCode(){
   return s;
 }
 function roll1(){ return 1+Math.floor(Math.random()*6); }
-async function animateDiceRoll(g){
-  async function animateDiceRoll(g){
-
-    for(let i=0;i<12;i++){
-
-        const a = roll1();
-        const b = roll1();
-
-        if(a===b){
-            g.dice = [a,a,a,a];
-        }else{
-            g.dice = [a,b];
-        }
-
-        render();
-
-        await new Promise(r=>setTimeout(r,60));
-    }
-
-}
-  g.dice = oldDice;
-}
-async function animateDiceRoll() {
-  const diceEls = document.querySelectorAll('.die');
-
-  for (let i = 0; i < 12; i++) {
-    const a = roll1();
-    const b = roll1();
-
-    if (diceEls[0]) diceEls[0].textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][a-1];
-    if (diceEls[1]) diceEls[1].textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][b-1];
-
-    await new Promise(r => setTimeout(r, 60));
-  }
-}
 
 /* ============ ses efektleri ============ */
 let audioCtx = null;
@@ -2073,10 +2038,9 @@ function endTurn(){
   render();
 }
 
-document.getElementById('rollBtn').onclick = async ()=>{
+document.getElementById('rollBtn').onclick = ()=>{
   if(!localGame || localGame.turn!==ME || localGame.diceRolledThisTurn) return;
   sfxDiceRoll();
-  await animateDiceRoll(localGame);
   const d1 = roll1();
   const d2 = roll1();
   localGame.dice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
