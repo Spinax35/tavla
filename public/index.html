@@ -418,16 +418,40 @@
   .turn-timer.warning .tbar-fill{background:var(--danger);}
   
   /* --- PREMİUM ZARLAR (DICE) --- */
+  .dice-area{perspective:400px;}
   .die{
     width:48px;height:48px;border-radius:12px;
     background:linear-gradient(145deg, #ffffff, #e8dfcb 65%, #cbbba1 100%);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:#1a0f04;
+    display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+    padding:8px;gap:1px;
     box-shadow:0 6px 16px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.9), inset 0 -3px 5px rgba(100,80,50,0.3);
     border:1px solid rgba(180,150,110,0.5);
-    text-shadow:0 1px 1px rgba(255,255,255,0.7);
+    transform-style:preserve-3d;
   }
+  .die .pip{
+    width:62%;height:62%;margin:auto;border-radius:50%;justify-self:center;align-self:center;
+    background:radial-gradient(circle at 32% 28%, #4a3520, #1a0f04 75%);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,0.35), 0 1px 1px rgba(0,0,0,0.4);
+  }
+  .die .pip.tl{grid-column:1;grid-row:1;} .die .pip.tc{grid-column:2;grid-row:1;} .die .pip.tr{grid-column:3;grid-row:1;}
+  .die .pip.ml{grid-column:1;grid-row:2;} .die .pip.mc{grid-column:2;grid-row:2;} .die .pip.mr{grid-column:3;grid-row:2;}
+  .die .pip.bl{grid-column:1;grid-row:3;} .die .pip.bc{grid-column:2;grid-row:3;} .die .pip.br{grid-column:3;grid-row:3;}
   .die.used{opacity:0.3;filter:grayscale(0.7);box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+  .die.rolling{animation:diceTumble .68s cubic-bezier(.36,.15,.2,1) both;}
+  .die.landing{animation:diceLand .26s ease-out both;}
+  @keyframes diceTumble{
+    0%{transform:rotateX(0) rotateY(0) rotateZ(0) scale(1);}
+    18%{transform:rotateX(160deg) rotateY(60deg) rotateZ(40deg) translateY(-10px) scale(1.08);}
+    38%{transform:rotateX(330deg) rotateY(230deg) rotateZ(150deg) translateY(2px) scale(0.94);}
+    58%{transform:rotateX(480deg) rotateY(400deg) rotateZ(260deg) translateY(-6px) scale(1.05);}
+    78%{transform:rotateX(620deg) rotateY(560deg) rotateZ(330deg) translateY(1px) scale(0.98);}
+    100%{transform:rotateX(720deg) rotateY(720deg) rotateZ(360deg) translateY(0) scale(1);}
+  }
+  @keyframes diceLand{
+    0%{transform:scale(1.22);}
+    55%{transform:scale(0.92);}
+    100%{transform:scale(1);}
+  }
   
   .status-text{font-size:0.95rem;color:var(--brass-light);min-height:1.4em;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
   .action-buttons{display:flex;gap:10px;}
@@ -1618,6 +1642,68 @@ function attachDrag(el, source){
   });
 }
 
+// --- Gerçek zar yüzleri (pip/nokta düzeni) ve atma animasyonu ---
+const DIE_PIPS = {
+  1: ['mc'],
+  2: ['tr','bl'],
+  3: ['tr','mc','bl'],
+  4: ['tl','tr','bl','br'],
+  5: ['tl','tr','mc','bl','br'],
+  6: ['tl','ml','bl','tr','mr','br']
+};
+
+function buildDieFace(value, extraClass){
+  const el = document.createElement('div');
+  el.className = 'die' + (extraClass ? ' '+extraClass : '');
+  (DIE_PIPS[value]||[]).forEach(pos=>{
+    const dot = document.createElement('div');
+    dot.className = 'pip '+pos;
+    el.appendChild(dot);
+  });
+  return el;
+}
+
+function setDieFace(el, value){
+  el.innerHTML = '';
+  (DIE_PIPS[value]||[]).forEach(pos=>{
+    const dot = document.createElement('div');
+    dot.className = 'pip '+pos;
+    el.appendChild(dot);
+  });
+}
+
+// finalValues: gösterilecek gerçek zar sonuçları. Önce zarlar tumbling
+// (dönerek) rastgele yüzler gösterir, sonra gerçek sonuca "iniş" yapar.
+function rollDiceAnimation(finalValues, onDone){
+  const diceArea = document.getElementById('diceArea');
+  diceArea.innerHTML = '';
+  const dieEls = finalValues.map(()=>{
+    const el = buildDieFace(1, 'rolling');
+    diceArea.appendChild(el);
+    return el;
+  });
+
+  let ticks = 0;
+  const maxTicks = 9;
+  const flicker = setInterval(()=>{
+    ticks++;
+    dieEls.forEach(el=>{
+      if(ticks>=maxTicks) return;
+      setDieFace(el, 1+Math.floor(Math.random()*6));
+    });
+    if(ticks>=maxTicks){
+      clearInterval(flicker);
+      dieEls.forEach((el,i)=>{
+        setDieFace(el, finalValues[i]);
+        el.classList.remove('rolling');
+        el.classList.add('landing');
+        setTimeout(()=>el.classList.remove('landing'), 280);
+      });
+      onDone();
+    }
+  }, 68);
+}
+
 function render(){
   if(!localGame) return;
   const g=localGame;
@@ -1667,10 +1753,7 @@ function render(){
   diceArea.innerHTML='';
   g.dice.forEach((d,idx)=>{
     const used = g.diceUsed[idx];
-    const el=document.createElement('div');
-    el.className='die'+(used?' used':'');
-    el.textContent=d;
-    diceArea.appendChild(el);
+    diceArea.appendChild(buildDieFace(d, used?'used':''));
   });
 
   const statusEl=document.getElementById('statusText');
@@ -2043,22 +2126,30 @@ document.getElementById('rollBtn').onclick = ()=>{
   sfxDiceRoll();
   const d1 = roll1();
   const d2 = roll1();
-  localGame.dice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
-  localGame.diceUsed = [false, false, false, false];
-  localGame.diceRolledThisTurn = true;
-  undoStack = [];
-  selectedPoint = null;
+  const finalDice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
 
-  const remaining = remainingDiceValues(localGame);
-  if(!anyLegalMoveExists(localGame, ME, remaining)){
-    setTimeout(()=>{
-      alert('Oynayabilecek hamle yok, sıra diğer oyuncuya geçiyor.');
-      endTurn();
-    }, 400);
-  } else {
-    pushState();
-    render();
-  }
+  const rollBtn = document.getElementById('rollBtn');
+  rollBtn.disabled = true;
+
+  rollDiceAnimation(finalDice, ()=>{
+    rollBtn.disabled = false;
+    localGame.dice = finalDice;
+    localGame.diceUsed = finalDice.map(()=>false);
+    localGame.diceRolledThisTurn = true;
+    undoStack = [];
+    selectedPoint = null;
+
+    const remaining = remainingDiceValues(localGame);
+    if(!anyLegalMoveExists(localGame, ME, remaining)){
+      setTimeout(()=>{
+        alert('Oynayabilecek hamle yok, sıra diğer oyuncuya geçiyor.');
+        endTurn();
+      }, 400);
+    } else {
+      pushState();
+      render();
+    }
+  });
 };
 
 document.getElementById('passBtn').onclick = ()=>{
@@ -2129,7 +2220,7 @@ setInterval(()=>{
   document.getElementById('turnTimerFill').style.width = `${fillPct}%`;
   timerEl.classList.toggle('warning', remaining <= 10);
 
-  if(remaining<=0 && localGame.turn===ME && ME==='w'){
+  if(remaining<=0 && localGame.turn===ME){
     endTurn();
   }
 }, 1000);
