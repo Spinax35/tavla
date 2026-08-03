@@ -13,10 +13,10 @@
     --wood-light:#6b4226;
     --felt-a:#e7d8b3;
     --felt-b:#6e1c22;
-    --point-cream-1:#f3e8c9;
-    --point-cream-2:#d8c188;
-    --point-maroon-1:#8a2530;
-    --point-maroon-2:#4a1218;
+    --point-gold-1:#f2c94c;
+    --point-gold-2:#c9931e;
+    --point-dark-1:#2b1c10;
+    --point-dark-2:#0f0a06;
     --brass:#c9a227;
     --brass-light:#e8c85f;
     --ivory:#f1e9d8;
@@ -183,8 +183,8 @@
       radial-gradient(circle at calc(100% - 15px) 15px, var(--brass-light) 0 3px, rgba(232,200,95,0.35) 4px, transparent 6px),
       radial-gradient(circle at 15px calc(100% - 15px), var(--brass-light) 0 3px, rgba(232,200,95,0.35) 4px, transparent 6px),
       radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), var(--brass-light) 0 3px, rgba(232,200,95,0.35) 4px, transparent 6px),
-      repeating-linear-gradient(93deg, rgba(0,0,0,0.12) 0 1px, rgba(255,255,255,0.025) 1px 3px, transparent 3px 8px),
-      linear-gradient(160deg, var(--wood-light), var(--wood-mid) 45%, var(--wood-dark) 100%);
+      repeating-linear-gradient(93deg, rgba(0,0,0,0.12) 0 1px, rgba(255,190,110,0.04) 1px 3px, transparent 3px 8px),
+      linear-gradient(160deg, #8a5427, var(--wood-mid) 45%, var(--wood-dark) 100%);
     background-repeat:no-repeat;
     border-radius:14px;padding:18px;
     box-shadow:0 25px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(201,162,39,0.15), inset 0 0 32px rgba(0,0,0,0.4);
@@ -194,7 +194,10 @@
     display:grid;
     grid-template-columns:repeat(6,1fr) 34px repeat(6,1fr);
     grid-template-rows:1fr 46px 1fr;
-    background:radial-gradient(ellipse at 50% 50%, #241209 0%, var(--board-bg) 78%);
+    background:
+      radial-gradient(ellipse at 22% 28%, rgba(255,170,80,0.14), transparent 55%),
+      radial-gradient(ellipse at 78% 72%, rgba(255,150,60,0.12), transparent 55%),
+      radial-gradient(ellipse at 50% 50%, #3d2213 0%, var(--board-bg) 78%);
     border-radius:8px;
     aspect-ratio:15/10;
     overflow:hidden;
@@ -217,8 +220,8 @@
   }
   .point.top .tri{top:0;clip-path:polygon(0 0,100% 0,50% 100%);}
   .point.bottom .tri{bottom:0;clip-path:polygon(50% 0,0 100%,100% 100%);}
-  .point:nth-child(odd) .tri{background:linear-gradient(180deg, var(--point-cream-1), var(--point-cream-2) 70%, #c2aa78);}
-  .point:nth-child(even) .tri{background:linear-gradient(180deg, var(--point-maroon-1), var(--point-maroon-2) 70%, #300c10);}
+  .point:nth-child(odd) .tri{background:linear-gradient(180deg, var(--point-gold-1), var(--point-gold-2) 65%, #a5741a);}
+  .point:nth-child(even) .tri{background:linear-gradient(180deg, var(--point-dark-1), var(--point-dark-2) 65%, #030201);}
   .point.legal::after{
     content:"";position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;
     background:rgba(90,200,120,0.85);transform:translate(-50%,-50%);
@@ -246,13 +249,17 @@
     width:78%;max-width:34px;aspect-ratio:1;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;
     flex-shrink:0;
+    --cap-inner:#2c2620;--cap-outer:#0a0705;
   }
   .checker::before{
-    content:"";position:absolute;top:12%;left:18%;width:38%;height:24%;border-radius:50%;
-    background:radial-gradient(ellipse at center, rgba(255,255,255,0.6), rgba(255,255,255,0) 72%);
-    pointer-events:none;
+    content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.55), rgba(255,255,255,0) 42%),
+      radial-gradient(circle at 50% 52%, var(--cap-inner) 0%, var(--cap-inner) 27%, var(--cap-outer) 52%, transparent 56%);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.15);
   }
   .checker.white{
+    --cap-inner:#332b22;--cap-outer:#0d0906;
     background:radial-gradient(circle at 35% 28%, #fffef8, var(--ivory) 55%, #cbb98a 100%);
     box-shadow:
       inset 0 0 0 3px rgba(180,155,105,0.55),
@@ -262,6 +269,7 @@
     color:#7a6a4a;
   }
   .checker.black{
+    --cap-inner:#40372c;--cap-outer:#161009;
     background:radial-gradient(circle at 35% 28%, #5f493a, var(--ebony) 60%, #0f0906 100%);
     box-shadow:
       inset 0 0 0 3px rgba(70,50,30,0.6),
