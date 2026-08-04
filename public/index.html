@@ -182,6 +182,55 @@
   .leaderboard-row .lb-name{flex:1;font-size:0.95rem;font-weight:600;}
   .leaderboard-row .lb-rating{font-family:'Fraunces',serif;color:var(--brass-light);font-weight:700;font-size:1.1rem;}
 
+  /* ---- Avatar + çerçeve ---- */
+  .avatar-circle{
+    --fc:#8c7550; --fg:rgba(140,117,80,0.3);
+    width:32px;height:32px;border-radius:50%;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:1rem;line-height:1;position:relative;
+    background:radial-gradient(circle at 35% 30%, #3a2413, #170d05 75%);
+  }
+  .avatar-circle::after{
+    content:'';position:absolute;inset:-3px;border-radius:50%;
+    border:2.5px solid var(--fc);
+    box-shadow:0 0 8px var(--fg), inset 0 0 4px rgba(255,255,255,0.15);
+    pointer-events:none;
+  }
+  .avatar-circle-lg{width:66px;height:66px;font-size:2.1rem;}
+  .avatar-circle-lg::after{inset:-5px;border-width:3px;}
+  .avatar-circle-sm{width:24px;height:24px;font-size:0.8rem;}
+  .avatar-circle-sm::after{inset:-2px;border-width:2px;}
+
+  .frame-none{--fc:#8c7550;--fg:rgba(140,117,80,0.25);}
+  .frame-wood{--fc:#8a5a2b;--fg:rgba(138,90,43,0.45);}
+  .frame-navy{--fc:#3b5bdb;--fg:rgba(59,91,219,0.45);}
+  .frame-emerald{--fc:#2f9e63;--fg:rgba(47,158,99,0.45);}
+  .frame-coral{--fc:#e8590c;--fg:rgba(232,89,12,0.45);}
+  .frame-league-0{--fc:#c17a3d;--fg:rgba(193,122,61,0.5);}
+  .frame-league-1{--fc:#b9c1cc;--fg:rgba(185,193,204,0.5);}
+  .frame-league-2{--fc:#d9b34a;--fg:rgba(217,179,74,0.55);}
+  .frame-league-3{--fc:#6fd6cf;--fg:rgba(111,214,207,0.6);}
+  .frame-league-4{--fc:#7fb8ff;--fg:rgba(127,184,255,0.65);}
+
+  .emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+  .emoji-btn{
+    aspect-ratio:1;border-radius:10px;border:2px solid transparent;
+    background:rgba(255,255,255,0.05);font-size:1.25rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:all .15s;
+  }
+  .emoji-btn:hover{background:rgba(255,255,255,0.1);}
+  .emoji-btn.selected{border-color:var(--brass);background:rgba(212,175,55,0.15);}
+
+  .frame-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+  .frame-swatch{
+    display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;
+    padding:8px 6px;border-radius:10px;border:2px solid transparent;background:rgba(255,255,255,0.03);
+    transition:all .15s;min-width:58px;
+  }
+  .frame-swatch:hover{background:rgba(255,255,255,0.08);}
+  .frame-swatch.selected{border-color:var(--brass);background:rgba(212,175,55,0.12);}
+  .frame-swatch .fs-label{font-size:0.62rem;color:#bca77d;text-align:center;font-weight:600;}
+
   /* ---- Game screen (PREMIUM ULTRA-REALISTIC WOODEN TABLE) ---- */
   .game-wrap{width:100%;max-width:980px;display:none;flex-direction:column;align-items:center;}
   .game-wrap.active{display:flex;}
@@ -672,12 +721,12 @@
   <!-- GAME -->
   <div class="game-wrap" id="gameWrap">
     <div class="topbar">
-      <div class="player-chip" id="chipWhite"><span class="swatch white"></span><span id="nameWhite">Beyaz</span></div>
+      <div class="player-chip" id="chipWhite"><span class="avatar-circle" id="avatarWhite"></span><span id="nameWhite">Beyaz</span></div>
       <div class="room-tag" id="roomTag"></div>
       <button class="btn small secondary" id="surrenderBtn" style="margin:0;" title="Teslim ol">🏳️</button>
       <button class="btn small secondary" id="leaveGameBtn" style="margin:0;" title="Oyundan ayrıl">🚪</button>
       <button class="btn small secondary" id="soundToggleBtn" style="margin:0;" title="Sesi aç/kapat">🔊</button>
-      <div class="player-chip" id="chipBlack"><span class="swatch black"></span><span id="nameBlack">Siyah</span></div>
+      <div class="player-chip" id="chipBlack"><span class="avatar-circle" id="avatarBlack"></span><span id="nameBlack">Siyah</span></div>
     </div>
 
     <div class="board-frame">
@@ -856,6 +905,7 @@ function freshState(hostName){
     diceUsed: [],
     diceRolledThisTurn:false,
     players:{ w: hostName, b: null },
+    avatars:{ w: null, b: null },
     status:'waiting',
     winner:null,
     score:{ w:0, b:0 },
@@ -871,6 +921,7 @@ function startNewRound(){
   const bName = localGame.players.b;
   const ns = freshState(wName);
   ns.players.b = bName;
+  ns.avatars = { w: (localGame.avatars&&localGame.avatars.w)||null, b: (localGame.avatars&&localGame.avatars.b)||null };
   ns.status = 'playing';
   ns.turnStartedAt = Date.now();
   ns.score = prevScore;
@@ -1410,6 +1461,130 @@ function leagueForRating(rating){
   return LEAGUE_TIERS.find(t => rating <= t.max) || LEAGUE_TIERS[LEAGUE_TIERS.length-1];
 }
 
+/* ---- Avatar & çerçeve ---- */
+const AVATAR_EMOJIS = ['🦁','🐯','🐺','🦊','🦉','🐢','🐉','🐴','🦅','🦈','🐧','🐼','🦄','🐝','🐙','🦋','🌵','🌟','🔥','⚡','🍀','🎯','🎲','👑'];
+const FRAME_DEFS = [
+  { id:'league',   name:'Lig Çerçevesi' },
+  { id:'wood',     name:'Ahşap' },
+  { id:'none',     name:'Sade' },
+  { id:'navy',     name:'Lacivert' },
+  { id:'emerald',  name:'Zümrüt' },
+  { id:'coral',    name:'Mercan' }
+];
+
+function myCurrentRating(){
+  return (myProfileCache && typeof myProfileCache.rating==='number') ? myProfileCache.rating : 1000;
+}
+
+function resolveFrameClass(frameId, rating){
+  if(frameId==='league'){
+    const idx = LEAGUE_TIERS.indexOf(leagueForRating(rating));
+    return 'frame-league-'+(idx<0?0:idx);
+  }
+  return 'frame-'+frameId;
+}
+
+function getMyAvatarRaw(){
+  if(!isGuest && myUserId && myProfileCache && myProfileCache.avatar_emoji){
+    return { emoji: myProfileCache.avatar_emoji, frameId: myProfileCache.frame_id || 'wood' };
+  }
+  return {
+    emoji: localStorage.getItem('tavlaAvatarEmoji') || '🎲',
+    frameId: localStorage.getItem('tavlaAvatarFrame') || 'wood'
+  };
+}
+
+// oyun state'ine gömülecek, "çözülmüş" (rating'e bakmadan render edilebilir) avatar verisi
+function getMyAvatarResolved(){
+  const raw = getMyAvatarRaw();
+  return { emoji: raw.emoji, frameClass: resolveFrameClass(raw.frameId, myCurrentRating()) };
+}
+
+function avatarCircleFill(el, meta, size){
+  if(!el) return;
+  el.className = 'avatar-circle' + (size?(' '+size):'') + ' ' + (meta && meta.frameClass ? meta.frameClass : 'frame-wood');
+  el.textContent = (meta && meta.emoji) ? meta.emoji : '🎲';
+}
+
+async function persistMyAvatar(emoji, frameId){
+  if(!isGuest && myUserId){
+    // giriş yapmış kullanıcı: Supabase'e yaz (kalıcı, liderlik tablosunda da görünür)
+    if(myProfileCache) { myProfileCache.avatar_emoji = emoji; myProfileCache.frame_id = frameId; }
+    try{
+      await sb.rpc('update_my_avatar', { p_avatar_emoji: emoji, p_frame_id: frameId });
+    }catch(e){ /* sessizce yut, bir sonraki denemede tekrar dener */ }
+  } else {
+    // misafir: sadece tarayıcıda sakla
+    localStorage.setItem('tavlaAvatarEmoji', emoji);
+    localStorage.setItem('tavlaAvatarFrame', frameId);
+  }
+}
+
+function setMyAvatarEmoji(emoji){
+  const cur = getMyAvatarRaw();
+  persistMyAvatar(emoji, cur.frameId);
+  renderProfileScreen();
+  syncMyAvatarLive();
+}
+function setMyAvatarFrame(frameId){
+  const cur = getMyAvatarRaw();
+  persistMyAvatar(cur.emoji, frameId);
+  renderProfileScreen();
+  syncMyAvatarLive();
+}
+
+// aktif bir maçtaysak, seçimi hemen rakibe de yansıt
+function syncMyAvatarLive(){
+  if(localGame && ME && document.getElementById('gameWrap').classList.contains('active')){
+    if(!localGame.avatars) localGame.avatars = { w:null, b:null };
+    localGame.avatars[ME] = getMyAvatarResolved();
+    pushState();
+    render();
+  }
+}
+
+// yeni bir maça girerken (host / misafir / eşleşme fark etmeksizin) kendi avatarımı state'e yaz
+function syncMyAvatarIntoState(){
+  if(!localGame || !ME) return;
+  if(!localGame.avatars) localGame.avatars = { w:null, b:null };
+  const mine = getMyAvatarResolved();
+  const cur = localGame.avatars[ME];
+  if(!cur || cur.emoji!==mine.emoji || cur.frameClass!==mine.frameClass){
+    localGame.avatars[ME] = mine;
+    pushState();
+  }
+}
+
+function buildEmojiGrid(){
+  const grid = document.getElementById('emojiGrid');
+  if(!grid) return;
+  const current = getMyAvatarRaw().emoji;
+  grid.innerHTML = AVATAR_EMOJIS.map(e=>
+    `<button type="button" class="emoji-btn${e===current?' selected':''}" data-emoji="${e}">${e}</button>`
+  ).join('');
+  grid.querySelectorAll('.emoji-btn').forEach(btn=>{
+    btn.onclick = ()=> setMyAvatarEmoji(btn.dataset.emoji);
+  });
+}
+
+function buildFrameGrid(){
+  const grid = document.getElementById('frameGrid');
+  if(!grid) return;
+  const current = getMyAvatarRaw().frameId;
+  const rating = myCurrentRating();
+  grid.innerHTML = FRAME_DEFS.map(f=>{
+    const cls = resolveFrameClass(f.id, rating);
+    const label = f.id==='league' ? (leagueForRating(rating).name+' Lig') : f.name;
+    return `<div class="frame-swatch${f.id===current?' selected':''}" data-frame="${f.id}">
+      <span class="avatar-circle avatar-circle-sm ${cls}">🎲</span>
+      <span class="fs-label">${label}</span>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.frame-swatch').forEach(sw=>{
+    sw.onclick = ()=> setMyAvatarFrame(sw.dataset.frame);
+  });
+}
+
 let myProfileCache = null;
 
 async function loadMyProfile(){
@@ -1419,24 +1594,38 @@ async function loadMyProfile(){
   guestHint.style.display='none';
   try{
     await sb.rpc('ensure_profile', { p_display_name: myName });
-    const { data, error } = await sb.from('profiles').select('rating,wins,losses').eq('id', myUserId).single();
+    const { data, error } = await sb.from('profiles').select('rating,wins,losses,avatar_emoji,frame_id').eq('id', myUserId).single();
     if(error || !data){ badge.style.display='none'; return; }
     myProfileCache = data;
+    // daha önce misafir/lokal olarak bir avatar seçmişse ve Supabase'deki hâlâ
+    // varsayılansa, o seçimi bir kereliğine hesaba taşı
+    const localEmoji = localStorage.getItem('tavlaAvatarEmoji');
+    const localFrame = localStorage.getItem('tavlaAvatarFrame');
+    if((localEmoji || localFrame) && data.avatar_emoji==='🎲' && data.frame_id==='wood' && (localEmoji!=='🎲' || localFrame!=='wood')){
+      const em = localEmoji || '🎲', fr = localFrame || 'wood';
+      myProfileCache.avatar_emoji = em; myProfileCache.frame_id = fr;
+      persistMyAvatar(em, fr);
+    }
     const league = leagueForRating(data.rating);
+    const meta = getMyAvatarResolved();
     badge.style.display='flex';
-    badge.innerHTML = `<span class="pb-league">${league.emoji} ${league.name}</span><span class="pb-rating">${data.rating} puan · ${data.wins}G / ${data.losses}M</span>`;
+    badge.innerHTML = `<span style="display:flex;align-items:center;gap:10px;"><span class="avatar-circle ${meta.frameClass}">${meta.emoji}</span><span class="pb-league">${league.emoji} ${league.name}</span></span><span class="pb-rating">${data.rating} puan · ${data.wins}G / ${data.losses}M</span>`;
   }catch(e){ badge.style.display='none'; }
 }
 
 function renderProfileScreen(){
   const el = document.getElementById('profileContent');
-  if(isGuest || !myUserId){ el.innerHTML = '<p class="sub">Misafir hesabında profil istatistikleri tutulmaz.</p>'; return; }
-  if(!myProfileCache){ el.innerHTML = '<p class="sub">Yükleniyor…</p>'; return; }
-  const { rating, wins, losses } = myProfileCache;
-  const league = leagueForRating(rating);
-  const total = wins + losses;
-  const winRate = total > 0 ? Math.round((wins/total)*100) : 0;
-  el.innerHTML = `
+  let statsHtml;
+  if(isGuest || !myUserId){
+    statsHtml = '<p class="sub">Misafir hesabında profil istatistikleri tutulmaz.</p>';
+  } else if(!myProfileCache){
+    statsHtml = '<p class="sub">Yükleniyor…</p>';
+  } else {
+    const { rating, wins, losses } = myProfileCache;
+    const league = leagueForRating(rating);
+    const total = wins + losses;
+    const winRate = total > 0 ? Math.round((wins/total)*100) : 0;
+    statsHtml = `
     <div style="text-align:center;">
       <div class="league-pill" style="color:${league.color};">${league.emoji} ${league.name} Ligi</div>
       <div style="font-family:'Fraunces',serif;font-size:2.4rem;color:var(--brass-light);margin-top:10px;font-weight:700;">${rating}</div>
@@ -1447,6 +1636,21 @@ function renderProfileScreen(){
       <div class="profile-stat"><div class="val">${losses}</div><div class="lab">Mağlubiyet</div></div>
       <div class="profile-stat"><div class="val">%${winRate}</div><div class="lab">Kazanma</div></div>
     </div>`;
+  }
+
+  const myMeta = getMyAvatarResolved();
+  el.innerHTML = `
+    <div style="text-align:center;margin-bottom:6px;">
+      <span class="avatar-circle avatar-circle-lg ${myMeta.frameClass}">${myMeta.emoji}</span>
+    </div>
+    <div class="divider" style="margin:16px 0 10px;">avatar seç</div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+    <div class="divider" style="margin:18px 0 10px;">çerçeve seç</div>
+    <div class="frame-grid" id="frameGrid"></div>
+    <div style="margin-top:20px;">${statsHtml}</div>
+  `;
+  buildEmojiGrid();
+  buildFrameGrid();
 }
 
 async function openProfileScreen(){
@@ -1472,8 +1676,11 @@ async function loadLeaderboard(){
     el.innerHTML = data.map(row=>{
       const league = leagueForRating(row.rating);
       const isMe = myUserId && row.id === myUserId;
+      const frameClass = resolveFrameClass(row.frame_id || 'wood', row.rating);
+      const emoji = row.avatar_emoji || '🎲';
       return `<div class="leaderboard-row${isMe?' me':''}">
         <span class="lb-rank">#${row.rank}</span>
+        <span class="avatar-circle avatar-circle-sm ${frameClass}">${emoji}</span>
         <span class="lb-name">${escapeHtml(row.display_name)}${isMe?' (sen)':''}</span>
         <span class="league-pill" style="color:${league.color};">${league.emoji} ${league.name}</span>
         <span class="lb-rating">${row.rating}</span>
@@ -1599,6 +1806,7 @@ function enterGame(){
   document.getElementById('channelLobby').style.display='none';
   document.getElementById('gameWrap').classList.add('active');
   buildBoardSkeleton();
+  syncMyAvatarIntoState();
 }
 
 /* ============ board rendering ============ */
@@ -1791,6 +1999,9 @@ function render(){
   document.getElementById('nameBlack').textContent = g.players.b || 'Siyah (bekleniyor)';
   document.getElementById('chipWhite').classList.toggle('active-turn', g.turn==='w');
   document.getElementById('chipBlack').classList.toggle('active-turn', g.turn==='b');
+  const av = g.avatars || {};
+  avatarCircleFill(document.getElementById('avatarWhite'), av.w);
+  avatarCircleFill(document.getElementById('avatarBlack'), av.b);
 
   for(let i=0;i<24;i++){
     const p=i+1;
