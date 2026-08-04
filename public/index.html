@@ -417,17 +417,45 @@
   .turn-timer.warning .ttext{color:var(--danger);}
   .turn-timer.warning .tbar-fill{background:var(--danger);}
   
-  /* --- PREMİUM ZARLAR (DICE) --- */
-  .die{
-    width:48px;height:48px;border-radius:12px;
-    background:linear-gradient(145deg, #ffffff, #e8dfcb 65%, #cbbba1 100%);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:#1a0f04;
-    box-shadow:0 6px 16px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.9), inset 0 -3px 5px rgba(100,80,50,0.3);
-    border:1px solid rgba(180,150,110,0.5);
-    text-shadow:0 1px 1px rgba(255,255,255,0.7);
+  /* --- PREMİUM ZARLAR (DICE) — gerçek 3D küp --- */
+  .dice-area{perspective:520px;}
+  .die-wrap{width:48px;height:48px;--die-r:24px;}
+  .die-wrap.landing{animation:diceLand .26s ease-out both;}
+  .die-wrap.used .die-cube{filter:grayscale(0.75) brightness(0.55);}
+  .die-cube{
+    position:relative;width:100%;height:100%;
+    transform-style:preserve-3d;
+    transition:transform .85s cubic-bezier(.22,.9,.24,1);
+    transform:rotateX(0) rotateY(0);
   }
-  .die.used{opacity:0.3;filter:grayscale(0.7);box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+  .die-face{
+    position:absolute;inset:0;border-radius:12px;
+    background:linear-gradient(145deg, #ffffff, #e8dfcb 65%, #cbbba1 100%);
+    display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+    padding:8px;gap:1px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.45), inset 0 2px 3px rgba(255,255,255,0.9), inset 0 -3px 5px rgba(100,80,50,0.3);
+    border:1px solid rgba(180,150,110,0.5);
+    backface-visibility:hidden;
+  }
+  .die-face.front{transform:translateZ(var(--die-r));}
+  .die-face.back{transform:rotateY(180deg) translateZ(var(--die-r));}
+  .die-face.right{transform:rotateY(90deg) translateZ(var(--die-r));}
+  .die-face.left{transform:rotateY(-90deg) translateZ(var(--die-r));}
+  .die-face.top{transform:rotateX(90deg) translateZ(var(--die-r));}
+  .die-face.bottom{transform:rotateX(-90deg) translateZ(var(--die-r));}
+  .die-face .pip{
+    width:62%;height:62%;margin:auto;border-radius:50%;justify-self:center;align-self:center;
+    background:radial-gradient(circle at 32% 28%, #4a3520, #1a0f04 75%);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,0.35), 0 1px 1px rgba(0,0,0,0.4);
+  }
+  .die-face .pip.tl{grid-column:1;grid-row:1;} .die-face .pip.tc{grid-column:2;grid-row:1;} .die-face .pip.tr{grid-column:3;grid-row:1;}
+  .die-face .pip.ml{grid-column:1;grid-row:2;} .die-face .pip.mc{grid-column:2;grid-row:2;} .die-face .pip.mr{grid-column:3;grid-row:2;}
+  .die-face .pip.bl{grid-column:1;grid-row:3;} .die-face .pip.bc{grid-column:2;grid-row:3;} .die-face .pip.br{grid-column:3;grid-row:3;}
+  @keyframes diceLand{
+    0%{transform:scale(1.22);}
+    55%{transform:scale(0.92);}
+    100%{transform:scale(1);}
+  }
   
   .status-text{font-size:0.95rem;color:var(--brass-light);min-height:1.4em;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
   .action-buttons{display:flex;gap:10px;}
@@ -459,7 +487,7 @@
     .board-frame{padding:10px;}
     .off-tray-label{font-size:0.5rem;}
     .off-tray{min-width:48px;padding:4px 6px;}
-    .die{width:36px;height:36px;font-size:1.1rem;}
+    .die-wrap{width:36px;height:36px;--die-r:18px;}
     .topbar{justify-content:center;gap:6px;margin-bottom:12px;}
     .player-chip{font-size:0.78rem;padding:7px 12px;}
     .room-tag{width:100%;text-align:center;order:3;font-size:0.72rem;}
@@ -1004,6 +1032,8 @@ checkExistingSession();
 let ROOM=null, ME=null, myName='', lastSeq=-1;
 let selectedPoint=null;
 let localGame=null;
+let opponentLeftDeadline=null, opponentLeftInterval=null;
+const OPPONENT_LEAVE_GRACE_SEC = 20;
 
 const CHANNEL_IDS=['1','2','3','4','5','6'];
 let channelCounts={};
@@ -1102,6 +1132,42 @@ function wsSend(obj){
   if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
 }
 
+function clearOpponentLeftTimer(){
+  if(opponentLeftInterval){ clearInterval(opponentLeftInterval); opponentLeftInterval=null; }
+  opponentLeftDeadline = null;
+}
+
+function startOpponentLeftTimer(){
+  // zaten sayım varsa yeniden başlatma (art arda gelen olaylarla süreyi sıfırlama)
+  if(opponentLeftDeadline) return;
+  opponentLeftDeadline = Date.now() + OPPONENT_LEAVE_GRACE_SEC*1000;
+
+  const tick = ()=>{
+    if(!localGame || localGame.status!=='playing'){ clearOpponentLeftTimer(); return; }
+    const remaining = Math.max(0, Math.ceil((opponentLeftDeadline - Date.now())/1000));
+    document.getElementById('statusText').textContent =
+      `Rakibin bağlantısı kesildi — dönmezse ${remaining} sn içinde oyunu kazanacaksın.`;
+    if(remaining<=0){
+      clearOpponentLeftTimer();
+      winByOpponentLeaving();
+    }
+  };
+  tick();
+  opponentLeftInterval = setInterval(tick, 1000);
+}
+
+function winByOpponentLeaving(){
+  const g = localGame;
+  if(!g || g.status==='finished') return;
+  g.status = 'finished';
+  g.winner = ME;
+  g.leftGame = true;
+  if(g.winner==='w') g.score.w++; else g.score.b++;
+  sfxWin();
+  pushState();
+  render();
+}
+
 function handleServerMessage(msg){
   if(msg.type==='created'){
     ROOM = msg.code;
@@ -1140,6 +1206,7 @@ function handleServerMessage(msg){
   }
   if(msg.type==='state'){
     if(!msg.state) return;
+    clearOpponentLeftTimer();
     localGame = msg.state;
     lastSeq = localGame.seq;
     if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')) enterGame();
@@ -1156,7 +1223,7 @@ function handleServerMessage(msg){
   }
   if(msg.type==='peer-left'){
     if(localGame && localGame.status==='playing'){
-      document.getElementById('statusText').textContent='Rakibin bağlantısı kesildi, bekleniyor…';
+      startOpponentLeftTimer();
     }
     return;
   }
@@ -1635,6 +1702,83 @@ function attachDrag(el, source){
   });
 }
 
+// --- Gerçek 3D zar küpü (6 yüz) ve fiziksel dönerek atma animasyonu ---
+const DIE_PIPS = {
+  1: ['mc'],
+  2: ['tr','bl'],
+  3: ['tr','mc','bl'],
+  4: ['tl','tr','bl','br'],
+  5: ['tl','tr','mc','bl','br'],
+  6: ['tl','ml','bl','tr','mr','br']
+};
+// front=1, right=2, top=3, bottom=4, left=5, back=6 (karşılıklı yüzler toplamı 7)
+const DIE_FACES = ['front','right','top','bottom','left','back'];
+// bu değeri öne getirmek için küpe uygulanacak rotasyon
+const FACE_ROTATION = {
+  1:{x:0,   y:0},
+  2:{x:0,   y:-90},
+  3:{x:-90, y:0},
+  4:{x:90,  y:0},
+  5:{x:0,   y:90},
+  6:{x:0,   y:180}
+};
+
+function buildDieCube(restValue, extraClass){
+  const wrap = document.createElement('div');
+  wrap.className = 'die-wrap' + (extraClass ? ' '+extraClass : '');
+  const cube = document.createElement('div');
+  cube.className = 'die-cube';
+  DIE_FACES.forEach((faceName, i)=>{
+    const val = i+1;
+    const face = document.createElement('div');
+    face.className = 'die-face '+faceName;
+    (DIE_PIPS[val]||[]).forEach(pos=>{
+      const dot=document.createElement('div');
+      dot.className = 'pip '+pos;
+      face.appendChild(dot);
+    });
+    cube.appendChild(face);
+  });
+  const t = FACE_ROTATION[restValue] || {x:0,y:0};
+  cube.style.transform = `rotateX(${t.x}deg) rotateY(${t.y}deg)`;
+  wrap.appendChild(cube);
+  return wrap;
+}
+
+// finalValues: atılan gerçek zar sonuçları. Küpler fiziksel olarak dönerek
+// (birkaç tam tur + gerçek sonucun yüzü öne bakacak şekilde) yerine oturur.
+function rollDiceAnimation(finalValues, onDone){
+  const diceArea = document.getElementById('diceArea');
+  diceArea.innerHTML = '';
+  const cubes = finalValues.map(()=>{
+    const wrap = buildDieCube(1, 'rolling');
+    diceArea.appendChild(wrap);
+    return wrap.querySelector('.die-cube');
+  });
+
+  // bir sonraki karede hedef rotasyonu uygula ki transition tetiklensin
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      cubes.forEach((cube, idx)=>{
+        const t = FACE_ROTATION[finalValues[idx]] || {x:0,y:0};
+        const dir = ()=> (Math.random()<0.5 ? 1 : -1);
+        const spinsX = 360 * (2 + Math.floor(Math.random()*2)) * dir();
+        const spinsY = 360 * (2 + Math.floor(Math.random()*2)) * dir();
+        cube.style.transform = `rotateX(${t.x + spinsX}deg) rotateY(${t.y + spinsY}deg)`;
+      });
+    });
+  });
+
+  setTimeout(()=>{
+    diceArea.querySelectorAll('.die-wrap').forEach(w=>{
+      w.classList.remove('rolling');
+      w.classList.add('landing');
+      setTimeout(()=>w.classList.remove('landing'), 280);
+    });
+    onDone();
+  }, 900);
+}
+
 function render(){
   if(!localGame) return;
   const g=localGame;
@@ -1684,10 +1828,7 @@ function render(){
   diceArea.innerHTML='';
   g.dice.forEach((d,idx)=>{
     const used = g.diceUsed[idx];
-    const el=document.createElement('div');
-    el.className='die'+(used?' used':'');
-    el.textContent=d;
-    diceArea.appendChild(el);
+    diceArea.appendChild(buildDieCube(d, used?'used':''));
   });
 
   const statusEl=document.getElementById('statusText');
@@ -1754,7 +1895,9 @@ function clearHighlights(){
 function showWin(g){
   const ov=document.getElementById('winOverlay');
   const winnerName = (g.winner==='w'?g.players.w:g.players.b);
-  document.getElementById('winText').textContent = g.surrendered ? winnerName + ' kazandı! 🏳️' : winnerName + ' kazandı! 🎉';
+  document.getElementById('winText').textContent = g.leftGame
+    ? winnerName + ' kazandı! (rakip oyunu terk etti) 🚪'
+    : g.surrendered ? winnerName + ' kazandı! 🏳️' : winnerName + ' kazandı! 🎉';
   const score = g.score || { w:0, b:0 };
   document.getElementById('scoreDisplay').textContent = `${g.players.w||'Beyaz'}  ${score.w} — ${score.b}  ${g.players.b||'Siyah'}`;
   if(!ov.classList.contains('active')) resetRematchUI();
@@ -2060,22 +2203,30 @@ document.getElementById('rollBtn').onclick = ()=>{
   sfxDiceRoll();
   const d1 = roll1();
   const d2 = roll1();
-  localGame.dice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
-  localGame.diceUsed = [false, false, false, false];
-  localGame.diceRolledThisTurn = true;
-  undoStack = [];
-  selectedPoint = null;
+  const finalDice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
 
-  const remaining = remainingDiceValues(localGame);
-  if(!anyLegalMoveExists(localGame, ME, remaining)){
-    setTimeout(()=>{
-      alert('Oynayabilecek hamle yok, sıra diğer oyuncuya geçiyor.');
-      endTurn();
-    }, 400);
-  } else {
-    pushState();
-    render();
-  }
+  const rollBtn = document.getElementById('rollBtn');
+  rollBtn.disabled = true;
+
+  rollDiceAnimation(finalDice, ()=>{
+    rollBtn.disabled = false;
+    localGame.dice = finalDice;
+    localGame.diceUsed = finalDice.map(()=>false);
+    localGame.diceRolledThisTurn = true;
+    undoStack = [];
+    selectedPoint = null;
+
+    const remaining = remainingDiceValues(localGame);
+    if(!anyLegalMoveExists(localGame, ME, remaining)){
+      setTimeout(()=>{
+        alert('Oynayabilecek hamle yok, sıra diğer oyuncuya geçiyor.');
+        endTurn();
+      }, 400);
+    } else {
+      pushState();
+      render();
+    }
+  });
 };
 
 document.getElementById('passBtn').onclick = ()=>{
@@ -2146,7 +2297,7 @@ setInterval(()=>{
   document.getElementById('turnTimerFill').style.width = `${fillPct}%`;
   timerEl.classList.toggle('warning', remaining <= 10);
 
-  if(remaining<=0 && localGame.turn===ME && ME==='w'){
+  if(remaining<=0 && localGame.turn===ME){
     endTurn();
   }
 }, 1000);
