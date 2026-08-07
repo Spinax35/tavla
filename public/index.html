@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  // Mobil tarayıcılarda adres çubuğu açık/kapalıyken 100vh yanlış ölçülür
+  // (gerçek görünür yükseklikten daha büyük hesaplanır). Gerçek yüksekliği
+  // window.innerHeight'tan alıp bir CSS değişkenine yazıyoruz.
+  function tavlaSetVH(){
+    document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+  }
+  tavlaSetVH();
+  window.addEventListener('resize', tavlaSetVH);
+  window.addEventListener('orientationchange', tavlaSetVH);
+</script>
 <title>Tavla Nova - Deluxe Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -38,7 +49,7 @@
       radial-gradient(circle at 50% 20%, #2c180e 0%, #0c0502 85%),
       linear-gradient(to bottom, #180d07, #080301);
     color:var(--cream);
-    min-height:100vh;
+    min-height:calc(var(--vh, 1vh) * 100);
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -262,7 +273,7 @@
   .frame-swatch .fs-label{font-size:0.62rem;color:#bca77d;text-align:center;font-weight:600;}
 
   /* ---- Game screen (PREMIUM ULTRA-REALISTIC WOODEN TABLE) ---- */
-  .game-wrap{width:100%;max-width:min(980px, calc((100vh - 280px) * 1.5));display:none;flex-direction:column;align-items:center;}
+  .game-wrap{width:100%;max-width:min(980px, calc((var(--vh, 1vh) * 100 - 280px) * 1.5));display:none;flex-direction:column;align-items:center;}
   .game-wrap.active{display:flex;}
   .topbar{
     width:100%;display:flex;justify-content:space-between;align-items:center;
@@ -667,6 +678,7 @@
       <button class="btn" id="playFriendBtn" style="margin-top:6px;">👥 Arkadaşınla Oyna</button>
       <button class="btn ranked-btn" id="rankedBtn" style="margin-top:10px;">🏆 Rekabetçi</button>
       <p class="hint" id="rankedGuestHint" style="display:none;">Rekabetçi modda oynamak için hesap açıp giriş yapmalısın — misafir girişiyle oynanmıyor.</p>
+      <button class="btn secondary" id="vsBotBtn" style="margin-top:10px;">🤖 Bilgisayara Karşı Oyna</button>
 
       <div class="row" style="margin-top:12px;">
         <button class="btn small secondary" id="openProfileBtn" style="margin-top:0;">👤 Profilim</button>
@@ -723,6 +735,20 @@
         <button class="btn small secondary" id="rankedInfoCancelBtn" style="margin:0;flex:1;">Vazgeç</button>
         <button class="btn" id="rankedInfoContinueBtn" style="margin:0;flex:1;">Devam Et</button>
       </div>
+    </div>
+  </div>
+
+  <!-- BOT DIFFICULTY SELECT -->
+  <div class="overlay" id="botDifficultyOverlay">
+    <div class="card" style="text-align:center;max-width:380px;">
+      <h2 style="margin:0 0 10px;">🤖 Bilgisayara Karşı Oyna</h2>
+      <p class="sub">Zorluk seviyesini seç:</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+        <button class="btn secondary" id="botDiffEasyBtn" style="margin:0;">🌱 Kolay</button>
+        <button class="btn secondary" id="botDiffMediumBtn" style="margin:0;">⚔️ Orta</button>
+        <button class="btn secondary" id="botDiffHardBtn" style="margin:0;">🔥 Zor</button>
+      </div>
+      <button class="btn small secondary" id="botDifficultyCancelBtn" style="margin-top:16px;width:100%;">Vazgeç</button>
     </div>
   </div>
 
@@ -784,8 +810,8 @@
       <div class="player-chip" id="chipWhite"><span class="avatar-circle" id="avatarWhite"></span><span id="nameWhite">Beyaz</span></div>
       <div class="room-tag" id="roomTag"></div>
       <button class="btn small secondary" id="emojiBtn" style="margin:0;" title="Emoji gönder">😊</button>
-      <button class="btn small secondary" id="surrenderBtn" style="margin:0;" title="Teslim ol">🏳️</button>
-      <button class="btn small secondary" id="leaveGameBtn" style="margin:0;" title="Oyundan ayrıl">🚪</button>
+      <button class="btn small secondary" id="surrenderBtn" style="margin:0;" title="Teslim ol">🏳️ <span>Teslim Ol</span></button>
+      <button class="btn small secondary" id="leaveGameBtn" style="margin:0;" title="Oyundan ayrıl">🚪 <span>Ayrıl</span></button>
       <button class="btn small secondary" id="soundToggleBtn" style="margin:0;" title="Sesi aç/kapat">🔊</button>
       <div class="player-chip" id="chipBlack"><span class="avatar-circle" id="avatarBlack"></span><span id="nameBlack">Siyah</span></div>
     </div>
@@ -990,6 +1016,7 @@ function startNewRound(){
   ns.status = 'playing';
   ns.turnStartedAt = Date.now();
   ns.score = prevScore;
+  if(localGame.vsBot) ns.vsBot = true;
   localGame = ns;
   selectedPoint = null;
   undoStack = [];
@@ -2095,7 +2122,7 @@ function render(){
   const myBarCount = ME==='w'?g.bar.w:g.bar.b;
 
   const sc = g.score || { w:0, b:0 };
-  document.getElementById('roomTag').textContent='Oda: '+ROOM+'  •  Skor: '+sc.w+' - '+sc.b;
+  document.getElementById('roomTag').textContent=(g.vsBot ? 'Bilgisayara Karşı' : 'Oda: '+ROOM)+'  •  Skor: '+sc.w+' - '+sc.b;
   document.getElementById('nameWhite').textContent = g.players.w || 'Beyaz';
   document.getElementById('nameBlack').textContent = g.players.b || 'Siyah (bekleniyor)';
   document.getElementById('chipWhite').classList.toggle('active-turn', g.turn==='w');
@@ -2547,7 +2574,294 @@ function endTurn(){
   }
   pushState();
   render();
+  maybeTriggerBotTurn();
 }
+
+/* ============ Bilgisayara (bot) karşı oyun ============ */
+let botDifficulty = 'orta'; // 'kolay' | 'orta' | 'zor'
+let botTurnInProgress = false;
+const BOT_COLOR = 'b';
+
+function botDelay(ms){ return new Promise(res=>setTimeout(res, ms)); }
+
+function botCapFor(diff){
+  if(diff==='kolay') return 120;
+  if(diff==='zor') return 900;
+  return 350; // orta
+}
+
+// Arayüzdeki drag/tıklama akışından bağımsız, rengi parametre olarak alan
+// izole hamle uygulayıcılar (insan hamlelerini kullanan applyMoveFromBar/
+// applyMoveOnBoard fonksiyonları ME sabitine dayanıyor; bot 'b' oynarken
+// ME her zaman 'w' olduğu için buradaki kopyalar renk-parametreli).
+function botApplyMoveFromBar(g, color, dest){
+  if(color==='w') g.bar.w--; else g.bar.b--;
+  const v=g.points[dest.idx];
+  let hit=false;
+  if((color==='w' && v===-1) || (color==='b' && v===1)){
+    if(color==='w') g.bar.b++; else g.bar.w++;
+    g.points[dest.idx] = color==='w'?1:-1;
+    hit=true;
+  } else {
+    g.points[dest.idx] += color==='w'?1:-1;
+  }
+  markDieUsed(g, dest.die);
+  return hit ? 'hit' : 'move';
+}
+function botApplyMoveOnBoard(g, color, fromIdx, dest){
+  g.points[fromIdx] -= color==='w' ? 1 : -1;
+  if(dest.type==='off'){
+    if(color==='w') g.off.w++; else g.off.b++;
+    markDieUsed(g, dest.die);
+    return 'move';
+  }
+  const vDest = g.points[dest.idx];
+  let hit = false;
+  if((color==='w' && vDest===-1) || (color==='b' && vDest===1)){
+    if(color==='w') g.bar.b++; else g.bar.w++;
+    g.points[dest.idx] = color==='w' ? 1 : -1;
+    hit = true;
+  } else {
+    g.points[dest.idx] += color==='w' ? 1 : -1;
+  }
+  markDieUsed(g, dest.die);
+  return hit ? 'hit' : 'move';
+}
+
+// Sadece arama (öngörü) sırasında kullanılan hafif board klonu üzerinde hamle uygular.
+function botApplyMoveToLite(board, color, move){
+  if(move.fromType==='bar'){
+    if(color==='w') board.bar.w--; else board.bar.b--;
+  } else {
+    board.points[move.fromIdx] -= color==='w' ? 1 : -1;
+  }
+  const dest = move.dest;
+  if(dest.type==='off'){
+    if(color==='w') board.off.w++; else board.off.b++;
+  } else {
+    const v = board.points[dest.idx];
+    const isHit = (color==='w' && v===-1) || (color==='b' && v===1);
+    if(isHit){
+      if(color==='w') board.bar.b++; else board.bar.w++;
+      board.points[dest.idx] = color==='w' ? 1 : -1;
+    } else {
+      board.points[dest.idx] += color==='w' ? 1 : -1;
+    }
+  }
+}
+
+function botLiteClone(g){
+  return { points: g.points.slice(), bar: { w:g.bar.w, b:g.bar.b }, off: { w:g.off.w, b:g.off.b } };
+}
+
+function botRemoveOneDie(diceArr, die){
+  const idx = diceArr.indexOf(die);
+  const copy = diceArr.slice();
+  if(idx!==-1) copy.splice(idx,1);
+  return copy;
+}
+
+function botLegalMovesForState(board, color, remainingDice){
+  const moves = [];
+  const uniqueDice = [...new Set(remainingDice)];
+  const barCount = color==='w' ? board.bar.w : board.bar.b;
+  if(barCount>0){
+    legalDestinationsFromBar(board, color, uniqueDice).forEach(dest=>{
+      moves.push({ fromType:'bar', fromIdx:null, dest });
+    });
+    return moves;
+  }
+  for(let i=0;i<24;i++){
+    if(!ownsColor(board.points[i], color)) continue;
+    legalDestinationsFromPoint(board, color, i, uniqueDice).forEach(dest=>{
+      moves.push({ fromType:'point', fromIdx:i, dest });
+    });
+  }
+  return moves;
+}
+
+// Bu turda oynanabilecek tüm tam hamle dizilerini (zar sırası dahil) belli bir
+// üst sınıra kadar dener; sadece en çok zar kullanan dizileri döndürür (tavla
+// kuralı: mümkünse tüm zarlar oynanmalı).
+function botEnumerateTurns(g, color, diceVals, cap){
+  const startBoard = botLiteClone(g);
+  const results = [];
+  let counter = 0;
+
+  function recurse(board, remaining, seq){
+    if(counter>=cap) return;
+    const moves = botLegalMovesForState(board, color, remaining);
+    if(moves.length===0){
+      counter++;
+      results.push({ seq: seq.slice(), board: { points: board.points.slice(), bar:{...board.bar}, off:{...board.off} } });
+      return;
+    }
+    for(const move of moves){
+      if(counter>=cap) break;
+      const nextBoard = { points: board.points.slice(), bar:{...board.bar}, off:{...board.off} };
+      botApplyMoveToLite(nextBoard, color, move);
+      const nextRemaining = botRemoveOneDie(remaining, move.dest.die);
+      seq.push(move);
+      recurse(nextBoard, nextRemaining, seq);
+      seq.pop();
+    }
+  }
+  recurse(startBoard, diceVals.slice(), []);
+  if(results.length===0) return results;
+  const maxLen = results.reduce((m,r)=>Math.max(m,r.seq.length), 0);
+  return results.filter(r=>r.seq.length===maxLen);
+}
+
+// Bir tahta durumunu botColor açısından puanlar (yüksek = bot için iyi).
+function botEvaluateBoard(board, botColor){
+  const oppColor = botColor==='w' ? 'b' : 'w';
+  let score = 0;
+
+  let botPip = (botColor==='w'?board.bar.w:board.bar.b) * 25;
+  let oppPip = (oppColor==='w'?board.bar.w:board.bar.b) * 25;
+  for(let i=0;i<24;i++){
+    const v = board.points[i];
+    if(v===0) continue;
+    if(ownsColor(v, botColor)) botPip += Math.abs(v) * pipDistanceToOff(i, botColor);
+    else oppPip += Math.abs(v) * pipDistanceToOff(i, oppColor);
+  }
+  score += (oppPip - botPip) * 1.0;
+
+  score += (botColor==='w'?board.off.w:board.off.b) * 60;
+  score -= (oppColor==='w'?board.off.w:board.off.b) * 60;
+
+  score -= (botColor==='w'?board.bar.w:board.bar.b) * 40;
+  score += (oppColor==='w'?board.bar.w:board.bar.b) * 45;
+
+  for(let i=0;i<24;i++){
+    const v = board.points[i];
+    if(v===0) continue;
+    const isBot = ownsColor(v, botColor);
+    const count = Math.abs(v);
+    if(isBot){
+      if(count===1){
+        score -= 12;
+      } else {
+        score += 4;
+        const [lo,hi] = homeRange(botColor);
+        if(i>=lo && i<=hi) score += 3;
+      }
+    } else if(count===1){
+      score += 5;
+    }
+  }
+  return score;
+}
+
+function maybeTriggerBotTurn(){
+  if(!localGame || !localGame.vsBot) return;
+  if(localGame.status!=='playing') return;
+  if(localGame.turn!==BOT_COLOR) return;
+  if(botTurnInProgress) return;
+  botTurnInProgress = true;
+  setTimeout(runBotTurn, 700);
+}
+
+async function runBotTurn(){
+  const g = localGame;
+  if(!g || g.status!=='playing' || g.turn!==BOT_COLOR || !g.vsBot){ botTurnInProgress=false; return; }
+
+  sfxDiceRoll();
+  const d1 = roll1(), d2 = roll1();
+  g.dice = d1===d2 ? [d1,d1,d1,d1] : [d1,d2];
+  g.diceUsed = g.dice.map(()=>false);
+  g.diceRolledThisTurn = true;
+  render();
+
+  await botDelay(900);
+  if(!localGame || localGame.turn!==BOT_COLOR){ botTurnInProgress=false; return; }
+
+  const remaining = remainingDiceValues(g);
+  if(!anyLegalMoveExists(g, BOT_COLOR, remaining)){
+    await botDelay(500);
+    endTurn();
+    botTurnInProgress = false;
+    return;
+  }
+
+  const turns = botEnumerateTurns(g, BOT_COLOR, remaining, botCapFor(botDifficulty));
+  let chosen;
+  if(!turns.length){
+    endTurn();
+    botTurnInProgress = false;
+    return;
+  }
+  if(botDifficulty==='kolay'){
+    chosen = turns[Math.floor(Math.random()*turns.length)];
+  } else {
+    const scored = turns.map(t=>({ t, s: botEvaluateBoard(t.board, BOT_COLOR) }));
+    scored.sort((a,b)=>b.s-a.s);
+    if(botDifficulty==='orta' && scored.length>1 && Math.random()<0.3){
+      chosen = scored[1 + Math.floor(Math.random()*Math.min(2, scored.length-1))].t;
+    } else {
+      chosen = scored[0].t;
+    }
+  }
+
+  for(const move of chosen.seq){
+    await botDelay(600);
+    if(!localGame || localGame.turn!==BOT_COLOR || localGame.status!=='playing'){ botTurnInProgress=false; return; }
+    let result;
+    if(move.fromType==='bar'){
+      result = botApplyMoveFromBar(g, BOT_COLOR, move.dest);
+    } else {
+      result = botApplyMoveOnBoard(g, BOT_COLOR, move.fromIdx, move.dest);
+    }
+    if(result==='hit') playMoveResultSound('hit'); else sfxMove();
+    render();
+  }
+
+  await botDelay(500);
+  endTurn();
+  botTurnInProgress = false;
+}
+
+function startBotGame(difficulty){
+  const labels = { kolay:'Kolay 🌱', orta:'Orta ⚔️', zor:'Zor 🔥' };
+  botDifficulty = difficulty;
+  botTurnInProgress = false;
+  ROOM = null;
+  ME = 'w';
+  currentMatchIsRanked = false;
+  currentMatchOpponentUserId = null;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('mainMenu').style.display='none';
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('channelLobby').style.display='none';
+  const g = freshState(myName || 'Sen');
+  g.players.b = 'Bot (' + labels[difficulty] + ')';
+  g.avatars.b = { emoji:'🤖', frameClass:'frame-none' };
+  g.status = 'playing';
+  g.turnStartedAt = Date.now();
+  g.vsBot = true;
+  localGame = g;
+  enterGame();
+  render();
+}
+
+document.getElementById('vsBotBtn').onclick = ()=>{
+  document.getElementById('botDifficultyOverlay').classList.add('active');
+};
+document.getElementById('botDifficultyCancelBtn').onclick = ()=>{
+  document.getElementById('botDifficultyOverlay').classList.remove('active');
+};
+document.getElementById('botDiffEasyBtn').onclick = ()=>{
+  document.getElementById('botDifficultyOverlay').classList.remove('active');
+  startBotGame('kolay');
+};
+document.getElementById('botDiffMediumBtn').onclick = ()=>{
+  document.getElementById('botDifficultyOverlay').classList.remove('active');
+  startBotGame('orta');
+};
+document.getElementById('botDiffHardBtn').onclick = ()=>{
+  document.getElementById('botDifficultyOverlay').classList.remove('active');
+  startBotGame('zor');
+};
 
 document.getElementById('rollBtn').onclick = ()=>{
   if(!localGame || localGame.turn!==ME || localGame.diceRolledThisTurn) return;
@@ -2655,6 +2969,10 @@ document.getElementById('reloadBtn').onclick = ()=>{
 };
 
 document.getElementById('offerRematchBtn').onclick = ()=>{
+  if(localGame && localGame.vsBot){
+    startNewRound();
+    return;
+  }
   document.getElementById('rematchIdle').style.display='none';
   document.getElementById('rematchWaiting').style.display='block';
   wsSend({type:'rematchRequest'});
@@ -2673,6 +2991,10 @@ document.getElementById('rematchAcceptBtn').onclick = ()=>{
 
 setInterval(()=>{
   if(!localGame || localGame.status!=='playing') return;
+  if(localGame.vsBot){
+    document.getElementById('turnTimer').style.visibility = 'hidden';
+    return;
+  }
   const timerEl = document.getElementById('turnTimer');
   timerEl.style.visibility = 'visible';
   const elapsed = Math.floor((Date.now() - (localGame.turnStartedAt || Date.now())) / 1000);
