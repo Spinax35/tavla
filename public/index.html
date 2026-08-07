@@ -273,7 +273,7 @@
   .frame-swatch .fs-label{font-size:0.62rem;color:#bca77d;text-align:center;font-weight:600;}
 
   /* ---- Game screen (PREMIUM ULTRA-REALISTIC WOODEN TABLE) ---- */
-  .game-wrap{width:100%;max-width:min(980px, calc((var(--vh, 1vh) * 100 - 280px) * 1.5));display:none;flex-direction:column;align-items:center;}
+  .game-wrap{width:100%;max-width:980px;display:none;flex-direction:column;align-items:center;}
   .game-wrap.active{display:flex;}
   .topbar{
     width:100%;display:flex;justify-content:space-between;align-items:center;
@@ -314,6 +314,8 @@
       inset 0 0 0 4px rgba(35,16,6,0.9),
       inset 0 0 60px rgba(0,0,0,0.6);
     width:100%;
+    max-width:min(980px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5));
+    margin:0 auto;
   }
   
   /* İç oyun alanı (Kadife zemin ve derinlik hissi) */
@@ -496,7 +498,8 @@
   }
 
   .controls{
-    width:100%;display:flex;justify-content:space-between;align-items:center;
+    width:100%;max-width:min(980px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5));margin-left:auto;margin-right:auto;
+    display:flex;justify-content:space-between;align-items:center;
     margin-top:20px;flex-wrap:wrap;gap:12px;
   }
   .dice-area{display:flex;gap:12px;align-items:center;min-height:56px;}
@@ -613,6 +616,22 @@
     body.in-game .player-chip{padding:6px 10px;}
     body.in-game .controls{margin-top:6px;gap:6px;}
     body.in-game .status-text{min-height:1.1em;font-size:0.85rem;}
+  }
+  /* Yan yatık telefon / çok kısa ekran: buton yazıları gizlenir, sadece ikon
+     kalır (dokununca title tooltip'i yazıyı yine gösterir), üst bar tek satıra
+     yakın sıkışır ki tahta ekrandan taşmasın. */
+  @media(max-height:460px), (max-width:340px){
+    body.in-game .btn-label{display:none;}
+    body.in-game .topbar{gap:5px;margin-bottom:6px;}
+    body.in-game .topbar .btn.small{padding:7px 9px;}
+    body.in-game .player-chip{padding:5px 9px;font-size:0.72rem;gap:6px;}
+    body.in-game .avatar-circle{width:24px;height:24px;font-size:0.75rem;}
+  }
+  @media(max-height:420px){
+    body.in-game{padding:4px 6px 8px;}
+    body.in-game .board-frame{padding:5px;}
+    body.in-game .die-wrap{width:30px;height:30px;--die-r:15px;}
+    body.in-game .controls{margin-top:4px;gap:4px;}
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -810,8 +829,8 @@
       <div class="player-chip" id="chipWhite"><span class="avatar-circle" id="avatarWhite"></span><span id="nameWhite">Beyaz</span></div>
       <div class="room-tag" id="roomTag"></div>
       <button class="btn small secondary" id="emojiBtn" style="margin:0;" title="Emoji gönder">😊</button>
-      <button class="btn small secondary" id="surrenderBtn" style="margin:0;" title="Teslim ol">🏳️ <span>Teslim Ol</span></button>
-      <button class="btn small secondary" id="leaveGameBtn" style="margin:0;" title="Oyundan ayrıl">🚪 <span>Ayrıl</span></button>
+      <button class="btn small secondary" id="surrenderBtn" style="margin:0;" title="Teslim ol">🏳️ <span class="btn-label">Teslim Ol</span></button>
+      <button class="btn small secondary" id="leaveGameBtn" style="margin:0;" title="Oyundan ayrıl">🚪 <span class="btn-label">Ayrıl</span></button>
       <button class="btn small secondary" id="soundToggleBtn" style="margin:0;" title="Sesi aç/kapat">🔊</button>
       <div class="player-chip" id="chipBlack"><span class="avatar-circle" id="avatarBlack"></span><span id="nameBlack">Siyah</span></div>
     </div>
