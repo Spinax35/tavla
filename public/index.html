@@ -1336,6 +1336,7 @@ function winByOpponentLeaving(){
   sfxWin();
   pushState();
   render();
+  maybeReportRankedIfMatchOver();
 }
 
 function handleServerMessage(msg){
@@ -1354,19 +1355,27 @@ function handleServerMessage(msg){
       alert('Bu odanın kurucusu artık bağlı değil.');
       return;
     }
-    currentMatchIsRanked = false;
-    currentMatchOpponentUserId = null;
-    if(!state.players.b){
+    const isFreshJoin = !state.players.b;
+    if(isFreshJoin){
+      // gerçek yeni katılım (arkadaş odasına ilk giriş) — rekabetçi olamaz
+      currentMatchIsRanked = false;
+      currentMatchOpponentUserId = null;
       state.players.b = myName;
       state.status='playing';
       state.turnStartedAt = Date.now();
       state.seq=(state.seq||0)+1;
     }
+    // yeniden bağlanma durumunda currentMatchIsRanked / currentMatchOpponentUserId
+    // zaten doğru değerinde kalmaya devam eder (sayfa yenilenmediği sürece
+    // bu değişkenler korunur) — burada sıfırlanmamalı, yoksa rekabetçi
+    // maçlar bağlantı kopup geri gelince "rekabetçi değilmiş" gibi davranıp
+    // sonucu hiç bildirmiyordu.
     localGame = state;
     lastSeq = state.seq;
     enterGame();
     render();
     wsSend({type:'state', code:ROOM, state});
+    maybeReportRankedIfMatchOver();
     return;
   }
   if(msg.type==='error'){
@@ -1385,10 +1394,7 @@ function handleServerMessage(msg){
       document.getElementById('winOverlay').classList.remove('active');
       resetRematchUI();
     }
-    if(localGame.status==='finished' && currentMatchIsRanked && localGame.matchOver && rankedReportedForRoom !== ROOM){
-      rankedReportedForRoom = ROOM;
-      reportRankedResultIfNeeded(localGame);
-    }
+    maybeReportRankedIfMatchOver();
     render();
     return;
   }
@@ -1401,6 +1407,13 @@ function handleServerMessage(msg){
   if(msg.type==='emoji'){
     const fromName = localGame ? (ME==='w' ? localGame.players.b : localGame.players.w) : 'Rakibin';
     showFloatingEmoji(String(msg.emoji||'').slice(0,8), fromName || 'Rakibin');
+    return;
+  }
+  if(msg.type==='forfeit'){
+    if(localGame && localGame.status==='playing'){
+      clearOpponentLeftTimer();
+      winByOpponentLeaving();
+    }
     return;
   }
   if(msg.type==='rematchRequest'){
@@ -1886,6 +1899,19 @@ async function reportRankedResultIfNeeded(g){
     await sb.rpc('report_match_result', { p_room_code: ROOM, p_opponent_id: currentMatchOpponentUserId, p_winner_id: winnerUserId });
     loadMyProfile();
   }catch(e){}
+}
+
+// Maç bitmiş (matchOver) olarak görüldüğü HER an — ister bu tarafın kendi
+// hamlesi/olayıyla, ister karşı taraftan gelen state ile olsun — çağrılmalı.
+// Önceden sadece 'state' mesajı geleninde çağrılıyordu; bu da maçı bitiren
+// tarafın kendi raporunu hiç göndermemesine (dolayısıyla puanın hiçbir zaman
+// güncellenmemesine, çünkü iki taraf da eşleşen raporu göndermek zorunda)
+// yol açıyordu.
+function maybeReportRankedIfMatchOver(){
+  if(localGame && localGame.status==='finished' && currentMatchIsRanked && localGame.matchOver && rankedReportedForRoom !== ROOM){
+    rankedReportedForRoom = ROOM;
+    reportRankedResultIfNeeded(localGame);
+  }
 }
 
 document.getElementById('backToMenuBtn').onclick = ()=>{
@@ -2593,6 +2619,7 @@ function endTurn(){
   }
   pushState();
   render();
+  maybeReportRankedIfMatchOver();
   maybeTriggerBotTurn();
 }
 
@@ -2933,13 +2960,29 @@ document.getElementById('surrenderBtn').onclick = ()=>{
     sfxWin();
     pushState();
     render();
+    maybeReportRankedIfMatchOver();
   }
 };
 
-document.getElementById('leaveGameBtn').onclick = ()=>{
-  if(confirm('Oyundan ayrılmak istiyorsun, ana menüye dönülsün mü?')){
-    location.reload();
+document.getElementById('leaveGameBtn').onclick = async ()=>{
+  const isActiveRanked = currentMatchIsRanked && localGame && localGame.status==='playing' && !localGame.vsBot;
+  const msg = isActiveRanked
+    ? 'Rekabetçi maçı terk edersen bu maçı kaybetmiş sayılırsın ve puanın düşer. Yine de ayrılmak istiyor musun?'
+    : 'Oyundan ayrılmak istiyorsun, ana menüye dönülsün mü?';
+  if(!confirm(msg)) return;
+
+  if(isActiveRanked && myUserId && currentMatchOpponentUserId){
+    try{
+      await sb.rpc('report_match_result', {
+        p_room_code: ROOM,
+        p_opponent_id: currentMatchOpponentUserId,
+        p_winner_id: currentMatchOpponentUserId
+      });
+    }catch(e){}
+    wsSend({type:'forfeit', code:ROOM});
+    await new Promise(res=>setTimeout(res, 250)); // mesajın gitmesi için kısa bir pay
   }
+  location.reload();
 };
 
 document.getElementById('soundToggleBtn').onclick = ()=>{

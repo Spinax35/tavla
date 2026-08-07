@@ -333,6 +333,15 @@ wss.on('connection', (ws) => {
       return;
     }
 
+    // ---- Rekabetci mactan acikca ayrilma (forfeit): sadece odadaki diger
+    // oyuncuya iletilir, sunucu skor/puan hakkinda bir sey bilmez/saklamaz.
+    if (msg.type === 'forfeit') {
+      const code = ws.roomCode;
+      if (!code) return;
+      broadcast(code, { type: 'forfeit' }, ws);
+      return;
+    }
+
     // ---- Genel odalar (public lobby) ----
 
     if (msg.type === 'joinChannel') {
