@@ -314,7 +314,7 @@
       inset 0 0 0 4px rgba(35,16,6,0.9),
       inset 0 0 60px rgba(0,0,0,0.6);
     width:100%;
-    max-width:min(980px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5));
+    max-width:min(980px, max(280px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5)));
     margin:0 auto;
   }
   
@@ -498,7 +498,7 @@
   }
 
   .controls{
-    width:100%;max-width:min(980px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5));margin-left:auto;margin-right:auto;
+    width:100%;max-width:min(980px, max(280px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5)));margin-left:auto;margin-right:auto;
     display:flex;justify-content:space-between;align-items:center;
     margin-top:20px;flex-wrap:wrap;gap:12px;
   }
