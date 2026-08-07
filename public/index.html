@@ -40,6 +40,8 @@
     --cream:#f9f4ed;
     --board-bg:#160c07;
     --danger:#b8422f;
+    --skin-frame-1:#61361c; --skin-frame-2:#3d1c0b; --skin-frame-3:#210e05;
+    --skin-felt-1:#2b140a; --skin-felt-2:#110703;
   }
   *{box-sizing:border-box;}
   body{
@@ -193,6 +195,57 @@
   .leaderboard-row .lb-name{flex:1;font-size:0.95rem;font-weight:600;}
   .leaderboard-row .lb-rating{font-family:'Fraunces',serif;color:var(--brass-light);font-weight:700;font-size:1.1rem;}
 
+  /* ---- Market ---- */
+  .coin-badge{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
+    background:linear-gradient(145deg, #3a2a0a, #211705);border:1px solid rgba(212,175,55,0.4);
+    font-weight:800;color:var(--brass-light);font-size:0.9rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .market-tabs{display:flex;gap:8px;margin:14px 0;}
+  .market-tab{
+    flex:1;padding:10px 8px;border-radius:10px;border:2px solid transparent;background:rgba(255,255,255,0.05);
+    color:#bca77d;font-weight:700;font-size:0.8rem;cursor:pointer;text-align:center;transition:all .15s;
+  }
+  .market-tab.active{border-color:var(--brass);background:rgba(212,175,55,0.15);color:var(--brass-light);}
+  .market-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .market-card{
+    background:linear-gradient(145deg, #1f1109, #0d0603);border:1px solid rgba(212,175,55,0.2);border-radius:12px;
+    padding:14px 10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .market-card .mc-preview{display:flex;align-items:center;justify-content:center;height:52px;margin-bottom:8px;}
+  .market-card .mc-board-swatch{width:64px;height:44px;border-radius:8px;box-shadow:inset 0 0 10px rgba(0,0,0,0.5);}
+  .market-card .mc-name{font-size:0.8rem;font-weight:700;color:var(--cream);margin-bottom:8px;min-height:2.1em;}
+  .market-card .mc-price{font-size:0.78rem;color:var(--brass-light);font-weight:700;margin-bottom:8px;}
+  .market-card .btn{padding:9px 8px;font-size:0.78rem;margin:0;}
+  .market-card .btn.owned{background:linear-gradient(180deg, rgba(60,140,90,0.5), rgba(30,80,50,0.6));color:#c8f0d8;box-shadow:none;}
+  .market-card .btn.equipped{background:linear-gradient(180deg, rgba(212,175,55,0.35), rgba(140,110,20,0.4));color:var(--brass-light);box-shadow:none;}
+
+  /* ---- Tahta görünümleri (market) ---- */
+  body.skin-zumrut{
+    --skin-frame-1:#1c3d24; --skin-frame-2:#123018; --skin-frame-3:#0a1a0d;
+    --skin-felt-1:#0d2b16; --skin-felt-2:#071a0d;
+    --point-gold-1:#eaf3d8; --point-gold-2:#a9c98a; --point-gold-3:#5c7a45;
+    --point-dark-1:#123521; --point-dark-2:#0a1f13; --point-dark-3:#040e09;
+  }
+  body.skin-lacivert{
+    --skin-frame-1:#1c2d4a; --skin-frame-2:#13203a; --skin-frame-3:#0a1526;
+    --skin-felt-1:#0d1a33; --skin-felt-2:#08101f;
+    --point-gold-1:#eef2fa; --point-gold-2:#b8c4d6; --point-gold-3:#7d8ba3;
+    --point-dark-1:#16233d; --point-dark-2:#0c1526; --point-dark-3:#050a14;
+  }
+  body.skin-mercan{
+    --skin-frame-1:#5a2318; --skin-frame-2:#3d160e; --skin-frame-3:#210a06;
+    --skin-felt-1:#3a1712; --skin-felt-2:#1f0b08;
+    --point-gold-1:#ffe3c9; --point-gold-2:#f0a878; --point-gold-3:#b8623a;
+    --point-dark-1:#3c1a12; --point-dark-2:#220e09; --point-dark-3:#100604;
+  }
+  body.skin-karbon{
+    --skin-frame-1:#2c2c30; --skin-frame-2:#1a1a1d; --skin-frame-3:#0c0c0d;
+    --skin-felt-1:#1e1e21; --skin-felt-2:#0e0e10;
+    --point-gold-1:#f2f2f5; --point-gold-2:#c3c3cb; --point-gold-3:#84848c;
+    --point-dark-1:#2a2a2e; --point-dark-2:#18181a; --point-dark-3:#0a0a0b;
+  }
+
   /* ---- Emoji tepkileri ---- */
   .emoji-panel{
     display:none;flex-wrap:wrap;gap:6px;justify-content:center;
@@ -253,6 +306,23 @@
   .frame-league-3{--fc:#6fd6cf;--fg:rgba(111,214,207,0.6);}
   .frame-league-4{--fc:#7fb8ff;--fg:rgba(127,184,255,0.65);}
 
+  /* ---- Market'ten satın alınan premium çerçeveler ---- */
+  .frame-fire{--fc:#ff7a1a;--fg:rgba(255,122,26,0.6);animation:frameFirePulse 1.6s ease-in-out infinite;}
+  @keyframes frameFirePulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.35);}}
+  .frame-shadow{--fc:#3a2a55;--fg:rgba(20,10,35,0.7);}
+  .frame-shadow::after{box-shadow:0 0 10px rgba(20,10,35,0.8), inset 0 0 6px rgba(120,80,180,0.35);}
+  .frame-rainbow{--fc:#d94fd9;--fg:rgba(217,79,217,0.5);}
+  .frame-rainbow::after{
+    border:2.5px solid transparent;
+    background:conic-gradient(from 0deg, #ff5252, #ffd452, #52ff8f, #52d9ff, #7c52ff, #ff52d9, #ff5252) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    animation:frameRainbowSpin 3s linear infinite;
+  }
+  @keyframes frameRainbowSpin{0%{filter:hue-rotate(0deg);}100%{filter:hue-rotate(360deg);}}
+  .frame-diamond{--fc:#bfe8ff;--fg:rgba(191,232,255,0.7);animation:frameDiamondShine 2.2s ease-in-out infinite;}
+  @keyframes frameDiamondShine{0%,100%{filter:brightness(1) saturate(1);}50%{filter:brightness(1.5) saturate(1.3);}}
+
   .emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
   .emoji-btn{
     aspect-ratio:1;border-radius:10px;border:2px solid transparent;
@@ -303,7 +373,7 @@
       /* Ahşap damarları ve lüks maun cilası */
       linear-gradient(135deg, rgba(255,225,175,0.06) 0%, transparent 40%, rgba(0,0,0,0.3) 100%),
       repeating-linear-gradient(88deg, rgba(0,0,0,0.08) 0 1px, rgba(120,60,20,0.04) 1px 4px, transparent 4px 12px),
-      linear-gradient(165deg, #61361c, #3d1c0b 45%, #210e05 100%);
+      linear-gradient(165deg, var(--skin-frame-1), var(--skin-frame-2) 45%, var(--skin-frame-3) 100%);
     background-repeat:no-repeat;
     border-radius:24px;
     padding:22px;
@@ -328,7 +398,7 @@
       radial-gradient(ellipse at 25% 30%, rgba(255,180,90,0.07), transparent 60%),
       radial-gradient(ellipse at 75% 70%, rgba(255,150,70,0.06), transparent 60%),
       repeating-linear-gradient(92deg, rgba(0,0,0,0.18) 0 1px, rgba(255,200,140,0.015) 1px 3px, transparent 3px 10px),
-      radial-gradient(ellipse at 50% 50%, #2b140a 0%, #110703 85%);
+      radial-gradient(ellipse at 50% 50%, var(--skin-felt-1) 0%, var(--skin-felt-2) 85%);
     border-radius:14px;
     aspect-ratio:15/10;
     overflow:hidden;
@@ -703,6 +773,7 @@
         <button class="btn small secondary" id="openProfileBtn" style="margin-top:0;">👤 Profilim</button>
         <button class="btn small secondary" id="openLeaderboardBtn" style="margin-top:0;">📊 Liderlik Tablosu</button>
       </div>
+      <button class="btn small secondary" id="openMarketBtn" style="margin-top:10px;width:100%;">🛒 Market <span id="marketBtnCoins" style="margin-left:6px;color:var(--brass-light);"></span></button>
 
       <div class="divider">genel odalar</div>
       <div id="roomGrid" class="room-grid"></div>
@@ -732,6 +803,26 @@
       <div id="leaderboardContent" style="margin-top:14px;">
         <p class="sub">Yükleniyor…</p>
       </div>
+    </div>
+  </div>
+
+  <!-- MARKET SCREEN -->
+  <div id="marketScreen" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">🛒 Market</h2>
+        <button class="btn small secondary" id="marketBackBtn" style="margin:0;">Geri</button>
+      </div>
+      <div style="text-align:center;margin-top:12px;">
+        <span class="coin-badge" id="marketCoinBadge">🪙 0</span>
+      </div>
+      <p class="hint" id="marketGuestHint" style="display:none;">Misafir girişinde satın alımlar sadece bu tarayıcıda saklanır — hesap açarsan kalıcı olur.</p>
+      <div class="market-tabs">
+        <button type="button" class="market-tab active" id="marketTabBoard" data-tab="board">🎨 Tahta</button>
+        <button type="button" class="market-tab" id="marketTabAvatar" data-tab="avatar">😊 Avatar</button>
+        <button type="button" class="market-tab" id="marketTabFrame" data-tab="frame">🖼️ Çerçeve</button>
+      </div>
+      <div class="market-grid" id="marketGrid"></div>
     </div>
   </div>
 
@@ -1337,6 +1428,7 @@ function winByOpponentLeaving(){
   pushState();
   render();
   maybeReportRankedIfMatchOver();
+  maybeAwardGameCoins();
 }
 
 function handleServerMessage(msg){
@@ -1376,6 +1468,7 @@ function handleServerMessage(msg){
     render();
     wsSend({type:'state', code:ROOM, state});
     maybeReportRankedIfMatchOver();
+    maybeAwardGameCoins();
     return;
   }
   if(msg.type==='error'){
@@ -1395,6 +1488,7 @@ function handleServerMessage(msg){
       resetRematchUI();
     }
     maybeReportRankedIfMatchOver();
+    maybeAwardGameCoins();
     render();
     return;
   }
@@ -1709,7 +1803,9 @@ function buildEmojiGrid(){
   const grid = document.getElementById('emojiGrid');
   if(!grid) return;
   const current = getMyAvatarRaw().emoji;
-  grid.innerHTML = AVATAR_EMOJIS.map(e=>
+  const ownedAvatarEmojis = SHOP_ITEMS.filter(i=>i.type==='avatar' && ownsItem(i.id)).map(i=>i.emoji);
+  const all = AVATAR_EMOJIS.concat(ownedAvatarEmojis);
+  grid.innerHTML = all.map(e=>
     `<button type="button" class="emoji-btn${e===current?' selected':''}" data-emoji="${e}">${e}</button>`
   ).join('');
   grid.querySelectorAll('.emoji-btn').forEach(btn=>{
@@ -1722,7 +1818,9 @@ function buildFrameGrid(){
   if(!grid) return;
   const current = getMyAvatarRaw().frameId;
   const rating = myCurrentRating();
-  grid.innerHTML = FRAME_DEFS.map(f=>{
+  const ownedFrameDefs = SHOP_ITEMS.filter(i=>i.type==='frame' && ownsItem(i.id)).map(i=>({ id:i.id, name:i.name }));
+  const all = FRAME_DEFS.concat(ownedFrameDefs);
+  grid.innerHTML = all.map(f=>{
     const cls = resolveFrameClass(f.id, rating);
     const label = f.id==='league' ? (leagueForRating(rating).name+' Lig') : f.name;
     return `<div class="frame-swatch${f.id===current?' selected':''}" data-frame="${f.id}">
@@ -1735,18 +1833,255 @@ function buildFrameGrid(){
   });
 }
 
+function buildBoardSkinGrid(){
+  const grid = document.getElementById('boardSkinGrid');
+  if(!grid) return;
+  const current = getMyBoardSkin();
+  const owned = SHOP_ITEMS.filter(i=>i.type==='board' && ownsItem(i.id));
+  const all = [{ id:'klasik', name:'Klasik Maun', preview:'linear-gradient(160deg,#61361c,#210e05)' }].concat(owned);
+  grid.innerHTML = all.map(s=>{
+    return `<div class="frame-swatch${s.id===current?' selected':''}" data-skin="${s.id}">
+      <span class="mc-board-swatch" style="width:40px;height:28px;display:block;border-radius:6px;background:${s.preview};"></span>
+      <span class="fs-label">${s.name}</span>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('[data-skin]').forEach(sw=>{
+    sw.onclick = ()=> setMyBoardSkin(sw.dataset.skin);
+  });
+}
+
+/* ============ Market: oyun parası, tahta/avatar/çerçeve satın alma ============ */
+const SHOP_ITEMS = [
+  { id:'skin_zumrut',     type:'board',  name:'Zümrüt Yeşili',     price:150, cls:'skin-zumrut',   preview:'linear-gradient(160deg,#1c3d24,#0a1a0d)' },
+  { id:'skin_lacivert',   type:'board',  name:'Lacivert Gece',     price:150, cls:'skin-lacivert', preview:'linear-gradient(160deg,#1c2d4a,#0a1526)' },
+  { id:'skin_mercan',     type:'board',  name:'Mercan Gün Batımı', price:200, cls:'skin-mercan',   preview:'linear-gradient(160deg,#5a2318,#210a06)' },
+  { id:'skin_karbon',     type:'board',  name:'Karbon',            price:350, cls:'skin-karbon',   preview:'linear-gradient(160deg,#2c2c30,#0c0c0d)' },
+  { id:'av_trex',         type:'avatar', name:'T-Rex',             price:60,  emoji:'🦖' },
+  { id:'av_timsah',       type:'avatar', name:'Timsah',            price:60,  emoji:'🐊' },
+  { id:'av_akrep',        type:'avatar', name:'Akrep',             price:60,  emoji:'🦂' },
+  { id:'av_flamingo',     type:'avatar', name:'Flamingo',          price:60,  emoji:'🦩' },
+  { id:'av_tavus',        type:'avatar', name:'Tavus Kuşu',        price:60,  emoji:'🦚' },
+  { id:'av_zebra',        type:'avatar', name:'Zebra',             price:60,  emoji:'🦓' },
+  { id:'av_tembel',       type:'avatar', name:'Tembel Hayvan',     price:60,  emoji:'🦥' },
+  { id:'av_kirpi',        type:'avatar', name:'Kirpi',             price:60,  emoji:'🦔' },
+  { id:'av_yunus',        type:'avatar', name:'Yunus',             price:60,  emoji:'🐬' },
+  { id:'av_fok',          type:'avatar', name:'Fok',               price:60,  emoji:'🦭' },
+  { id:'frame_ates',      type:'frame',  name:'Ateş',              price:180, cls:'frame-fire' },
+  { id:'frame_golge',     type:'frame',  name:'Gölge',             price:180, cls:'frame-shadow' },
+  { id:'frame_gokkusagi', type:'frame',  name:'Gökkuşağı',         price:250, cls:'frame-rainbow' },
+  { id:'frame_elmas',     type:'frame',  name:'Elmas Parıltısı',   price:400, cls:'frame-diamond' },
+];
+const COINS_PER_WIN = { casual: 8, ranked: 15 };
+let marketActiveTab = 'board';
+
+function shopItemById(id){ return SHOP_ITEMS.find(i=>i.id===id) || null; }
+
+function myCoins(){
+  if(!isGuest && myUserId && myProfileCache && typeof myProfileCache.coins==='number') return myProfileCache.coins;
+  return parseInt(localStorage.getItem('tavlaCoins')||'0', 10) || 0;
+}
+
+function myOwnedItemIds(){
+  if(!isGuest && myUserId) return myOwnedItemsCache;
+  try{ return JSON.parse(localStorage.getItem('tavlaOwnedItems')||'[]'); }catch(e){ return []; }
+}
+
+function ownsItem(id){ return myOwnedItemIds().includes(id); }
+
+function updateCoinDisplays(){
+  const coins = myCoins();
+  const badgeEl = document.getElementById('marketBtnCoins');
+  if(badgeEl) badgeEl.textContent = '🪙 ' + coins;
+  const marketBadge = document.getElementById('marketCoinBadge');
+  if(marketBadge) marketBadge.textContent = '🪙 ' + coins;
+}
+
+// Bir maç kazanıldığında (bot hariç) oyun parası ver.
+async function awardGameCoins(mode){
+  const amount = COINS_PER_WIN[mode];
+  if(!amount) return;
+  if(!isGuest && myUserId){
+    try{
+      await sb.rpc('award_game_coins', { p_mode: mode });
+      if(myProfileCache) myProfileCache.coins = (myProfileCache.coins||0) + amount;
+    }catch(e){}
+  } else {
+    const cur = parseInt(localStorage.getItem('tavlaCoins')||'0', 10) || 0;
+    localStorage.setItem('tavlaCoins', String(cur + amount));
+  }
+  updateCoinDisplays();
+}
+
+let coinsAwardedKey = null;
+function maybeAwardGameCoins(){
+  if(!localGame || localGame.status!=='finished') return;
+  if(localGame.vsBot) return; // bota karşı kazanmak oyun parası vermez
+  if(localGame.winner!==ME) return;
+  const key = ROOM + ':' + localGame.seq;
+  if(coinsAwardedKey===key) return;
+  coinsAwardedKey = key;
+  awardGameCoins(currentMatchIsRanked ? 'ranked' : 'casual');
+}
+
+async function purchaseItem(id){
+  const item = shopItemById(id);
+  if(!item) return;
+  if(ownsItem(id)){ return; }
+  const coins = myCoins();
+  if(coins < item.price){
+    alert('Yeterli oyun paran yok. Gereken: ' + item.price + ' 🪙, mevcut: ' + coins + ' 🪙');
+    return;
+  }
+  if(!confirm(`"${item.name}" için ${item.price} 🪙 harcanacak. Onaylıyor musun?`)) return;
+
+  if(!isGuest && myUserId){
+    try{
+      const { data } = await sb.rpc('purchase_item', { p_item_id: id });
+      const status = data && data.status;
+      if(status==='purchased'){
+        myOwnedItemsCache.push(id);
+        if(myProfileCache) myProfileCache.coins -= item.price;
+      } else if(status==='insufficient_coins'){
+        alert('Yeterli oyun paran yok.');
+        return;
+      } else if(status==='already_owned'){
+        myOwnedItemsCache.push(id);
+      }
+    }catch(e){ alert('Satın alma başarısız, tekrar dener misin?'); return; }
+  } else {
+    const owned = myOwnedItemIds();
+    owned.push(id);
+    localStorage.setItem('tavlaOwnedItems', JSON.stringify(owned));
+    localStorage.setItem('tavlaCoins', String(coins - item.price));
+  }
+  updateCoinDisplays();
+  renderMarketGrid();
+  renderProfileScreen();
+}
+
+/* ---- Tahta görünümü (skin) seçimi ---- */
+function getMyBoardSkin(){
+  if(!isGuest && myUserId && myProfileCache && myProfileCache.board_skin) return myProfileCache.board_skin;
+  return localStorage.getItem('tavlaBoardSkin') || 'klasik';
+}
+
+async function setMyBoardSkin(skinId){
+  if(skinId!=='klasik' && !ownsItem(skinId)) return;
+  if(!isGuest && myUserId){
+    if(myProfileCache) myProfileCache.board_skin = skinId;
+    try{ await sb.rpc('set_my_board_skin', { p_skin: skinId }); }catch(e){}
+  } else {
+    localStorage.setItem('tavlaBoardSkin', skinId);
+  }
+  applyMyBoardSkin();
+  renderProfileScreen();
+  renderMarketGrid();
+}
+
+function applyMyBoardSkin(){
+  const skinId = getMyBoardSkin();
+  const item = shopItemById(skinId);
+  document.body.classList.remove('skin-zumrut','skin-lacivert','skin-mercan','skin-karbon');
+  if(item && item.cls) document.body.classList.add(item.cls);
+}
+
+function renderMarketGrid(){
+  const grid = document.getElementById('marketGrid');
+  if(!grid) return;
+  const items = SHOP_ITEMS.filter(i=>i.type===marketActiveTab);
+  const currentSkin = getMyBoardSkin();
+  const currentFrame = getMyAvatarRaw().frameId;
+  const currentEmoji = getMyAvatarRaw().emoji;
+  grid.innerHTML = items.map(item=>{
+    const owned = ownsItem(item.id);
+    let previewHtml = '';
+    if(item.type==='board'){
+      previewHtml = `<span class="mc-board-swatch" style="background:${item.preview};"></span>`;
+    } else if(item.type==='avatar'){
+      previewHtml = `<span class="avatar-circle avatar-circle-lg frame-wood">${item.emoji}</span>`;
+    } else if(item.type==='frame'){
+      previewHtml = `<span class="avatar-circle avatar-circle-lg ${item.cls}">🎲</span>`;
+    }
+    let isEquipped = false;
+    if(item.type==='board') isEquipped = currentSkin===item.id;
+    else if(item.type==='frame') isEquipped = currentFrame===item.id;
+    else if(item.type==='avatar') isEquipped = currentEmoji===item.emoji;
+
+    let btnHtml;
+    if(!owned){
+      btnHtml = `<button type="button" class="btn small" data-buy="${item.id}">${item.price} 🪙 Satın Al</button>`;
+    } else if(isEquipped){
+      btnHtml = `<button type="button" class="btn small equipped" disabled>✓ Kullanılıyor</button>`;
+    } else {
+      btnHtml = `<button type="button" class="btn small owned" data-equip="${item.id}">Kullan</button>`;
+    }
+
+    return `<div class="market-card">
+      <div class="mc-preview">${previewHtml}</div>
+      <div class="mc-name">${item.name}</div>
+      ${owned ? '' : `<div class="mc-price">${item.price} 🪙</div>`}
+      ${btnHtml}
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-buy]').forEach(btn=>{
+    btn.onclick = ()=> purchaseItem(btn.dataset.buy);
+  });
+  grid.querySelectorAll('[data-equip]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const item = shopItemById(btn.dataset.equip);
+      if(!item) return;
+      if(item.type==='board') setMyBoardSkin(item.id);
+      else if(item.type==='avatar') setMyAvatarEmoji(item.emoji);
+      else if(item.type==='frame') setMyAvatarFrame(item.id);
+    };
+  });
+}
+
+function openMarketScreen(){
+  document.getElementById('mainMenu').style.display='none';
+  document.getElementById('marketScreen').style.display='block';
+  document.getElementById('marketGuestHint').style.display = isGuest ? 'block' : 'none';
+  updateCoinDisplays();
+  renderMarketGrid();
+}
+
+document.getElementById('openMarketBtn').onclick = openMarketScreen;
+document.getElementById('marketBackBtn').onclick = ()=>{
+  document.getElementById('marketScreen').style.display='none';
+  document.getElementById('mainMenu').style.display='block';
+};
+['marketTabBoard','marketTabAvatar','marketTabFrame'].forEach(id=>{
+  document.getElementById(id).onclick = ()=>{
+    document.querySelectorAll('.market-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    marketActiveTab = document.getElementById(id).dataset.tab;
+    renderMarketGrid();
+  };
+});
+
 let myProfileCache = null;
+let myOwnedItemsCache = [];
 
 async function loadMyProfile(){
   const badge = document.getElementById('myProfileBadge');
   const guestHint = document.getElementById('profileGuestHint');
-  if(isGuest || !myUserId){ badge.style.display='none'; guestHint.style.display='block'; myProfileCache=null; return; }
+  if(isGuest || !myUserId){
+    badge.style.display='none'; guestHint.style.display='block'; myProfileCache=null; myOwnedItemsCache=[];
+    applyMyBoardSkin();
+    updateCoinDisplays();
+    return;
+  }
   guestHint.style.display='none';
   try{
     await sb.rpc('ensure_profile', { p_display_name: myName });
-    const { data, error } = await sb.from('profiles').select('rating,wins,losses,avatar_emoji,frame_id').eq('id', myUserId).single();
+    const { data, error } = await sb.from('profiles').select('rating,wins,losses,avatar_emoji,frame_id,coins,board_skin').eq('id', myUserId).single();
     if(error || !data){ badge.style.display='none'; return; }
     myProfileCache = data;
+    try{
+      const { data: owned } = await sb.from('owned_items').select('item_id').eq('user_id', myUserId);
+      myOwnedItemsCache = (owned||[]).map(r=>r.item_id);
+    }catch(e){ myOwnedItemsCache = []; }
     // daha önce misafir/lokal olarak bir avatar seçmişse ve Supabase'deki hâlâ
     // varsayılansa, o seçimi bir kereliğine hesaba taşı
     const localEmoji = localStorage.getItem('tavlaAvatarEmoji');
@@ -1760,6 +2095,8 @@ async function loadMyProfile(){
     const meta = getMyAvatarResolved();
     badge.style.display='flex';
     badge.innerHTML = `<span style="display:flex;align-items:center;gap:10px;"><span class="avatar-circle ${meta.frameClass}">${meta.emoji}</span><span class="pb-league">${league.emoji} ${league.name}</span></span><span class="pb-rating">${data.rating} puan · ${data.wins}G / ${data.losses}M</span>`;
+    applyMyBoardSkin();
+    updateCoinDisplays();
   }catch(e){ badge.style.display='none'; }
 }
 
@@ -1793,14 +2130,21 @@ function renderProfileScreen(){
     <div style="text-align:center;margin-bottom:6px;">
       <span class="avatar-circle avatar-circle-lg ${myMeta.frameClass}">${myMeta.emoji}</span>
     </div>
+    <div style="text-align:center;margin-bottom:6px;">
+      <span class="coin-badge">🪙 ${myCoins()}</span>
+    </div>
     <div class="divider" style="margin:16px 0 10px;">avatar seç</div>
     <div class="emoji-grid" id="emojiGrid"></div>
     <div class="divider" style="margin:18px 0 10px;">çerçeve seç</div>
     <div class="frame-grid" id="frameGrid"></div>
+    <div class="divider" style="margin:18px 0 10px;">tahta görünümü</div>
+    <div class="frame-grid" id="boardSkinGrid"></div>
+    <p class="hint" style="text-align:center;">daha fazlası için 🛒 Market</p>
     <div style="margin-top:20px;">${statsHtml}</div>
   `;
   buildEmojiGrid();
   buildFrameGrid();
+  buildBoardSkinGrid();
 }
 
 async function openProfileScreen(){
@@ -2620,6 +2964,7 @@ function endTurn(){
   pushState();
   render();
   maybeReportRankedIfMatchOver();
+  maybeAwardGameCoins();
   maybeTriggerBotTurn();
 }
 
@@ -2961,6 +3306,7 @@ document.getElementById('surrenderBtn').onclick = ()=>{
     pushState();
     render();
     maybeReportRankedIfMatchOver();
+    maybeAwardGameCoins();
   }
 };
 
