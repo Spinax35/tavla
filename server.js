@@ -323,6 +323,16 @@ wss.on('connection', (ws) => {
       return;
     }
 
+    // ---- Emoji tepkisi: sadece odadaki diger oyuncuya iletilir ----
+    if (msg.type === 'emoji') {
+      const code = ws.roomCode;
+      if (!code) return;
+      const emoji = String(msg.emoji || '').slice(0, 8);
+      if (!emoji) return;
+      broadcast(code, { type: 'emoji', emoji }, ws);
+      return;
+    }
+
     // ---- Genel odalar (public lobby) ----
 
     if (msg.type === 'joinChannel') {

@@ -182,6 +182,36 @@
   .leaderboard-row .lb-name{flex:1;font-size:0.95rem;font-weight:600;}
   .leaderboard-row .lb-rating{font-family:'Fraunces',serif;color:var(--brass-light);font-weight:700;font-size:1.1rem;}
 
+  /* ---- Emoji tepkileri ---- */
+  .emoji-panel{
+    display:none;flex-wrap:wrap;gap:6px;justify-content:center;
+    background:linear-gradient(145deg,#2c1a0e,#180e07);border:1px solid rgba(180,150,110,0.3);
+    border-radius:14px;padding:10px;margin:0 0 10px;box-shadow:0 6px 16px rgba(0,0,0,0.4);
+  }
+  .emoji-panel.open{display:flex;}
+  .emoji-panel button{
+    font-size:1.4rem;background:rgba(255,255,255,0.05);border:2px solid transparent;border-radius:10px;
+    width:42px;height:42px;cursor:pointer;transition:all .15s;
+  }
+  .emoji-panel button:hover{background:rgba(255,255,255,0.12);border-color:var(--brass);}
+  .emoji-stage{
+    position:relative;height:0;overflow:visible;pointer-events:none;z-index:55;
+  }
+  .emoji-float{
+    position:absolute;top:0;font-size:2.4rem;left:50%;
+    animation:emojiFloat 1.7s ease-out forwards;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  }
+  .emoji-float .ef-name{
+    display:block;font-size:0.6rem;font-weight:700;color:var(--brass-light);text-align:center;
+    text-shadow:0 1px 2px rgba(0,0,0,0.8);white-space:nowrap;
+  }
+  @keyframes emojiFloat{
+    0%{transform:translate(-50%,0) scale(0.4);opacity:0;}
+    15%{transform:translate(-50%,-8px) scale(1.2);opacity:1;}
+    80%{transform:translate(-50%,-70px) scale(1);opacity:1;}
+    100%{transform:translate(-50%,-100px) scale(0.85);opacity:0;}
+  }
+
   /* ---- Avatar + çerçeve ---- */
   .avatar-circle{
     --fc:#8c7550; --fg:rgba(140,117,80,0.3);
@@ -232,7 +262,7 @@
   .frame-swatch .fs-label{font-size:0.62rem;color:#bca77d;text-align:center;font-weight:600;}
 
   /* ---- Game screen (PREMIUM ULTRA-REALISTIC WOODEN TABLE) ---- */
-  .game-wrap{width:100%;max-width:980px;display:none;flex-direction:column;align-items:center;}
+  .game-wrap{width:100%;max-width:min(980px, calc((100vh - 280px) * 1.5));display:none;flex-direction:column;align-items:center;}
   .game-wrap.active{display:flex;}
   .topbar{
     width:100%;display:flex;justify-content:space-between;align-items:center;
@@ -555,6 +585,24 @@
     .bar-half .checker{max-width:16px;}
   }
   html,body{overflow-x:hidden;}
+
+  /* ---- Oyun ekranındayken dikey alan kazan: başlık gizlenir, boşluklar daralır ---- */
+  body.in-game{padding:8px 8px 14px;}
+  body.in-game .brand, body.in-game .brand-sub{display:none;}
+
+  @media(max-height:760px){
+    body.in-game .topbar{margin-bottom:8px;}
+    body.in-game .board-frame{padding:12px;}
+    body.in-game .controls{margin-top:10px;gap:8px;}
+  }
+  @media(max-height:660px){
+    body.in-game .board-frame{padding:8px;}
+    body.in-game .die-wrap{width:38px;height:38px;--die-r:19px;}
+    body.in-game .dice-area{min-height:44px;}
+    body.in-game .player-chip{padding:6px 10px;}
+    body.in-game .controls{margin-top:6px;gap:6px;}
+    body.in-game .status-text{min-height:1.1em;font-size:0.85rem;}
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -656,19 +704,6 @@
     </div>
   </div>
 
-  <!-- RANKED INFO / CONFIRM -->
-  <div id="rankedInfoScreen" style="display:none;">
-    <div class="card" style="text-align:center;">
-      <h2 style="margin:0 0 6px;">🏆 Rekabetçi Mod</h2>
-      <p class="sub" style="font-size:1.05rem;">5 puan alan kazanacaktır.</p>
-      <p class="hint">Maçı kazanırsan <strong>+5</strong>, kaybedersen <strong>−5</strong> puan alırsın.</p>
-      <div class="row" style="margin-top:16px;">
-        <button class="btn secondary" id="rankedInfoLeaveBtn">Ayrıl</button>
-        <button class="btn" id="rankedInfoContinueBtn">Devam Et</button>
-      </div>
-    </div>
-  </div>
-
   <!-- RANKED QUEUE (waiting) -->
   <div id="rankedWaitingScreen" style="display:none;">
     <div class="card" style="text-align:center;">
@@ -676,6 +711,18 @@
       <p class="sub" id="rankedWaitingSub">Puanına yakın bir rakip aranıyor…</p>
       <div class="waiting" style="justify-content:center;"><span class="dot-pulse"></span> Eşleşme bekleniyor…</div>
       <button class="btn small secondary" id="rankedCancelBtn" style="width:100%;margin-top:16px;">Vazgeç</button>
+    </div>
+  </div>
+
+  <!-- RANKED INFO / CONFIRM -->
+  <div class="overlay" id="rankedInfoOverlay">
+    <div class="card" style="text-align:center;max-width:380px;">
+      <h2 style="margin:0 0 10px;">🏆 Rekabetçi Mod</h2>
+      <p class="sub">Bu modda maç seri hâlinde oynanır: <b>5 oyunu ilk kazanan taraf maçı kazanır.</b> Oyunlar art arda otomatik başlar, puan/lig değişimi ancak maç bitince uygulanır.</p>
+      <div class="row" style="margin-top:18px;gap:10px;">
+        <button class="btn small secondary" id="rankedInfoCancelBtn" style="margin:0;flex:1;">Vazgeç</button>
+        <button class="btn" id="rankedInfoContinueBtn" style="margin:0;flex:1;">Devam Et</button>
+      </div>
     </div>
   </div>
 
@@ -700,17 +747,6 @@
       <div class="row">
         <button class="btn secondary" id="challengeDeclineBtn">Reddet</button>
         <button class="btn" id="challengeAcceptBtn">Kabul Et</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay" id="rankedInfoOverlay">
-    <div class="card">
-      <h2 style="margin:0 0 6px;">🏆 Rekabetçi Mod</h2>
-      <p class="sub">Maç, <strong>5 puana ilk ulaşan</strong> oyuncu kazanana kadar sürer. Her el kazandığında bir puan alırsın — puanlaman ancak maçı (5 puanı) kazanan/kaybeden belli olunca güncellenir.</p>
-      <div class="row">
-        <button class="btn secondary" id="rankedInfoCancelBtn">Vazgeç</button>
-        <button class="btn" id="rankedInfoContinueBtn">Devam Et</button>
       </div>
     </div>
   </div>
@@ -747,11 +783,15 @@
     <div class="topbar">
       <div class="player-chip" id="chipWhite"><span class="avatar-circle" id="avatarWhite"></span><span id="nameWhite">Beyaz</span></div>
       <div class="room-tag" id="roomTag"></div>
+      <button class="btn small secondary" id="emojiBtn" style="margin:0;" title="Emoji gönder">😊</button>
       <button class="btn small secondary" id="surrenderBtn" style="margin:0;" title="Teslim ol">🏳️</button>
       <button class="btn small secondary" id="leaveGameBtn" style="margin:0;" title="Oyundan ayrıl">🚪</button>
       <button class="btn small secondary" id="soundToggleBtn" style="margin:0;" title="Sesi aç/kapat">🔊</button>
       <div class="player-chip" id="chipBlack"><span class="avatar-circle" id="avatarBlack"></span><span id="nameBlack">Siyah</span></div>
     </div>
+
+    <div class="emoji-panel" id="emojiPanel"></div>
+    <div class="emoji-stage" id="emojiStage"></div>
 
     <div class="board-frame">
       <div class="board" id="board"></div>
@@ -940,6 +980,7 @@ function freshState(hostName){
 
 function startNewRound(){
   if(!localGame) return;
+  autoAdvanceScheduledSeq = null;
   const prevScore = localGame.score || { w:0, b:0 };
   const wName = localGame.players.w;
   const bName = localGame.players.b;
@@ -1238,6 +1279,14 @@ function winByOpponentLeaving(){
   g.winner = ME;
   g.leftGame = true;
   if(g.winner==='w') g.score.w++; else g.score.b++;
+  if(currentMatchIsRanked){
+    // rekabetçi seride rakip bağlantıyı koparırsa, 5'e ulaşmayı beklemeden
+    // tüm maçı (seriyi) kaybeder
+    g.matchOver = true;
+    g.matchWinner = ME;
+  } else {
+    applyMatchOverIfNeeded(g);
+  }
   sfxWin();
   pushState();
   render();
@@ -1286,10 +1335,11 @@ function handleServerMessage(msg){
     lastSeq = localGame.seq;
     if(localGame.status==='playing' && !document.getElementById('gameWrap').classList.contains('active')) enterGame();
     if(localGame.status!=='finished'){
+      autoAdvanceScheduledSeq = null;
       document.getElementById('winOverlay').classList.remove('active');
       resetRematchUI();
     }
-    if(localGame.status==='finished' && currentMatchIsRanked && rankedReportedForRoom !== ROOM){
+    if(localGame.status==='finished' && currentMatchIsRanked && localGame.matchOver && rankedReportedForRoom !== ROOM){
       rankedReportedForRoom = ROOM;
       reportRankedResultIfNeeded(localGame);
     }
@@ -1300,6 +1350,11 @@ function handleServerMessage(msg){
     if(localGame && localGame.status==='playing'){
       startOpponentLeftTimer();
     }
+    return;
+  }
+  if(msg.type==='emoji'){
+    const fromName = localGame ? (ME==='w' ? localGame.players.b : localGame.players.w) : 'Rakibin';
+    showFloatingEmoji(String(msg.emoji||'').slice(0,8), fromName || 'Rakibin');
     return;
   }
   if(msg.type==='rematchRequest'){
@@ -1461,6 +1516,18 @@ document.getElementById('playFriendBtn').onclick = ()=>{
 let currentMatchIsRanked=false;
 let currentMatchOpponentUserId=null;
 let rankedReportedForRoom=null;
+let autoAdvanceScheduledSeq=null;
+const RANKED_MATCH_TARGET = 5;
+
+// Rekabetçi modda tek bir oyunu kazanmak yetmez; seriyi (maçı) 5 oyunu ilk
+// kazanan taraf alır. Skor buna ulaşınca g.matchOver/g.matchWinner set edilir.
+function applyMatchOverIfNeeded(g){
+  if(!currentMatchIsRanked) return;
+  if(g.score.w>=RANKED_MATCH_TARGET || g.score.b>=RANKED_MATCH_TARGET){
+    g.matchOver = true;
+    g.matchWinner = g.score.w>=RANKED_MATCH_TARGET ? 'w' : 'b';
+  }
+}
 
 function updateRankedButtonState(){
   const btn=document.getElementById('rankedBtn');
@@ -1735,8 +1802,17 @@ async function getMyRating(){
   }catch(e){ return 1000; }
 }
 
-document.getElementById('rankedBtn').onclick = async ()=>{
+document.getElementById('rankedBtn').onclick = ()=>{
   if(isGuest){ alert('Rekabetçi mod için giriş yapmalısın.'); return; }
+  document.getElementById('rankedInfoOverlay').classList.add('active');
+};
+
+document.getElementById('rankedInfoCancelBtn').onclick = ()=>{
+  document.getElementById('rankedInfoOverlay').classList.remove('active');
+};
+
+document.getElementById('rankedInfoContinueBtn').onclick = async ()=>{
+  document.getElementById('rankedInfoOverlay').classList.remove('active');
   const btn=document.getElementById('rankedBtn');
   btn.disabled=true;
   try{
@@ -1757,9 +1833,9 @@ document.getElementById('rankedCancelBtn').onclick = ()=>{
 };
 
 async function reportRankedResultIfNeeded(g){
-  if(!currentMatchIsRanked || !myUserId || !currentMatchOpponentUserId || !g.winner) return;
+  if(!currentMatchIsRanked || !myUserId || !currentMatchOpponentUserId || !g.matchWinner) return;
   rankedReportedForRoom = ROOM;
-  const winnerUserId = g.winner===ME ? myUserId : currentMatchOpponentUserId;
+  const winnerUserId = g.matchWinner===ME ? myUserId : currentMatchOpponentUserId;
   try{
     await sb.rpc('report_match_result', { p_room_code: ROOM, p_opponent_id: currentMatchOpponentUserId, p_winner_id: winnerUserId });
     loadMyProfile();
@@ -1829,6 +1905,7 @@ function enterGame(){
   document.getElementById('mainMenu').style.display='none';
   document.getElementById('channelLobby').style.display='none';
   document.getElementById('gameWrap').classList.add('active');
+  document.body.classList.add('in-game');
   buildBoardSkeleton();
   syncMyAvatarIntoState();
 }
@@ -2079,7 +2156,7 @@ function render(){
     statusEl.textContent = 'Rakibin bekleniyor…';
     rollBtn.style.display='none'; passBtn.style.display='none';
   } else if(g.status==='finished'){
-    statusEl.textContent = (g.winner==='w'?g.players.w:g.players.b) + ' kazandı!';
+    statusEl.textContent = (g.winner==='w'?g.players.w:g.players.b) + (g.mars ? ' MARS yaptı! 💥' : ' kazandı!');
     rollBtn.style.display='none'; passBtn.style.display='none';
     showWin(g);
   } else if(!myTurn){
@@ -2130,13 +2207,48 @@ function clearHighlights(){
 function showWin(g){
   const ov=document.getElementById('winOverlay');
   const winnerName = (g.winner==='w'?g.players.w:g.players.b);
-  document.getElementById('winText').textContent = g.leftGame
-    ? winnerName + ' kazandı! (rakip oyunu terk etti) 🚪'
-    : g.surrendered ? winnerName + ' kazandı! 🏳️' : winnerName + ' kazandı! 🎉';
   const score = g.score || { w:0, b:0 };
+  const seriesOver = currentMatchIsRanked && g.matchOver;
+  const seriesContinuing = currentMatchIsRanked && !g.matchOver;
+
+  if(seriesOver){
+    const matchWinnerName = (g.matchWinner==='w'?g.players.w:g.players.b);
+    document.getElementById('winText').textContent = `🏆 ${matchWinnerName} maçı kazandı!`;
+  } else {
+    document.getElementById('winText').textContent = g.leftGame
+      ? winnerName + ' kazandı! (rakip oyunu terk etti) 🚪'
+      : g.surrendered ? winnerName + ' kazandı! 🏳️'
+      : g.mars ? winnerName + ' MARS yaptı! 💥 (+2 puan)'
+      : winnerName + ' kazandı! 🎉';
+  }
   document.getElementById('scoreDisplay').textContent = `${g.players.w||'Beyaz'}  ${score.w} — ${score.b}  ${g.players.b||'Siyah'}`;
   if(!ov.classList.contains('active')) resetRematchUI();
   ov.classList.add('active');
+
+  const idle = document.getElementById('rematchIdle');
+  const waiting = document.getElementById('rematchWaiting');
+  const incoming = document.getElementById('rematchIncoming');
+  const offerBtn = document.getElementById('offerRematchBtn');
+
+  if(seriesContinuing){
+    // rekabetçi seri sürüyor: rövanş sorulmaz, sıradaki el otomatik başlar
+    idle.style.display='none';
+    incoming.style.display='none';
+    waiting.style.display='block';
+    document.getElementById('rematchWaitingText').textContent = 'Sıradaki el başlıyor…';
+    if(ME==='w' && autoAdvanceScheduledSeq!==g.seq){
+      autoAdvanceScheduledSeq = g.seq;
+      setTimeout(()=>{ if(localGame && localGame.seq===g.seq) startNewRound(); }, 1800);
+    }
+  } else if(seriesOver){
+    // maç karara bağlandı: rövanş yok, sadece ana menüye dönüş
+    idle.style.display='block';
+    offerBtn.style.display='none';
+    waiting.style.display='none';
+    incoming.style.display='none';
+  } else {
+    offerBtn.style.display='';
+  }
 }
 
 function remainingDiceValues(g){
@@ -2421,12 +2533,16 @@ function endTurn(){
   if(g.off.w===15){
     g.status = 'finished';
     g.winner = 'w';
-    g.score.w++;
+    g.mars = (g.off.b===0);
+    g.score.w += g.mars ? 2 : 1;
+    applyMatchOverIfNeeded(g);
     sfxWin();
   } else if(g.off.b===15){
     g.status = 'finished';
     g.winner = 'b';
-    g.score.b++;
+    g.mars = (g.off.w===0);
+    g.score.b += g.mars ? 2 : 1;
+    applyMatchOverIfNeeded(g);
     sfxWin();
   }
   pushState();
@@ -2480,6 +2596,7 @@ document.getElementById('surrenderBtn').onclick = ()=>{
     localGame.winner = ME==='w' ? 'b' : 'w';
     localGame.surrendered = true;
     if(localGame.winner==='w') localGame.score.w++; else localGame.score.b++;
+    applyMatchOverIfNeeded(localGame);
     sfxWin();
     pushState();
     render();
@@ -2497,6 +2614,41 @@ document.getElementById('soundToggleBtn').onclick = ()=>{
   localStorage.setItem('tavlaSound', soundOn ? 'on' : 'off');
   document.getElementById('soundToggleBtn').textContent = soundOn ? '🔊' : '🔇';
 };
+
+/* ---- Emoji tepkileri ---- */
+const REACTION_EMOJIS = ['☕','😂','🔥','👏','😱','🤔','😴','🐢','🤡','👑','🍀','😤'];
+
+(function buildEmojiPanel(){
+  const panel = document.getElementById('emojiPanel');
+  panel.innerHTML = REACTION_EMOJIS.map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('');
+  panel.querySelectorAll('button').forEach(btn=>{
+    btn.onclick = ()=>{
+      sendEmojiReaction(btn.dataset.e);
+      panel.classList.remove('open');
+    };
+  });
+})();
+
+document.getElementById('emojiBtn').onclick = ()=>{
+  document.getElementById('emojiPanel').classList.toggle('open');
+};
+
+function sendEmojiReaction(emoji){
+  if(!localGame || !ROOM) return;
+  wsSend({type:'emoji', code:ROOM, emoji});
+  showFloatingEmoji(emoji, myName || 'Sen');
+}
+
+function showFloatingEmoji(emoji, fromName){
+  const stage = document.getElementById('emojiStage');
+  if(!stage) return;
+  const el = document.createElement('div');
+  el.className = 'emoji-float';
+  el.style.left = (40 + Math.random()*20) + '%';
+  el.innerHTML = emoji + (fromName ? `<span class="ef-name">${escapeHtml(fromName)}</span>` : '');
+  stage.appendChild(el);
+  setTimeout(()=> el.remove(), 1800);
+}
 
 document.getElementById('reloadBtn').onclick = ()=>{
   location.reload();
