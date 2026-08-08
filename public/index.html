@@ -56,7 +56,17 @@
     flex-direction:column;
     align-items:center;
     padding:20px 12px 60px;
+    position:relative;
   }
+  body::before{
+    content:'';
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22260%22%20height%3D%22260%22%3E%0A%20%20%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28212%2C175%2C55%2C0.10%29%22%20stroke-width%3D%222.2%22%3E%0A%20%20%20%20%3Crect%20x%3D%2218%22%20y%3D%2226%22%20width%3D%2250%22%20height%3D%2250%22%20rx%3D%229%22%20transform%3D%22rotate%28-14%2043%2051%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%22168%22%20y%3D%22132%22%20width%3D%2242%22%20height%3D%2242%22%20rx%3D%228%22%20transform%3D%22rotate%2816%20189%20153%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2270%22%20y%3D%22168%22%20width%3D%2234%22%20height%3D%2234%22%20rx%3D%227%22%20transform%3D%22rotate%28-8%2087%20185%29%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%22rgba%28212%2C175%2C55%2C0.09%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2243%22%20cy%3D%2251%22%20r%3D%223.4%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2238%22%20r%3D%223.4%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2254%22%20cy%3D%2264%22%20r%3D%223.4%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22189%22%20cy%3D%22153%22%20r%3D%223%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22200%22%20cy%3D%22142%22%20r%3D%223%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2287%22%20cy%3D%22185%22%20r%3D%222.6%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2294%22%20cy%3D%22192%22%20r%3D%222.6%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%22rgba%28212%2C175%2C55%2C0.055%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22230%22%20cy%3D%2240%22%20r%3D%2210%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2215%22%20cy%3D%22230%22%20r%3D%227%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E");
+    background-repeat:repeat;
+    background-size:260px 260px;
+  }
+  body.in-game::before{display:none;}
+  body > *{position:relative;z-index:1;}
   h1,.display{font-family:'Fraunces',serif;}
   .brand{
     font-size:2.3rem;
@@ -709,6 +719,13 @@
   /* ---- Oyun ekranındayken dikey alan kazan: başlık gizlenir ---- */
   body.in-game{padding:8px 8px 14px;}
   body.in-game .brand, body.in-game .brand-sub{display:none;}
+  body.in-game #siteFooter{display:none;}
+
+  #siteFooter{
+    text-align:center;padding:16px 12px 22px;font-size:0.72rem;color:#7a6547;
+  }
+  #siteFooter a{color:var(--brass-light);text-decoration:none;}
+  #siteFooter a:hover{text-decoration:underline;}
 
   /* ---- Otomatik ekrana sığdırma (JS ile ölçeklenir) ---- */
   #gameStage{width:100%;display:flex;justify-content:center;overflow:hidden;}
@@ -3657,5 +3674,10 @@ setInterval(()=>{
   }
 }, 1000);
 </script>
+
+<div id="siteFooter">
+  💬 Destek / öneri: <a href="mailto:tavlanova@hotmail.com">tavlanova@hotmail.com</a>
+</div>
+
 </body>
 </html>
