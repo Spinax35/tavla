@@ -701,7 +701,8 @@
         <input type="text" id="authEmail" placeholder="ornek@eposta.com">
 
         <label for="authPassword">Şifre</label>
-        <input type="password" id="authPassword" placeholder="En az 6 karakter">
+        <input type="password" id="authPassword" placeholder="En az 8 karakter">
+        <p class="hint" id="passwordReqHint" style="display:none;">Şifren en az 8 karakter olmalı ve en az bir küçük harf, bir büyük harf ve bir rakam içermeli.</p>
 
         <button class="btn" id="authSubmitBtn">Giriş Yap</button>
         <p class="hint" id="authError" style="color:#e07a5f;display:none;"></p>
@@ -1137,6 +1138,16 @@ function clearAuthError(){
   document.getElementById('authError').style.display='none';
 }
 
+// Supabase projesindeki şifre kurallarıyla aynı: en az 8 karakter,
+// en az bir küçük harf, bir büyük harf, bir rakam.
+function validateSignupPassword(password){
+  if(password.length < 8) return 'Şifren en az 8 karakter olmalı.';
+  if(!/[a-z]/.test(password)) return 'Şifren en az bir küçük harf içermeli.';
+  if(!/[A-Z]/.test(password)) return 'Şifren en az bir büyük harf içermeli.';
+  if(!/[0-9]/.test(password)) return 'Şifren en az bir rakam içermeli.';
+  return null;
+}
+
 function setAuthMode(mode){
   authMode = mode;
   clearAuthError();
@@ -1146,6 +1157,7 @@ function setAuthMode(mode){
     ? 'Birkaç saniye sürer, hemen oynamaya başla.'
     : 'Devam etmek için hesabına giriş yap.';
   document.getElementById('signupOnlyField').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('passwordReqHint').style.display = isSignup ? 'block' : 'none';
   document.getElementById('authSubmitBtn').textContent = isSignup ? 'Kayıt Ol' : 'Giriş Yap';
   document.getElementById('authSwitchBtn').textContent = isSignup
     ? 'Zaten hesabın var mı? Giriş yap'
@@ -1162,7 +1174,10 @@ document.getElementById('authSubmitBtn').onclick = async ()=>{
   const password = document.getElementById('authPassword').value;
   const displayName = document.getElementById('authDisplayName').value.trim();
   if(!email || !password){ showAuthError('E-posta ve şifre gerekli.'); return; }
-  if(authMode==='signup' && password.length<6){ showAuthError('Şifre en az 6 karakter olmalı.'); return; }
+  if(authMode==='signup'){
+    const passErr = validateSignupPassword(password);
+    if(passErr){ showAuthError(passErr); return; }
+  }
 
   const btn=document.getElementById('authSubmitBtn');
   btn.disabled=true; const oldText=btn.textContent; btn.textContent='Bir saniye…';
@@ -1195,7 +1210,8 @@ document.getElementById('authSubmitBtn').onclick = async ()=>{
 function translateAuthError(msg){
   if(/Invalid login credentials/i.test(msg)) return 'E-posta veya şifre yanlış.';
   if(/already registered/i.test(msg)) return 'Bu e-posta zaten kayıtlı, giriş yapmayı dene.';
-  if(/Password should be/i.test(msg)) return 'Şifre en az 6 karakter olmalı.';
+  if(/Password should contain|should be at least|weak/i.test(msg)) return 'Şifren en az 8 karakter olmalı ve en az bir küçük harf, bir büyük harf ve bir rakam içermeli.';
+  if(/Password should be/i.test(msg)) return 'Şifren en az 8 karakter olmalı ve en az bir küçük harf, bir büyük harf ve bir rakam içermeli.';
   return msg;
 }
 
