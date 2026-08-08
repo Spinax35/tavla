@@ -384,7 +384,7 @@
       inset 0 0 0 4px rgba(35,16,6,0.9),
       inset 0 0 60px rgba(0,0,0,0.6);
     width:100%;
-    max-width:min(980px, max(280px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5)));
+    max-width:720px;
     margin:0 auto;
   }
   
@@ -568,7 +568,7 @@
   }
 
   .controls{
-    width:100%;max-width:min(980px, max(280px, calc((var(--vh, 1vh) * 100 - 260px) * 1.5)));margin-left:auto;margin-right:auto;
+    width:100%;max-width:720px;margin-left:auto;margin-right:auto;
     display:flex;justify-content:space-between;align-items:center;
     margin-top:20px;flex-wrap:wrap;gap:12px;
   }
@@ -670,39 +670,13 @@
   }
   html,body{overflow-x:hidden;}
 
-  /* ---- Oyun ekranındayken dikey alan kazan: başlık gizlenir, boşluklar daralır ---- */
+  /* ---- Oyun ekranındayken dikey alan kazan: başlık gizlenir ---- */
   body.in-game{padding:8px 8px 14px;}
   body.in-game .brand, body.in-game .brand-sub{display:none;}
 
-  @media(max-height:760px){
-    body.in-game .topbar{margin-bottom:8px;}
-    body.in-game .board-frame{padding:12px;}
-    body.in-game .controls{margin-top:10px;gap:8px;}
-  }
-  @media(max-height:660px){
-    body.in-game .board-frame{padding:8px;}
-    body.in-game .die-wrap{width:38px;height:38px;--die-r:19px;}
-    body.in-game .dice-area{min-height:44px;}
-    body.in-game .player-chip{padding:6px 10px;}
-    body.in-game .controls{margin-top:6px;gap:6px;}
-    body.in-game .status-text{min-height:1.1em;font-size:0.85rem;}
-  }
-  /* Yan yatık telefon / çok kısa ekran: buton yazıları gizlenir, sadece ikon
-     kalır (dokununca title tooltip'i yazıyı yine gösterir), üst bar tek satıra
-     yakın sıkışır ki tahta ekrandan taşmasın. */
-  @media(max-height:460px), (max-width:340px){
-    body.in-game .btn-label{display:none;}
-    body.in-game .topbar{gap:5px;margin-bottom:6px;}
-    body.in-game .topbar .btn.small{padding:7px 9px;}
-    body.in-game .player-chip{padding:5px 9px;font-size:0.72rem;gap:6px;}
-    body.in-game .avatar-circle{width:24px;height:24px;font-size:0.75rem;}
-  }
-  @media(max-height:420px){
-    body.in-game{padding:4px 6px 8px;}
-    body.in-game .board-frame{padding:5px;}
-    body.in-game .die-wrap{width:30px;height:30px;--die-r:15px;}
-    body.in-game .controls{margin-top:4px;gap:4px;}
-  }
+  /* ---- Otomatik ekrana sığdırma (JS ile ölçeklenir) ---- */
+  #gameStage{width:100%;display:flex;justify-content:center;overflow:hidden;}
+  #gameWrap{transform-origin:top center;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -915,6 +889,7 @@
   </div>
 
   <!-- GAME -->
+  <div id="gameStage">
   <div class="game-wrap" id="gameWrap">
     <div class="topbar">
       <div class="player-chip" id="chipWhite"><span class="avatar-circle" id="avatarWhite"></span><span id="nameWhite">Beyaz</span></div>
@@ -946,6 +921,7 @@
         <button class="btn small secondary" id="passBtn" style="display:none;">Sırayı Geç</button>
       </div>
     </div>
+  </div>
   </div>
 
   <div class="overlay" id="winOverlay">
@@ -1725,6 +1701,11 @@ function resolveFrameClass(frameId, rating){
     const idx = LEAGUE_TIERS.indexOf(leagueForRating(rating));
     return 'frame-league-'+(idx<0?0:idx);
   }
+  // market'ten satın alınan çerçevelerin id'si (örn. 'frame_ates') ile
+  // gerçek CSS sınıfı (örn. 'frame-fire') farklı isimlendirmede, o yüzden
+  // önce satın alınabilir katalogda arıyoruz.
+  const shopItem = (typeof SHOP_ITEMS!=='undefined') ? SHOP_ITEMS.find(i=>i.type==='frame' && i.id===frameId) : null;
+  if(shopItem) return shopItem.cls;
   return 'frame-'+frameId;
 }
 
@@ -2324,6 +2305,65 @@ function enterGame(){
   document.body.classList.add('in-game');
   buildBoardSkeleton();
   syncMyAvatarIntoState();
+  scheduleFitGameToScreen();
+}
+
+/* ============ Otomatik ekrana sığdırma ============
+   CSS tahminleriyle (vh, media query) uğraşmak yerine gerçek ölçüm yapıyoruz:
+   oyun ekranının doğal (küçültülmemiş) boyutunu ölç, gerçekten görünür alanla
+   karşılaştır, sığmıyorsa oranlı şekilde küçült (transform: scale). Bu, hangi
+   cihaz/tarayıcı/adres çubuğu durumu olursa olsun güvenilir çalışır çünkü
+   tahmin değil gerçek piksel ölçümü kullanır. */
+function fitGameToScreen(){
+  const stage = document.getElementById('gameStage');
+  const gw = document.getElementById('gameWrap');
+  if(!stage || !gw || !gw.classList.contains('active')) return;
+
+  // önce doğal boyutu ölçmek için ölçeklemeyi geçici sıfırla
+  gw.style.transform = 'none';
+  stage.style.height = '';
+
+  const naturalW = gw.scrollWidth;
+  const naturalH = gw.scrollHeight;
+  if(naturalW===0 || naturalH===0) return;
+
+  const bodyStyle = getComputedStyle(document.body);
+  const padTop = parseFloat(bodyStyle.paddingTop)||0;
+  const padBottom = parseFloat(bodyStyle.paddingBottom)||0;
+  const padLeft = parseFloat(bodyStyle.paddingLeft)||0;
+  const padRight = parseFloat(bodyStyle.paddingRight)||0;
+  const viewportH = window.innerHeight || (window.visualViewport && window.visualViewport.height) || naturalH;
+
+  const availW = window.innerWidth - padLeft - padRight - 4;
+  const availH = viewportH - padTop - padBottom - 4;
+
+  const scale = Math.min(1, availW/naturalW, availH/naturalH);
+
+  if(scale < 0.999){
+    gw.style.transform = `scale(${scale})`;
+    stage.style.height = Math.ceil(naturalH*scale) + 'px';
+  } else {
+    gw.style.transform = 'none';
+    stage.style.height = naturalH + 'px';
+  }
+}
+
+let fitScheduled = false;
+function scheduleFitGameToScreen(){
+  if(fitScheduled) return;
+  fitScheduled = true;
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{ // bir kare daha bekle ki DOM tamamen otursun
+      fitScheduled = false;
+      fitGameToScreen();
+    });
+  });
+}
+
+window.addEventListener('resize', scheduleFitGameToScreen);
+window.addEventListener('orientationchange', scheduleFitGameToScreen);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', scheduleFitGameToScreen);
 }
 
 /* ============ board rendering ============ */
@@ -2603,6 +2643,7 @@ function render(){
     highlightSelectable(g);
     if(selectedPoint!==null) highlightDestinations(g, selectedPoint);
   }
+  scheduleFitGameToScreen();
 }
 
 function renderBarStack(color, count){
