@@ -220,6 +220,42 @@
   .market-card .btn.owned{background:linear-gradient(180deg, rgba(60,140,90,0.5), rgba(30,80,50,0.6));color:#c8f0d8;box-shadow:none;}
   .market-card .btn.equipped{background:linear-gradient(180deg, rgba(212,175,55,0.35), rgba(140,110,20,0.4));color:var(--brass-light);box-shadow:none;}
 
+  /* ---- Günlük ödül ---- */
+  .daily-reward-btn{
+    display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:12px 14px;
+    border-radius:14px;border:1.5px solid rgba(212,175,55,0.5);cursor:pointer;text-align:left;
+    background:linear-gradient(145deg, #3d2a0a, #1f1505);
+    box-shadow:0 0 0 rgba(212,175,55,0);
+  }
+  .daily-reward-btn.claimable{
+    animation:dailyGlow 1.8s ease-in-out infinite;
+    border-color:var(--brass);
+  }
+  @keyframes dailyGlow{
+    0%,100%{box-shadow:0 0 8px rgba(212,175,55,0.25);}
+    50%{box-shadow:0 0 20px rgba(212,175,55,0.6);}
+  }
+  .daily-reward-btn .drb-icon{font-size:1.7rem;flex-shrink:0;}
+  .daily-reward-btn .drb-text{display:flex;flex-direction:column;flex:1;gap:1px;}
+  .daily-reward-btn .drb-title{font-weight:800;color:var(--brass-light);font-size:0.95rem;}
+  .daily-reward-btn .drb-sub{font-size:0.75rem;color:#bca77d;}
+  .daily-reward-btn .drb-arrow{font-size:1.3rem;color:var(--brass-light);opacity:0.6;}
+
+  .daily-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+  .daily-day{
+    padding:10px 4px;border-radius:10px;background:rgba(255,255,255,0.04);
+    border:2px solid transparent;text-align:center;position:relative;
+  }
+  .daily-day .dd-label{font-size:0.65rem;color:#a8916a;font-weight:700;}
+  .daily-day .dd-coin{font-size:1.05rem;margin:4px 0 2px;}
+  .daily-day .dd-amount{font-size:0.72rem;color:var(--brass-light);font-weight:700;}
+  .daily-day.done{background:rgba(60,140,90,0.15);border-color:rgba(60,140,90,0.4);}
+  .daily-day.done .dd-coin::after{content:'✓';position:absolute;top:4px;right:6px;color:#7fe0a0;font-size:0.75rem;}
+  .daily-day.today{border-color:var(--brass);background:rgba(212,175,55,0.15);animation:dailyGlow 1.8s ease-in-out infinite;}
+  .daily-day.future{opacity:0.55;}
+  .daily-day.big{grid-column:span 4;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;}
+  .daily-day.big .dd-coin{margin:0;font-size:1.4rem;}
+
   /* ---- Tahta görünümleri (market) ---- */
   body.skin-zumrut{
     --skin-frame-1:#1c3d24; --skin-frame-2:#123018; --skin-frame-3:#0a1a0d;
@@ -737,6 +773,15 @@
       <button type="button" id="myProfileBadge" class="profile-badge" style="display:none;"></button>
       <p class="hint" id="profileGuestHint" style="display:none;">Puanını ve ligini görmek için hesabına giriş yap — misafir girişinde takip edilmiyor.</p>
 
+      <button type="button" id="dailyRewardBtn" class="daily-reward-btn" style="display:none;">
+        <span class="drb-icon">🎁</span>
+        <span class="drb-text">
+          <span class="drb-title" id="dailyRewardBtnTitle">Günlük Ödül</span>
+          <span class="drb-sub" id="dailyRewardBtnSub"></span>
+        </span>
+        <span class="drb-arrow">›</span>
+      </button>
+
       <p class="sub">Bir genel odaya gir ve orada bekleyen biriyle eşleş, ya da arkadaşınla özel oynamak için kod paylaş.</p>
 
       <button class="btn" id="playFriendBtn" style="margin-top:6px;">👥 Arkadaşınla Oyna</button>
@@ -778,6 +823,17 @@
       <div id="leaderboardContent" style="margin-top:14px;">
         <p class="sub">Yükleniyor…</p>
       </div>
+    </div>
+  </div>
+
+  <!-- DAILY REWARD -->
+  <div class="overlay" id="dailyRewardOverlay">
+    <div class="card" style="text-align:center;max-width:420px;">
+      <h2 style="margin:0 0 4px;">🎁 Günlük Ödül</h2>
+      <p class="sub" id="dailyRewardStreakText">1. gün</p>
+      <div class="daily-grid" id="dailyGrid"></div>
+      <button class="btn" id="dailyClaimBtn" style="margin-top:16px;">Ödülü Al</button>
+      <button class="btn small secondary" id="dailyRewardCloseBtn" style="margin-top:10px;">Kapat</button>
     </div>
   </div>
 
@@ -2057,6 +2113,129 @@ document.getElementById('marketBackBtn').onclick = ()=>{
   };
 });
 
+/* ============ Günlük ödül (streak) ============ */
+const DAILY_REWARDS = [10, 15, 20, 25, 30, 40, 100];
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function yesterdayStr(){
+  const d = new Date();
+  d.setDate(d.getDate()-1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function myDailyStreak(){
+  if(!isGuest && myUserId && myProfileCache) return myProfileCache.daily_streak || 0;
+  return parseInt(localStorage.getItem('tavlaDailyStreak')||'0', 10) || 0;
+}
+function myLastDailyClaim(){
+  if(!isGuest && myUserId && myProfileCache) return myProfileCache.last_daily_claim || null;
+  return localStorage.getItem('tavlaLastDailyClaim') || null;
+}
+function isDailyClaimable(){
+  return myLastDailyClaim() !== todayStr();
+}
+// Bugün henüz alınmadıysa, alınırsa hangi güne denk geleceğini tahmin eder
+// (sadece arayüzde göstermek için — gerçek hesap sunucuda yapılır).
+function upcomingDailyDay(){
+  const streak = myDailyStreak();
+  const last = myLastDailyClaim();
+  if(last === todayStr()) return ((streak-1) % 7) + 1;
+  if(last === yesterdayStr()) return (streak % 7) + 1;
+  return 1;
+}
+
+function updateDailyRewardButton(){
+  const btn = document.getElementById('dailyRewardBtn');
+  if(!btn) return;
+  btn.style.display = 'flex';
+  const claimable = isDailyClaimable();
+  const day = upcomingDailyDay();
+  btn.classList.toggle('claimable', claimable);
+  document.getElementById('dailyRewardBtnTitle').textContent = claimable
+    ? `Günlük Ödül — Gün ${day} (+${DAILY_REWARDS[day-1]} 🪙)`
+    : 'Günlük Ödül alındı ✓';
+  document.getElementById('dailyRewardBtnSub').textContent = claimable
+    ? 'Almak için dokun!'
+    : 'Yarın tekrar gel';
+}
+
+function renderDailyGrid(){
+  const grid = document.getElementById('dailyGrid');
+  if(!grid) return;
+  const claimable = isDailyClaimable();
+  const day = upcomingDailyDay(); // eğer bugün alınmadıysa "hedef" gün, alındıysa mevcut gün
+  const streak = myDailyStreak();
+  const doneUpTo = claimable ? day - 1 : day; // kaç gün gerçekten tamamlanmış
+
+  document.getElementById('dailyRewardStreakText').textContent = claimable
+    ? `${day}. güne hoş geldin — üst üste ${streak > 0 ? streak : 0} gün!`
+    : `Bugünün ödülü alındı — yarın ${((day % 7) + 1)}. gün seni bekliyor.`;
+
+  let html = '';
+  for(let d=1; d<=6; d++){
+    const cls = d <= doneUpTo ? 'done' : (d===day && claimable ? 'today' : 'future');
+    html += `<div class="daily-day ${cls}">
+      <div class="dd-label">${d}. gün</div>
+      <div class="dd-coin">🪙</div>
+      <div class="dd-amount">+${DAILY_REWARDS[d-1]}</div>
+    </div>`;
+  }
+  const d7cls = 7 <= doneUpTo ? 'done' : (day===7 && claimable ? 'today' : 'future');
+  html += `<div class="daily-day big ${d7cls}">
+    <div class="dd-label">7. gün — BÜYÜK ÖDÜL</div>
+    <div class="dd-coin">🎉🪙</div>
+    <div class="dd-amount">+${DAILY_REWARDS[6]}</div>
+  </div>`;
+  grid.innerHTML = html;
+
+  const claimBtn = document.getElementById('dailyClaimBtn');
+  claimBtn.style.display = claimable ? 'inline-flex' : 'none';
+}
+
+async function claimDailyReward(){
+  if(!isDailyClaimable()) return;
+  const claimBtn = document.getElementById('dailyClaimBtn');
+  claimBtn.disabled = true;
+
+  if(!isGuest && myUserId){
+    try{
+      const { data } = await sb.rpc('claim_daily_reward');
+      if(data && data.status==='claimed'){
+        if(myProfileCache){
+          myProfileCache.coins = (myProfileCache.coins||0) + data.reward;
+          myProfileCache.daily_streak = data.streak;
+          myProfileCache.last_daily_claim = todayStr();
+        }
+      }
+    }catch(e){ alert('Ödül alınamadı, tekrar dener misin?'); claimBtn.disabled=false; return; }
+  } else {
+    const streak = (myLastDailyClaim()===yesterdayStr()) ? myDailyStreak()+1 : 1;
+    const day = ((streak-1) % 7) + 1;
+    const reward = DAILY_REWARDS[day-1];
+    const curCoins = parseInt(localStorage.getItem('tavlaCoins')||'0', 10) || 0;
+    localStorage.setItem('tavlaCoins', String(curCoins + reward));
+    localStorage.setItem('tavlaDailyStreak', String(streak));
+    localStorage.setItem('tavlaLastDailyClaim', todayStr());
+  }
+
+  claimBtn.disabled = false;
+  updateCoinDisplays();
+  updateDailyRewardButton();
+  renderDailyGrid();
+}
+
+document.getElementById('dailyRewardBtn').onclick = ()=>{
+  renderDailyGrid();
+  document.getElementById('dailyRewardOverlay').classList.add('active');
+};
+document.getElementById('dailyRewardCloseBtn').onclick = ()=>{
+  document.getElementById('dailyRewardOverlay').classList.remove('active');
+};
+document.getElementById('dailyClaimBtn').onclick = claimDailyReward;
+
 let myProfileCache = null;
 let myOwnedItemsCache = [];
 
@@ -2067,12 +2246,13 @@ async function loadMyProfile(){
     badge.style.display='none'; guestHint.style.display='block'; myProfileCache=null; myOwnedItemsCache=[];
     applyMyBoardSkin();
     updateCoinDisplays();
+    updateDailyRewardButton();
     return;
   }
   guestHint.style.display='none';
   try{
     await sb.rpc('ensure_profile', { p_display_name: myName });
-    const { data, error } = await sb.from('profiles').select('rating,wins,losses,avatar_emoji,frame_id,coins,board_skin').eq('id', myUserId).single();
+    const { data, error } = await sb.from('profiles').select('rating,wins,losses,avatar_emoji,frame_id,coins,board_skin,daily_streak,last_daily_claim').eq('id', myUserId).single();
     if(error || !data){ badge.style.display='none'; return; }
     myProfileCache = data;
     try{
@@ -2094,6 +2274,7 @@ async function loadMyProfile(){
     badge.innerHTML = `<span style="display:flex;align-items:center;gap:10px;"><span class="avatar-circle ${meta.frameClass}">${meta.emoji}</span><span class="pb-league">${league.emoji} ${league.name}</span></span><span class="pb-rating">${data.rating} puan · ${data.wins}G / ${data.losses}M</span>`;
     applyMyBoardSkin();
     updateCoinDisplays();
+    updateDailyRewardButton();
   }catch(e){ badge.style.display='none'; }
 }
 
