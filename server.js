@@ -108,20 +108,20 @@ function leaveChannel(ws) {
 // gerçek bir oyuncuymuş gibi kısa bir süre sonra nazikçe "meşgul" ya da
 // "reddetti" cevabı döner — sistemde hiçbir yerde çökme/kilitlenme olmaz.
 const GHOST_NAMES = [
-  'Ahmet', 'Mehmet', 'Mustafa', 'Ali', 'Hüseyin', 'Hasan', 'İbrahim', 'Yusuf', 'Emre', 'Burak',
+  'Ahmet21', 'Mehmet32', 'Mustafa1', 'Alii', 'Hüseyiin2', 'Hasan35', 'İbrahim1', 'Yusuf', 'Emre', 'Burak',
   'Kerem', 'Onur', 'Deniz', 'Serkan', 'Cem', 'Barış', 'Kaan', 'Eren', 'Berk', 'Umut',
   'Ayşe', 'Fatma', 'Zeynep', 'Elif', 'Emine', 'Hatice', 'Merve', 'Selin', 'Ece', 'Buse',
   'Aslı', 'Gizem', 'İrem', 'Melis', 'Sude', 'Yasemin', 'Pınar', 'Nazlı', 'Ceren', 'Duygu'
 ];
 function randomGhostName() {
   const base = GHOST_NAMES[Math.floor(Math.random() * GHOST_NAMES.length)];
-  return Math.random() < 0.35 ? base + (10 + Math.floor(Math.random() * 89)) : base;
+  return Math.random() < 0.75 ? base + (10 + Math.floor(Math.random() * 89)) : base;
 }
 
 // channelId -> Map<ghostId, { name }>
 const ghostPlayers = new Map(CHANNEL_IDS.map(id => [id, new Map()]));
 let ghostSeq = 1;
-const GHOST_RANGE = { min: 1, max: 3 }; // her kanalda bulunmasını istediğimiz aralık
+const GHOST_RANGE = { min: 0, max: 1 }; // her kanalda bulunmasını istediğimiz aralık
 
 function ghostCount(channelId) {
   return ghostPlayers.get(channelId).size;
