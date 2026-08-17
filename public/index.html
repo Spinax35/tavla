@@ -911,6 +911,14 @@ function setLang(lang){
   #gameWrap{transform-origin:top center;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18114454709"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18114454709');
+</script>
 </head>
 <body>
 
@@ -1456,6 +1464,20 @@ const SUPABASE_URL = 'https://bosspxhnpgjagvyfxljo.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pObaUy-NGv5KLaItVmJpGg_n17GTsAp';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Google Ads dönüşüm takibi — biri giriş/kayıt yaptığında ya da misafir
+// olarak oyuna başladığında tetiklenir. Aynı oturumda tekrar tekrar
+// sayılmasın diye sessionStorage ile bir kereye sınırlanıyor.
+function trackGoogleAdsConversion(){
+  try{
+    if(sessionStorage.getItem('tavlaConvTracked')) return;
+    sessionStorage.setItem('tavlaConvTracked', '1');
+    if(typeof gtag === 'function'){
+      gtag('event', 'conversion', {'send_to': 'AW-18114454709/dA7fCJStjuMcELXJ0r1D'});
+    }
+  }catch(e){ /* sessizce yut, izleme kritik bir işlev değil */ }
+}
+
+
 let authMode = 'login';
 
 function showAuthError(msg){
@@ -1548,6 +1570,7 @@ function translateAuthError(msg){
 function onLoggedIn(user){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('mainMenu').style.display='block';
+  trackGoogleAdsConversion();
   const displayName = user.user_metadata?.display_name || (user.email||'').split('@')[0] || 'Oyuncu';
   myName = displayName;
   isGuest = false;
@@ -1715,6 +1738,7 @@ document.getElementById('guestContinueBtn').onclick = ()=>{
   myUserId = null;
   document.getElementById('authScreen').style.display='none';
   document.getElementById('mainMenu').style.display='block';
+  trackGoogleAdsConversion();
   document.getElementById('nameInput').value = myName;
   renderRoomGrid();
   updateRankedButtonState();
